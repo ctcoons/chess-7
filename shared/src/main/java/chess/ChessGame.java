@@ -1,5 +1,6 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -10,7 +11,19 @@ import java.util.Collection;
  */
 public class ChessGame {
 
+    TeamColor currentTurnColor;
+    ChessBoard board;
+    ChessPosition blackKingPosition;
+    ChessPosition whiteKingPosition;
+
     public ChessGame() {
+
+        this.currentTurnColor = TeamColor.WHITE;
+        ChessBoard newBoard = new ChessBoard();
+        newBoard.resetBoard();
+        this.board = newBoard;
+        this.blackKingPosition = new ChessPosition(8, 5);
+        this.whiteKingPosition = new ChessPosition(1, 5);
 
     }
 
@@ -18,7 +31,7 @@ public class ChessGame {
      * @return Which team's turn it is
      */
     public TeamColor getTeamTurn() {
-        throw new RuntimeException("Not implemented");
+        return currentTurnColor;
     }
 
     /**
@@ -27,7 +40,7 @@ public class ChessGame {
      * @param team the team whose turn it is
      */
     public void setTeamTurn(TeamColor team) {
-        throw new RuntimeException("Not implemented");
+        currentTurnColor = team;
     }
 
     /**
@@ -46,7 +59,17 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-        throw new RuntimeException("Not implemented");
+
+        Collection<ChessMove> validMoves = new ArrayList<>();
+
+        ChessPiece myPiece = board.getPiece(startPosition);
+        Collection<ChessMove> uneditedMoves = myPiece.pieceMoves(board, startPosition);
+
+        for (ChessMove uneditedMove: uneditedMoves) {
+            // TODO: Make a loop that will say which moves won't put you in check
+        }
+
+        return validMoves;
     }
 
     /**
@@ -66,7 +89,35 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        TeamColor opponentColor;
+        ChessPosition myKing;
+
+        switch (teamColor) {
+            case BLACK -> {
+                opponentColor = TeamColor.WHITE;
+                myKing = blackKingPosition;
+            }
+            default -> {
+                opponentColor = TeamColor.BLACK;
+                myKing = whiteKingPosition;
+            }
+        }
+
+        // Iterate through all the opponent's pieces to check if one of their moves equals
+        for (int row = 1; row < 9; row++) {
+            for (int col = 1; col < 9; col++) {
+                ChessPosition curPosition = new ChessPosition(row, col);
+                ChessPiece piece = board.getPiece(curPosition);
+                if (piece == null) continue;
+                if (piece.getTeamColor() == teamColor) continue;
+
+                if (check_if_any_opponent_move_is_check(piece, curPosition, myKing)){
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -107,4 +158,15 @@ public class ChessGame {
     public ChessBoard getBoard() {
         throw new RuntimeException("Not implemented");
     }
+
+    boolean check_if_any_opponent_move_is_check(ChessPiece piece, ChessPosition curPosition, ChessPosition myKingPosition) {
+        Collection<ChessMove> pieceMoves = piece.pieceMoves(board, curPosition);
+        for (ChessMove move : pieceMoves) {
+            if (move.getEndPosition() == myKingPosition) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 }

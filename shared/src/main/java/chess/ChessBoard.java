@@ -1,6 +1,7 @@
 package chess;
 
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.Objects;
 
 /**
@@ -118,4 +119,5 @@ public class ChessBoard {
     public int hashCode() {
         return Arrays.deepHashCode(board);
     }
+
 }
