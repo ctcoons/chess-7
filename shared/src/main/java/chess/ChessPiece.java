@@ -96,9 +96,9 @@ public class ChessPiece {
         }
 
 
-        return "ChessPiece{" +
-                "pieceColor=" + pieceColorString +
-                ", type=" + typeString +
+        return  '{' +
+                pieceColorString +
+                typeString +
                 '}';
     }
 }
