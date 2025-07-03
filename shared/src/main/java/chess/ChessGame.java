@@ -96,17 +96,17 @@ public class ChessGame {
         ChessPiece myPiece = board.getPiece(startPosition);
         if (myPiece == null) return myValidMoves;
 
-        // Check all the possible Moves for the piece at that location
-        // Make a Copy of the Game, test those moves
-        // If the move DOESN'T put you in Check, add it to the list of Valid Moves
-        // Return This List
+        // I get the pseudo moves from the piece
+        // I make a new board
+        // I look to see if making this move on the new board will put me in check
+        // If not, I will append it to my list
 
         for (ChessMove move : myPiece.pieceMoves(board, startPosition)) {
             ChessGame testGame = new ChessGame(this.board, this.currentTurnColor);
 
             testGame.doMove(move);
-
-            if (!testGame.isInCheck(currentTurnColor)) {
+// I CHANGED MY PIECE COLOR INSTEAD OF CURRENT COLOR
+            if (!testGame.isInCheck(myPiece.getTeamColor())) {
                 myValidMoves.add(move);
             }
 
