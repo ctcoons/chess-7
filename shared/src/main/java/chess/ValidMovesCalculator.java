@@ -48,7 +48,7 @@ public class ValidMovesCalculator {
     }
 
     public Collection<ChessMove> kingMoves() {
-        Collection<ChessMove> validMoves = new ArrayList<ChessMove>();
+        Collection<ChessMove> valid_Moves = new ArrayList<ChessMove>();
 
         for (int rowDif : new int[] {-1, 0, 1}) {
             for (int colDif : new int[] {-1, 0, 1}) {
@@ -60,12 +60,12 @@ public class ValidMovesCalculator {
                 if (differentColor(newRow, newCol)) {
                     ChessPosition validDestination = new ChessPosition(newRow, newCol);
                     ChessMove validMove = new ChessMove(myPosition, validDestination, null);
-                    validMoves.add(validMove);
+                    valid_Moves.add(validMove);
                 }
             }
         }
 
-        return validMoves;
+        return valid_Moves;
     }
 
     public Collection<ChessMove> bishopMoves() {
@@ -77,15 +77,15 @@ public class ValidMovesCalculator {
     }
 
     public Collection<ChessMove> queenMoves() {
-        Collection<ChessMove> validMoves = new ArrayList<ChessMove>();
-        validMoves.addAll(diagonalMoves());
-        validMoves.addAll(verticalAndHorizontalMoves());
+        Collection<ChessMove> valid_Moves = new ArrayList<ChessMove>();
+        valid_Moves.addAll(diagonalMoves());
+        valid_Moves.addAll(verticalAndHorizontalMoves());
 
-        return validMoves;
+        return valid_Moves;
     }
 
     public Collection<ChessMove> knightMoves() {
-        Collection<ChessMove> validMoves = new ArrayList<ChessMove>();
+        Collection<ChessMove> valid_Moves = new ArrayList<ChessMove>();
 
         for (int[] arr: new int[][] {{-2, -1}, {-2,1}, {-1,-2}, {-1,2}, {1,2}, {1,-2}, {2,1}, {2,-1}}) {
             int newRow = arr[1] + myPosition.getRow();
@@ -93,15 +93,15 @@ public class ValidMovesCalculator {
 
             if (differentColor(newRow, newCol)) {
                 ChessPosition position = new ChessPosition(newRow, newCol);
-                validMoves.add(new ChessMove(myPosition, position, null));
+                valid_Moves.add(new ChessMove(myPosition, position, null));
             }
         }
 
-        return validMoves;
+        return valid_Moves;
     }
 
     public Collection<ChessMove> pawnMoves() {
-        Collection<ChessMove> validMoves = new ArrayList<ChessMove>();
+        Collection<ChessMove> valid_Moves = new ArrayList<ChessMove>();
 
         // See if the pawn is on the 2nd to last line
         boolean prom = calcProm();
@@ -115,15 +115,15 @@ public class ValidMovesCalculator {
         if (myBoard.getPiece(new ChessPosition(row + colorDif, col)) == null) {
             ChessPosition validDestination = new ChessPosition(row+colorDif, col);
             if (prom) {
-                validMoves.addAll(calcPromMoves(validDestination));
+                valid_Moves.addAll(calcPromMoves(validDestination));
             } else {
 
-                validMoves.add(new ChessMove(myPosition, validDestination, null));
+                valid_Moves.add(new ChessMove(myPosition, validDestination, null));
 
                 if ((myColor == ChessGame.TeamColor.BLACK && myPosition.getRow() == 7)||(myColor == ChessGame.TeamColor.WHITE && myPosition.getRow() == 2)) {
                     if (myBoard.getPiece(new ChessPosition(row + 2*colorDif, col)) == null) {
                         ChessPosition newDest = new ChessPosition(row + 2 * colorDif, col);
-                        validMoves.add(new ChessMove(myPosition, newDest, null));
+                        valid_Moves.add(new ChessMove(myPosition, newDest, null));
                     }
                 }
             }
@@ -141,9 +141,9 @@ public class ValidMovesCalculator {
                 } else {
                     if (myBoard.getPiece(destination).getTeamColor() != myColor) {
                         if (prom) {
-                            validMoves.addAll(calcPromMoves(destination));
+                            valid_Moves.addAll(calcPromMoves(destination));
                         } else {
-                            validMoves.add(new ChessMove(myPosition, destination, null));
+                            valid_Moves.add(new ChessMove(myPosition, destination, null));
                         }
                     }
                 }
@@ -154,11 +154,11 @@ public class ValidMovesCalculator {
 
 
 
-        return validMoves;
+        return valid_Moves;
     }
 
     public Collection<ChessMove> diagonalMoves() {
-        Collection<ChessMove> validMoves = new ArrayList<ChessMove>();
+        Collection<ChessMove> valid_Moves = new ArrayList<ChessMove>();
         for (int rowVec : new int[] {-1, 1}) {
             for (int colVec : new int[] {-1, 1}) {
                 int magnitude = 1;
@@ -175,9 +175,9 @@ public class ValidMovesCalculator {
                     ChessPiece piece = myBoard.getPiece(position);
 
                     if (piece == null) {
-                        validMoves.add(new ChessMove(myPosition, position, null));
+                        valid_Moves.add(new ChessMove(myPosition, position, null));
                     } else if (piece.getTeamColor() != myColor) {
-                        validMoves.add(new ChessMove(myPosition, position, null));
+                        valid_Moves.add(new ChessMove(myPosition, position, null));
                         break;
                     } else if (piece.getTeamColor() == myColor) {
                         break;
@@ -188,11 +188,11 @@ public class ValidMovesCalculator {
             }
         }
 
-        return validMoves;
+        return valid_Moves;
     }
 
     public Collection<ChessMove> verticalAndHorizontalMoves() {
-        Collection<ChessMove> validMoves = new ArrayList<ChessMove>();
+        Collection<ChessMove> valid_Moves = new ArrayList<ChessMove>();
 
         // Up and Down
         for (int rowVec : new int[] {-1, 1}) {
@@ -212,9 +212,9 @@ public class ValidMovesCalculator {
                 ChessPiece piece = myBoard.getPiece(position);
 
                 if (piece == null) {
-                    validMoves.add(new ChessMove(myPosition, position, null));
+                    valid_Moves.add(new ChessMove(myPosition, position, null));
                 } else if (piece.getTeamColor() != myColor) {
-                    validMoves.add(new ChessMove(myPosition, position, null));
+                    valid_Moves.add(new ChessMove(myPosition, position, null));
                     break;
                 } else if (piece.getTeamColor() == myColor) {
                     break;
@@ -240,9 +240,9 @@ public class ValidMovesCalculator {
                 ChessPiece piece = myBoard.getPiece(position);
 
                 if (piece == null) {
-                    validMoves.add(new ChessMove(myPosition, position, null));
+                    valid_Moves.add(new ChessMove(myPosition, position, null));
                 } else if (piece.getTeamColor() != myColor) {
-                    validMoves.add(new ChessMove(myPosition, position, null));
+                    valid_Moves.add(new ChessMove(myPosition, position, null));
                     break;
                 } else if (piece.getTeamColor() == myColor) {
                     break;
@@ -250,7 +250,7 @@ public class ValidMovesCalculator {
             }
         }
 
-        return validMoves;
+        return valid_Moves;
     }
 
     boolean differentColor(int row, int col) {
@@ -284,14 +284,14 @@ public class ValidMovesCalculator {
 
 
     public Collection<ChessMove> calcPromMoves(ChessPosition validDestination) {
-        Collection<ChessMove> validMoves = new ArrayList<ChessMove>();
+        Collection<ChessMove> valid_Moves = new ArrayList<ChessMove>();
 
-        validMoves.add(new ChessMove(myPosition, validDestination, ChessPiece.PieceType.QUEEN));
-        validMoves.add(new ChessMove(myPosition, validDestination, ChessPiece.PieceType.ROOK));
-        validMoves.add(new ChessMove(myPosition, validDestination, ChessPiece.PieceType.BISHOP));
-        validMoves.add(new ChessMove(myPosition, validDestination, ChessPiece.PieceType.KNIGHT));
+        valid_Moves.add(new ChessMove(myPosition, validDestination, ChessPiece.PieceType.QUEEN));
+        valid_Moves.add(new ChessMove(myPosition, validDestination, ChessPiece.PieceType.ROOK));
+        valid_Moves.add(new ChessMove(myPosition, validDestination, ChessPiece.PieceType.BISHOP));
+        valid_Moves.add(new ChessMove(myPosition, validDestination, ChessPiece.PieceType.KNIGHT));
 
-        return validMoves;
+        return valid_Moves;
     }
 
 }
