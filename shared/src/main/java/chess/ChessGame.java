@@ -206,7 +206,7 @@ public class ChessGame {
 
                     for (ChessMove move : piece.pieceMoves(board, curPosition)) {
 
-                        // TODO: Come Back Here
+
                         ChessGame testGame = new ChessGame(this.board, this.currentTurnColor);
                         testGame.doMove(move);
                         if (!testGame.isInCheck(teamColor)) {
