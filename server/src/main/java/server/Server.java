@@ -70,12 +70,12 @@ public class Server {
     }
 
     private Object joinGame(Request request, Response response) throws NotAuthorizedException, DataAccessException, InvalidColorException, ColorTakenException {
-        // √ Authenticate the User
         // Check to see if the Game Exists
         // Check to see if the Color is available
         // Return the response
         String authToken = request.headers("Authorization");
 
+        // √ Authenticate the User
         if (authService.validateAuth(authToken, authDAO)) {
 
             String username = authService.getUsernameByAuthToken(authToken, authDAO);
@@ -126,7 +126,9 @@ public class Server {
             chessGameCollection = gameService.listGames(gameDAO);
             Gson gamesGson = new Gson();
 
-            return gamesGson.toJson(chessGameCollection);
+            Map<String, Object> mapResult = Map.of("games", chessGameCollection);
+            return gamesGson.toJson(mapResult);
+
 
         } else {
             throw new NotAuthorizedException("Not Authorized");
@@ -163,9 +165,9 @@ public class Server {
 
         try {
             if (userService.login(loginRequest, userDAO)) {
-                authService.addAuth(loginRequest.username(), authDAO);
+                String newAuthToken = authService.addAuth(loginRequest.username(), authDAO);
 
-                AuthData authData = authService.getAuthByUsername(loginRequest.username(), authDAO);
+                AuthData authData = new AuthData(authService.getUsernameByAuthToken(newAuthToken, authDAO), newAuthToken);
                 Gson authGson = new Gson();
 
                 return authGson.toJson(authData);
@@ -223,8 +225,6 @@ public class Server {
         res.body(body);
         return body;
     }
-
-
 
 
 

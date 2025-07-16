@@ -11,27 +11,8 @@ public class AuthService {
 
     }
 
-    public void addAuth(String username, AuthDAO authDAO) throws DataAccessException {
-
-        // Check if they are already logged in
-        // If So, Delete it, and then make a new auth token
-        // If Not, Make a new auth token
-
-        AuthData authData = null;
-
-        try {
-            authData = getAuthByUsername(username, authDAO);
-        } catch (DataAccessException ignore) {
-            authDAO.createAuth(username);
-        }
-
-        if (authData != null) {
-            authDAO.createAuth(username);
-        }
-
-
-
-
+    public String addAuth(String username, AuthDAO authDAO) throws DataAccessException {
+        return authDAO.createAuth(username);
     }
 
     public AuthData getAuthByUsername(String username, AuthDAO authDAO) throws DataAccessException {
@@ -56,3 +37,20 @@ public class AuthService {
     }
 
 }
+
+
+
+
+/*
+AuthData authData = null;
+
+        try {
+            authData = getAuthByUsername(username, authDAO);
+        } catch (DataAccessException ignore) {
+            authDAO.createAuth(username);
+        }
+
+        if (authData != null) {
+            authDAO.createAuth(username);
+        }
+ */
