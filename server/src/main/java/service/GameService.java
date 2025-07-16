@@ -37,6 +37,10 @@ public class GameService {
         String desiredColor = joinGameRequest.playerColor();
 
         // Valid Color Input
+        if (desiredColor == null) {
+            throw new InvalidColorException("Must Select 'WHITE' or 'BLACK' ");
+        }
+
         if (!desiredColor.equals("WHITE") && !desiredColor.equals("BLACK")) {
             throw new InvalidColorException("Must Select 'WHITE' or 'BLACK' ");
         }

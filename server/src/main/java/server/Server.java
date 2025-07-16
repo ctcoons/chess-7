@@ -85,16 +85,23 @@ public class Server {
 
             return "{}";
         } else {
+            System.out.println("Join Game Exception Thrown");
             throw new NotAuthorizedException("User Not Authorized");
         }
     }
 
-    private Object createGame(Request request, Response response) throws NotAuthorizedException, GameAlreadyExistsException, DataAccessException {
+    private Object createGame(Request request, Response response) throws NotAuthorizedException, GameAlreadyExistsException, DataAccessException, NullFieldsException {
         String authToken = request.headers("Authorization");
 
         if (authService.validateAuth(authToken, authDAO)) {
 
             CreateGameRequest createGameRequest = fromJson(request, CreateGameRequest.class);
+
+            if (createGameRequest.gameName()==null) {
+                throw new NullFieldsException("Must Give a Game Name");
+            }
+
+
             gameService.createGame(createGameRequest.gameName(), gameDAO);
             GameData gameData = gameService.getGameByName(createGameRequest.gameName(), gameDAO);
             int ID = gameData.gameID();
@@ -104,6 +111,7 @@ public class Server {
             return gameResGson.toJson(createGameResponse);
 
         } else {
+            System.out.println("Create Game Exception Thrown");
             throw new NotAuthorizedException("Not Authorized");
         }
     }
@@ -200,6 +208,11 @@ public class Server {
             case DataAccessException ignored -> 400;
             case BadRequestException ignored -> 400;
             case RegisterException ignored -> 403;
+            case LogoutFailureException ignored -> 401;
+            case NotAuthorizedException ignored -> 401;
+            case NullFieldsException ignored -> 400;
+            case ColorTakenException ignored -> 403;
+            case InvalidColorException ignored -> 400;
 
             default -> 500;
         };

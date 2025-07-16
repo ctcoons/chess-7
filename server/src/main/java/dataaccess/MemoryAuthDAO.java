@@ -15,6 +15,8 @@ public class MemoryAuthDAO implements AuthDAO{
         String authToken = UUID.randomUUID().toString();
         authHashMap.put(username, authToken);
 
+        System.out.println("AFTER CREATE: --> " + authHashMap);
+
     }
 
     @Override
