@@ -37,7 +37,7 @@ public class MemoryGameDAO implements GameDAO{
 
     @Override
     public GameData getGameByName(String gameName) throws DataAccessException {
-        if(contains(gameName)) {
+        if(gameDataHashMap.containsKey(gameName)) {
             return gameDataHashMap.get(gameName);
         } else {
             throw new DataAccessException("No Game By This Name");
