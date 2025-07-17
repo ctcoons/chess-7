@@ -7,11 +7,11 @@ import java.util.UUID;
 
 public class MemoryAuthDAO implements AuthDAO {
     // Maps Key:authToken --> Value:username
-    private HashMap<String, String> authHashMap = new HashMap<>();
+    private final HashMap<String, String> authHashMap = new HashMap<>();
 
 
     @Override
-    public String createAuth(String username) throws DataAccessException {
+    public String createAuth(String username) {
 
         String authToken = UUID.randomUUID().toString();
         authHashMap.put(authToken, username);

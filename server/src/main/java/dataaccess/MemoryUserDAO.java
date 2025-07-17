@@ -1,16 +1,17 @@
 package dataaccess;
 
-import model.AuthData;
+//import model.AuthData;
+
 import model.UserData;
 
-import java.util.Collection;
+//import java.util.Collection;
 import java.util.HashMap;
 
 public class MemoryUserDAO implements UserDAO {
 
     // Maps Username to UserData
 
-    private HashMap<String, UserData> users = new HashMap<>();
+    private final HashMap<String, UserData> users = new HashMap<>();
 
     @Override
     public UserData getUser(String username) throws DataAccessException {

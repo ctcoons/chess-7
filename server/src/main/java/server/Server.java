@@ -184,7 +184,7 @@ public class Server {
     }
 
     // *** REGISTER HANDLER ***
-    private Object register(Request request, Response response) throws DataAccessException, NullFieldsException, RegisterException, BadRequestException {
+    private Object register(Request request, Response response) throws DataAccessException, RegisterException, BadRequestException {
         UserData userData = fromJson(request, UserData.class);
 
         // Make sure there aren't any null fields
