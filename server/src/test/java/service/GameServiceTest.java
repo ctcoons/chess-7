@@ -70,6 +70,8 @@ class GameServiceTest {
     }
 
     @Test
-    void clearGameData() {
+    void clearGameData() throws DataAccessException {
+        gameService.clearGameData(gameDAO);
+        Assertions.assertEquals(0, gameService.listGames(gameDAO).toArray().length);
     }
 }
