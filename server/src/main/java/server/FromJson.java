@@ -11,7 +11,7 @@ public class FromJson {
     }
 
 
-    public <T> Object toObject(Class<T> myClass){
+    public <T> Object toObject(Class<T> myClass) {
         Gson gson = new Gson();
         return gson.fromJson(json, myClass);
     }

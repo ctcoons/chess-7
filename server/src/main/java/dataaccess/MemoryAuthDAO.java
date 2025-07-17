@@ -5,7 +5,7 @@ import model.AuthData;
 import java.util.HashMap;
 import java.util.UUID;
 
-public class MemoryAuthDAO implements AuthDAO{
+public class MemoryAuthDAO implements AuthDAO {
     // Maps Key:authToken --> Value:username
     private HashMap<String, String> authHashMap = new HashMap<>();
 
@@ -65,7 +65,6 @@ public class MemoryAuthDAO implements AuthDAO{
     public boolean validateAuth(String authToken) {
         return authHashMap.containsKey(authToken);
     }
-
 
 
 }

@@ -7,7 +7,7 @@ import model.*;
 
 import dataaccess.UserDAO;
 
-public class UserService{
+public class UserService {
 
     public UserService() {
     }

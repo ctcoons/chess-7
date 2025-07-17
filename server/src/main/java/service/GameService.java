@@ -46,7 +46,7 @@ public class GameService {
         }
 
         // Color Already Taken
-        if ( (desiredColor.equals("WHITE") && gameData.whiteUsername()!=null) || (desiredColor.equals("BLACK") && gameData.blackUsername()!=null) ) {
+        if ((desiredColor.equals("WHITE") && gameData.whiteUsername() != null) || (desiredColor.equals("BLACK") && gameData.blackUsername() != null)) {
             throw new ColorTakenException("Color Already Taken");
         }
 

@@ -97,7 +97,7 @@ public class Server {
 
             CreateGameRequest createGameRequest = fromJson(request, CreateGameRequest.class);
 
-            if (createGameRequest.gameName()==null) {
+            if (createGameRequest.gameName() == null) {
                 throw new NullFieldsException("Must Give a Game Name");
             }
 
@@ -157,7 +157,7 @@ public class Server {
 
         LoginRequest loginRequest = fromJson(request, LoginRequest.class);
 
-        if (loginRequest.username()==null || loginRequest.password()==null) {
+        if (loginRequest.username() == null || loginRequest.password() == null) {
             response.status(401);
             throw new BadRequestException("Must give a username and password");
         }
@@ -225,7 +225,6 @@ public class Server {
         res.body(body);
         return body;
     }
-
 
 
     public void stop() {
