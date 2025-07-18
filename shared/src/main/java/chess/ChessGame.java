@@ -45,14 +45,7 @@ public class ChessGame {
                 if (piece != null) {
                     ChessPiece copiedPiece = new ChessPiece(piece.getTeamColor(), piece.getPieceType());
                     this.board.addPiece(curPosition, copiedPiece);
-
-//                    if (copiedPiece.getPieceType() == ChessPiece.PieceType.KING) {
-//                        if (copiedPiece.getTeamColor() == TeamColor.BLACK) {
-//                            this.blackKingPosition = curPosition;
-//                        } else {
-//                            this.whiteKingPosition = curPosition;
-//                        }
-//                    }
+                    
                 }
             }
         }

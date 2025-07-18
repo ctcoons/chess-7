@@ -32,25 +32,9 @@ public class AuthService {
         return authDAO.validateAuth(authToken);
     }
 
-    public void clearAuthData(AuthDAO authDAO){
+    public void clearAuthData(AuthDAO authDAO) {
         authDAO.clear();
     }
 
 }
 
-
-
-
-/*
-AuthData authData = null;
-
-        try {
-            authData = getAuthByUsername(username, authDAO);
-        } catch (DataAccessException ignore) {
-            authDAO.createAuth(username);
-        }
-
-        if (authData != null) {
-            authDAO.createAuth(username);
-        }
- */
