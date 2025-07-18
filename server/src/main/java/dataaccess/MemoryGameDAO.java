@@ -45,11 +45,11 @@ public class MemoryGameDAO implements GameDAO {
     }
 
     @Override
-    public GameData getGameByID(int ID) throws DataAccessException {
+    public GameData getGameByID(int id) throws DataAccessException {
         GameData gameData = null;
 
         for (var item : gameDataHashMap.entrySet()) {
-            if (item.getValue().gameID() == ID) {
+            if (item.getValue().gameID() == id) {
                 gameData = item.getValue();
                 break;
             }
