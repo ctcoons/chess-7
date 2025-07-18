@@ -6,22 +6,22 @@ import model.GameData;
 import java.util.Collection;
 import java.util.HashMap;
 
-public class MemoryGameDAO implements GameDAO{
+public class MemoryGameDAO implements GameDAO {
 
-    int id = 1234;
-    private HashMap<String, GameData> gameDataHashMap = new HashMap<>();
+    int iD = 1234;
+    private final HashMap<String, GameData> gameDataHashMap = new HashMap<>();
 
 
     @Override
-    public Collection<GameData> listGames() throws DataAccessException {
+    public Collection<GameData> listGames() {
         return gameDataHashMap.values();
     }
 
     @Override
     public void createGame(String gameName) {
-        GameData gameData = new GameData(id, null, null, gameName, new ChessGame());
+        GameData gameData = new GameData(iD, null, null, gameName, new ChessGame());
         gameDataHashMap.put(gameName, gameData);
-        id++;
+        iD++;
     }
 
 
@@ -37,7 +37,7 @@ public class MemoryGameDAO implements GameDAO{
 
     @Override
     public GameData getGameByName(String gameName) throws DataAccessException {
-        if(gameDataHashMap.containsKey(gameName)) {
+        if (gameDataHashMap.containsKey(gameName)) {
             return gameDataHashMap.get(gameName);
         } else {
             throw new DataAccessException("No Game By This Name");
@@ -76,7 +76,6 @@ public class MemoryGameDAO implements GameDAO{
         gameDataHashMap.remove(gameData.gameName());
         gameDataHashMap.put(updatedGame.gameName(), updatedGame);
     }
-
 
 
 }
