@@ -129,15 +129,17 @@ public class ValidMovesCalculator {
             }
         }
 
+        int counter = 0;
+
         for (int colChange : new int[]{-1, 1}) {
             int newCol = myPosition.getColumn() + colChange;
             int newRow = myPosition.getRow() + colorDif;
             if (newRow < 1 || newRow > 8 || newCol < 1 || newCol > 8) {
-                continue;
+                counter++;
             } else {
                 ChessPosition destination = new ChessPosition(newRow, newCol);
                 if (myBoard.getPiece(destination) == null) {
-                    continue;
+                    counter++;
                 } else {
                     if (myBoard.getPiece(destination).getTeamColor() != myColor) {
                         if (prom) {
@@ -224,15 +226,17 @@ public class ValidMovesCalculator {
         for (int colVec : new int[]{-1, 1}) {
             int magnitude = 1;
             int newRow = myPosition.getRow();
+            int counter = 0;
 
             while (true) {
                 int newCol = myPosition.getColumn() + colVec * magnitude;
-
                 magnitude++;
+
 
                 if (newRow < 1 || newRow > 8 || newCol < 1 || newCol > 8) {
                     break;
                 }
+                counter++;
 
                 ChessPosition position = new ChessPosition(newRow, newCol);
                 ChessPiece piece = myBoard.getPiece(position);
@@ -243,6 +247,7 @@ public class ValidMovesCalculator {
                     validMoves.add(new ChessMove(myPosition, position, null));
                     break;
                 } else if (piece.getTeamColor() == myColor) {
+                    counter--;
                     break;
                 }
             }
