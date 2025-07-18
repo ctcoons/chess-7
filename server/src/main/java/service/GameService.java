@@ -25,14 +25,9 @@ public class GameService {
         return gameDAO.getGameByName(gameName);
     }
 
-//    public GameData getGameByID(int ID, GameDAO gameDAO) throws DataAccessException {
-//        return gameDAO.getGameByID(ID);
-//    }
-
-
     public void joinGame(String username, JoinGameRequest joinGameRequest, GameDAO gameDAO) throws DataAccessException, InvalidColorException, ColorTakenException {
-        int ID = joinGameRequest.gameID();
-        GameData gameData = gameDAO.getGameByID(ID);
+        int iD = joinGameRequest.gameID();
+        GameData gameData = gameDAO.getGameByID(iD);
 
         String desiredColor = joinGameRequest.playerColor();
 
