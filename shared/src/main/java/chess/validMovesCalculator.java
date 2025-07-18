@@ -3,14 +3,14 @@ package chess;
 import java.util.ArrayList;
 import java.util.Collection;
 
-public class ValidMovesCalculator {
+public class validMovesCalculator {
 
     ChessBoard myBoard;
     ChessPosition myPosition;
     ChessPiece myPiece;
     ChessGame.TeamColor myColor;
 
-    public ValidMovesCalculator(ChessBoard board, ChessPosition position) {
+    public validMovesCalculator(ChessBoard board, ChessPosition position) {
 
         this.myBoard = board;
         this.myPosition = position;
@@ -21,7 +21,7 @@ public class ValidMovesCalculator {
 
     public Collection<ChessMove> getValidMoves() {
 
-        switch(myPiece.type) {
+        switch (myPiece.type) {
             case KING -> {
                 return kingMoves();
             }
@@ -48,10 +48,10 @@ public class ValidMovesCalculator {
     }
 
     public Collection<ChessMove> kingMoves() {
-        Collection<ChessMove> valid_Moves = new ArrayList<ChessMove>();
+        Collection<ChessMove> theseValidMoves = new ArrayList<>();
 
-        for (int rowDif : new int[] {-1, 0, 1}) {
-            for (int colDif : new int[] {-1, 0, 1}) {
+        for (int rowDif : new int[]{-1, 0, 1}) {
+            for (int colDif : new int[]{-1, 0, 1}) {
 
                 int newRow = myPosition.getRow() + rowDif;
                 int newCol = myPosition.getColumn() + colDif;
@@ -60,12 +60,12 @@ public class ValidMovesCalculator {
                 if (differentColor(newRow, newCol)) {
                     ChessPosition validDestination = new ChessPosition(newRow, newCol);
                     ChessMove validMove = new ChessMove(myPosition, validDestination, null);
-                    valid_Moves.add(validMove);
+                    theseValidMoves.add(validMove);
                 }
             }
         }
 
-        return valid_Moves;
+        return theseValidMoves;
     }
 
     public Collection<ChessMove> bishopMoves() {
@@ -77,31 +77,31 @@ public class ValidMovesCalculator {
     }
 
     public Collection<ChessMove> queenMoves() {
-        Collection<ChessMove> valid_Moves = new ArrayList<ChessMove>();
-        valid_Moves.addAll(diagonalMoves());
-        valid_Moves.addAll(verticalAndHorizontalMoves());
+        Collection<ChessMove> validMoves = new ArrayList<>();
+        validMoves.addAll(diagonalMoves());
+        validMoves.addAll(verticalAndHorizontalMoves());
 
-        return valid_Moves;
+        return validMoves;
     }
 
     public Collection<ChessMove> knightMoves() {
-        Collection<ChessMove> valid_Moves = new ArrayList<ChessMove>();
+        Collection<ChessMove> validMoves = new ArrayList<>();
 
-        for (int[] arr: new int[][] {{-2, -1}, {-2,1}, {-1,-2}, {-1,2}, {1,2}, {1,-2}, {2,1}, {2,-1}}) {
+        for (int[] arr : new int[][]{{-2, -1}, {-2, 1}, {-1, -2}, {-1, 2}, {1, 2}, {1, -2}, {2, 1}, {2, -1}}) {
             int newRow = arr[1] + myPosition.getRow();
             int newCol = arr[0] + myPosition.getColumn();
 
             if (differentColor(newRow, newCol)) {
                 ChessPosition position = new ChessPosition(newRow, newCol);
-                valid_Moves.add(new ChessMove(myPosition, position, null));
+                validMoves.add(new ChessMove(myPosition, position, null));
             }
         }
 
-        return valid_Moves;
+        return validMoves;
     }
 
     public Collection<ChessMove> pawnMoves() {
-        Collection<ChessMove> valid_Moves = new ArrayList<ChessMove>();
+        Collection<ChessMove> valid_Moves = new ArrayList<>();
 
         // See if the pawn is on the 2nd to last line
         boolean prom = calcProm();
@@ -113,15 +113,15 @@ public class ValidMovesCalculator {
         int col = myPosition.getColumn();
 
         if (myBoard.getPiece(new ChessPosition(row + colorDif, col)) == null) {
-            ChessPosition validDestination = new ChessPosition(row+colorDif, col);
+            ChessPosition validDestination = new ChessPosition(row + colorDif, col);
             if (prom) {
                 valid_Moves.addAll(calcPromMoves(validDestination));
             } else {
 
                 valid_Moves.add(new ChessMove(myPosition, validDestination, null));
 
-                if ((myColor == ChessGame.TeamColor.BLACK && myPosition.getRow() == 7)||(myColor == ChessGame.TeamColor.WHITE && myPosition.getRow() == 2)) {
-                    if (myBoard.getPiece(new ChessPosition(row + 2*colorDif, col)) == null) {
+                if ((myColor == ChessGame.TeamColor.BLACK && myPosition.getRow() == 7) || (myColor == ChessGame.TeamColor.WHITE && myPosition.getRow() == 2)) {
+                    if (myBoard.getPiece(new ChessPosition(row + 2 * colorDif, col)) == null) {
                         ChessPosition newDest = new ChessPosition(row + 2 * colorDif, col);
                         valid_Moves.add(new ChessMove(myPosition, newDest, null));
                     }
@@ -129,14 +129,14 @@ public class ValidMovesCalculator {
             }
         }
 
-        for (int colChange : new int[] {-1, 1}) {
+        for (int colChange : new int[]{-1, 1}) {
             int newCol = myPosition.getColumn() + colChange;
             int newRow = myPosition.getRow() + colorDif;
             if (newRow < 1 || newRow > 8 || newCol < 1 || newCol > 8) {
                 continue;
             } else {
                 ChessPosition destination = new ChessPosition(newRow, newCol);
-                if (myBoard.getPiece(destination) == null ) {
+                if (myBoard.getPiece(destination) == null) {
                     continue;
                 } else {
                     if (myBoard.getPiece(destination).getTeamColor() != myColor) {
@@ -152,19 +152,17 @@ public class ValidMovesCalculator {
         }
 
 
-
-
         return valid_Moves;
     }
 
     public Collection<ChessMove> diagonalMoves() {
         Collection<ChessMove> valid_Moves = new ArrayList<ChessMove>();
-        for (int rowVec : new int[] {-1, 1}) {
-            for (int colVec : new int[] {-1, 1}) {
+        for (int rowVec : new int[]{-1, 1}) {
+            for (int colVec : new int[]{-1, 1}) {
                 int magnitude = 1;
-                while(true) {
-                    int newRow = myPosition.getRow() + rowVec*magnitude;
-                    int newCol = myPosition.getColumn() + colVec*magnitude;
+                while (true) {
+                    int newRow = myPosition.getRow() + rowVec * magnitude;
+                    int newCol = myPosition.getColumn() + colVec * magnitude;
                     magnitude++;
 
                     if (newRow < 1 || newRow > 8 || newCol < 1 || newCol > 8) {
@@ -195,11 +193,11 @@ public class ValidMovesCalculator {
         Collection<ChessMove> valid_Moves = new ArrayList<ChessMove>();
 
         // Up and Down
-        for (int rowVec : new int[] {-1, 1}) {
+        for (int rowVec : new int[]{-1, 1}) {
             int magnitude = 1;
             int newCol = myPosition.getColumn();
 
-            while(true) {
+            while (true) {
                 int newRow = myPosition.getRow() + rowVec * magnitude;
 
                 magnitude++;
@@ -223,11 +221,11 @@ public class ValidMovesCalculator {
         }
 
         // Horizontal
-        for (int colVec : new int[] {-1, 1}) {
+        for (int colVec : new int[]{-1, 1}) {
             int magnitude = 1;
             int newRow = myPosition.getRow();
 
-            while(true) {
+            while (true) {
                 int newCol = myPosition.getColumn() + colVec * magnitude;
 
                 magnitude++;
@@ -271,15 +269,19 @@ public class ValidMovesCalculator {
     }
 
     boolean calcProm() {
-        if(myColor == ChessGame.TeamColor.BLACK && myPosition.getRow() == 2) {
+        if (myColor == ChessGame.TeamColor.BLACK && myPosition.getRow() == 2) {
             return true;
-        } else return myColor == ChessGame.TeamColor.WHITE && myPosition.getRow() == 7;
+        } else {
+            return myColor == ChessGame.TeamColor.WHITE && myPosition.getRow() == 7;
+        }
     }
 
     int calcColorDif() {
-        if(myColor == ChessGame.TeamColor.BLACK) {
+        if (myColor == ChessGame.TeamColor.BLACK) {
             return -1;
-        } else return 1;
+        } else {
+            return 1;
+        }
     }
 
 

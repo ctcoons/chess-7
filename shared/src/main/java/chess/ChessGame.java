@@ -1,7 +1,6 @@
 package chess;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Objects;
 
@@ -43,9 +42,9 @@ public class ChessGame {
             for (int col = 1; col < 9; col++) {
                 ChessPosition curPosition = new ChessPosition(row, col);
                 ChessPiece piece = copy.getPiece(curPosition);
-                 if (piece != null) {
-                     ChessPiece copiedPiece = new ChessPiece(piece.getTeamColor(), piece.getPieceType());
-                     this.board.addPiece(curPosition, copiedPiece);
+                if (piece != null) {
+                    ChessPiece copiedPiece = new ChessPiece(piece.getTeamColor(), piece.getPieceType());
+                    this.board.addPiece(curPosition, copiedPiece);
 
 //                    if (copiedPiece.getPieceType() == ChessPiece.PieceType.KING) {
 //                        if (copiedPiece.getTeamColor() == TeamColor.BLACK) {
@@ -92,10 +91,12 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-        Collection<ChessMove> myValidMoves= new ArrayList<>();
+        Collection<ChessMove> myValidMoves = new ArrayList<>();
 
         ChessPiece myPiece = board.getPiece(startPosition);
-        if (myPiece == null) return myValidMoves;
+        if (myPiece == null) {
+            return myValidMoves;
+        }
 
         // I get the pseudo moves from the piece
         // I make a new board
@@ -144,7 +145,7 @@ public class ChessGame {
         if (!validatedMoves.contains(move)) {
             throw new InvalidMoveException("Invalid Move");
         }
-        
+
         doMove(move);
 
         // Switch Team Turn
@@ -172,10 +173,14 @@ public class ChessGame {
 
                 // If the piece you're looking at is NULL or == YOUR color, then, there is no reason to check if it will put you in check
                 // Otherwise, it must be an opponents piece, so go check on its possible moves
-                if (piece == null) continue;
-                if (piece.getTeamColor() == teamColor) continue;
+                if (piece == null) {
+                    continue;
+                }
+                if (piece.getTeamColor() == teamColor) {
+                    continue;
+                }
 
-                if (check_if_any_opponent_move_is_check(piece, curPosition, teamColor)){
+                if (checkIfAnyOpponentMoveIsCheck(piece, curPosition, teamColor)) {
                     return true;
                 }
             }
@@ -193,16 +198,20 @@ public class ChessGame {
     public boolean isInCheckmate(TeamColor teamColor) {
 
         // If The Team is in Check
-            // Check all Possible Moves of teamColor
-                // If any of the moves results in NOT a check, inCheck == True
+        // Check all Possible Moves of teamColor
+        // If any of the moves results in NOT a check, inCheck == True
         if (isInCheck(teamColor)) {
             for (int row = 1; row < 9; row++) {
                 for (int col = 1; col < 9; col++) {
                     ChessPosition curPosition = new ChessPosition(row, col);
                     ChessPiece piece = board.getPiece(curPosition);
 
-                    if (piece == null) continue;
-                    if (piece.getTeamColor() != teamColor) continue;
+                    if (piece == null) {
+                        continue;
+                    }
+                    if (piece.getTeamColor() != teamColor) {
+                        continue;
+                    }
 
                     for (ChessMove move : piece.pieceMoves(board, curPosition)) {
 
@@ -242,8 +251,12 @@ public class ChessGame {
                 ChessPosition curPosition = new ChessPosition(row, col);
                 ChessPiece piece = board.getPiece(curPosition);
 
-                if (piece == null) continue;
-                if (piece.getTeamColor() != teamColor) continue;
+                if (piece == null) {
+                    continue;
+                }
+                if (piece.getTeamColor() != teamColor) {
+                    continue;
+                }
 
                 if (!validMoves(curPosition).isEmpty()) {
                     return false;
@@ -273,7 +286,7 @@ public class ChessGame {
         return board;
     }
 
-    boolean check_if_any_opponent_move_is_check(ChessPiece piece, ChessPosition curPosition, TeamColor friendlyColor) {
+    boolean checkIfAnyOpponentMoveIsCheck(ChessPiece piece, ChessPosition curPosition, TeamColor friendlyColor) {
         Collection<ChessMove> pieceMoves = piece.pieceMoves(board, curPosition);
         for (ChessMove move : pieceMoves) {
             ChessPosition end = move.endPosition;

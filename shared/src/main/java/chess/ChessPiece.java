@@ -55,7 +55,7 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        ValidMovesCalculator myValidMoves = new ValidMovesCalculator(board, myPosition);
+        validMovesCalculator myValidMoves = new validMovesCalculator(board, myPosition);
         return myValidMoves.getValidMoves();
     }
 
@@ -79,10 +79,10 @@ public class ChessPiece {
         String pieceColorString;
         String typeString;
 
-        switch(type) {
+        switch (type) {
             case KING -> typeString = "KING";
             case QUEEN -> typeString = "QUEEN";
-            case PAWN ->  typeString = "PAWN";
+            case PAWN -> typeString = "PAWN";
             case ROOK -> typeString = "ROOK";
             case KNIGHT -> typeString = "KNIGHT";
             case BISHOP -> typeString = "BISHOP";
@@ -96,7 +96,7 @@ public class ChessPiece {
         }
 
 
-        return  '{' +
+        return '{' +
                 pieceColorString +
                 typeString +
                 '}';
