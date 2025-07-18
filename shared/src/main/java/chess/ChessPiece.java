@@ -55,7 +55,7 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        validMovesCalculator myValidMoves = new validMovesCalculator(board, myPosition);
+        ValidMovesCalculator myValidMoves = new ValidMovesCalculator(board, myPosition);
         return myValidMoves.getValidMoves();
     }
 

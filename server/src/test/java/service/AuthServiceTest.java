@@ -59,16 +59,15 @@ class AuthServiceTest {
     @Test
     void getUsernameByAuthToken() throws DataAccessException {
 
-        String CorrectAuth = authToken1;
-        String CorrectUser = username1;
-        String attempt = authService.getUsernameByAuthToken(CorrectAuth, authDAO);
+        String correctAuth = authToken1;
+        String correctUser = username1;
+        String attempt = authService.getUsernameByAuthToken(correctAuth, authDAO);
 
-        Assertions.assertEquals(attempt, CorrectUser);
+        Assertions.assertEquals(attempt, correctUser);
 
         assertThrows(DataAccessException.class, () -> {
             authService.getUsernameByAuthToken("FakeToken", authDAO);
         });
-
 
 
     }

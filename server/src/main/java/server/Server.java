@@ -104,9 +104,9 @@ public class Server {
 
             gameService.createGame(createGameRequest.gameName(), gameDAO);
             GameData gameData = gameService.getGameByName(createGameRequest.gameName(), gameDAO);
-            int ID = gameData.gameID();
+            int id = gameData.gameID();
 
-            CreateGameResponse createGameResponse = new CreateGameResponse(ID);
+            CreateGameResponse createGameResponse = new CreateGameResponse(id);
             Gson gameResGson = new Gson();
             return gameResGson.toJson(createGameResponse);
 
