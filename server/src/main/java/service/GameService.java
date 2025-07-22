@@ -4,6 +4,7 @@ import dataaccess.DataAccessException;
 import dataaccess.GameDAO;
 import model.GameData;
 import model.JoinGameRequest;
+import server.BadRequestException;
 
 import java.util.Collection;
 
@@ -25,13 +26,20 @@ public class GameService {
         return gameDAO.getGameByName(gameName);
     }
 
-    public void joinGame(String username, JoinGameRequest joinGameRequest, GameDAO gameDAO) throws DataAccessException, InvalidColorException, ColorTakenException {
+    public void joinGame(String username, JoinGameRequest joinGameRequest, GameDAO gameDAO) throws DataAccessException, InvalidColorException, ColorTakenException, BadRequestException {
+
         int id = joinGameRequest.gameID();
+
+        // Check to see if the ID is good
+        if (!gameDAO.containsGame(id)) {
+            throw new BadRequestException("No Game By ID: " + id);
+        }
+
         GameData gameData = gameDAO.getGameByID(id);
 
         String desiredColor = joinGameRequest.playerColor();
 
-        // Valid Color Input
+        // Valid Color Input check for NULL first then must be BLACK or WHITE
         if (desiredColor == null) {
             throw new InvalidColorException("Must Select 'WHITE' or 'BLACK' ");
         }
@@ -49,7 +57,7 @@ public class GameService {
 
     }
 
-    public void clearGameData(GameDAO gameDAO) {
+    public void clearGameData(GameDAO gameDAO) throws DataAccessException {
         gameDAO.clear();
     }
 }

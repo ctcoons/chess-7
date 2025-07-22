@@ -59,12 +59,12 @@ public class SQLGameDAO extends SQLParent implements GameDAO {
     }
 
     @Override
-    public void clear() {
+    public void clear() throws DataAccessException {
         String statement1 = "DELETE FROM gameData";
         try {
             executeUpdate(statement1);
         } catch (DataAccessException e) {
-            System.out.println("Exception Thrown: " + e + ". Clearing GameData not successful");
+            throw new DataAccessException("Failed to clear Game Data because of error: " + e);
         }
     }
 
@@ -128,6 +128,20 @@ public class SQLGameDAO extends SQLParent implements GameDAO {
             }
         } catch (Exception e) {
             throw new DataAccessException("Failed to get game by id: " + id + " Due to error: " + e);
+        }
+    }
+
+    public boolean containsGame(int id) throws DataAccessException {
+        try (var conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT * FROM gameData WHERE id=?";
+            try (var ps = conn.prepareStatement(statement)) {
+                ps.setInt(1, id);
+                try (var rs = ps.executeQuery()) {
+                    return rs.next();
+                }
+            }
+        } catch (Exception e) {
+            throw new DataAccessException("Error searching for Contains Game: " + e);
         }
     }
 

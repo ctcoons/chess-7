@@ -50,17 +50,12 @@ public class SQLUserDAO extends SQLParent implements UserDAO {
     }
 
     @Override
-    public void clear() {
+    public void clear() throws DataAccessException {
         var statement = "DELETE FROM userData";
         try {
-            if (executeUpdate(statement) == 0) {
-                System.out.println("Nothing Deleted");
-            } else {
-                System.out.println("Clear Worked");
-            }
+            executeUpdate(statement);
         } catch (DataAccessException e) {
-            // handle it or log it
-            System.err.println("Error clearing userData table: " + e.getMessage());
+            throw new DataAccessException("Error clearing userData table: " + e);
         }
     }
 

@@ -11,7 +11,7 @@ public interface GameDAO {
 
     void createGame(String gameName);
 
-    void clear();
+    void clear() throws DataAccessException;
 
     boolean contains(String gameName);
 
@@ -20,6 +20,8 @@ public interface GameDAO {
     GameData getGameByID(int id) throws DataAccessException;
 
     void joinGame(String username, String gameName, String desiredColor) throws DataAccessException;
+
+    boolean containsGame(int id) throws DataAccessException;
 
 
 }

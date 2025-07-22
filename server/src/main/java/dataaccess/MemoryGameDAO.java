@@ -77,5 +77,10 @@ public class MemoryGameDAO implements GameDAO {
         gameDataHashMap.put(updatedGame.gameName(), updatedGame);
     }
 
+    @Override
+    public boolean containsGame(int id) throws DataAccessException {
+        return gameDataHashMap.containsKey(getGameByID(id).gameName());
+    }
+
 
 }

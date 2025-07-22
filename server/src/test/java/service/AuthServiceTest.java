@@ -90,7 +90,7 @@ class AuthServiceTest {
     }
 
     @Test
-    void clearAuthData() {
+    void clearAuthData() throws DataAccessException {
         authService.clearAuthData(authDAO);
 
 

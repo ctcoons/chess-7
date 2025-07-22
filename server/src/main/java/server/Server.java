@@ -60,16 +60,20 @@ public class Server {
         return Spark.port();
     }
 
-    private Object clearApplication(Request request, Response response) {
+    private Object clearApplication(Request request, Response response) throws DataAccessException {
 
-        authService.clearAuthData(authDAO);
-        gameService.clearGameData(gameDAO);
-        userService.clearUserData(userDAO);
+        try {
+            authService.clearAuthData(authDAO);
+            gameService.clearGameData(gameDAO);
+            userService.clearUserData(userDAO);
+        } catch (DataAccessException e) {
+            throw new DataAccessException("Error: " + e);
+        }
 
         return "{}";
     }
 
-    private Object joinGame(Request request, Response response) throws NotAuthorizedException, DataAccessException, InvalidColorException, ColorTakenException {
+    private Object joinGame(Request request, Response response) throws NotAuthorizedException, DataAccessException, InvalidColorException, ColorTakenException, BadRequestException {
         // Check to see if the Game Exists
         // Check to see if the Color is available
         // Return the response
@@ -144,7 +148,7 @@ public class Server {
         try {
             authService.deleteAuth(authToken, authDAO);
         } catch (DataAccessException e) {
-            response.status(401);
+            response.status(500);
             throw new LogoutFailureException("Logout Failed");
         }
 
@@ -177,7 +181,7 @@ public class Server {
                 throw new IncorrectCredentialsException("Incorrect User Name and/or Password");
             }
         } catch (DataAccessException e) {
-            response.status(401);
+            response.status(500);
             throw e;
         }
 
@@ -207,7 +211,6 @@ public class Server {
 
         int status = switch (e) {
             case IncorrectCredentialsException ignored -> 401;
-            case DataAccessException ignored -> 400;
             case BadRequestException ignored -> 400;
             case RegisterException ignored -> 403;
             case LogoutFailureException ignored -> 401;
@@ -215,6 +218,8 @@ public class Server {
             case NullFieldsException ignored -> 400;
             case ColorTakenException ignored -> 403;
             case InvalidColorException ignored -> 400;
+            case DataAccessException ignored -> 500;
+
 
             default -> 500;
         };

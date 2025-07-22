@@ -7,8 +7,10 @@ import model.JoinGameRequest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import server.BadRequestException;
 
 import static org.junit.jupiter.api.Assertions.*;
+
 class GameServiceTest {
 
     public GameService gameService;
@@ -58,7 +60,7 @@ class GameServiceTest {
 //    }
 
     @Test
-    void joinGame() throws ColorTakenException, InvalidColorException, DataAccessException {
+    void joinGame() throws ColorTakenException, InvalidColorException, DataAccessException, BadRequestException {
         gameService.joinGame("username", new JoinGameRequest("WHITE", 1234), gameDAO);
         Assertions.assertEquals("username", gameDAO.getGameByID(1234).whiteUsername());
 

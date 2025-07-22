@@ -32,7 +32,7 @@ public class AuthService {
         return authDAO.validateAuth(authToken);
     }
 
-    public void clearAuthData(AuthDAO authDAO) {
+    public void clearAuthData(AuthDAO authDAO) throws DataAccessException {
         authDAO.clear();
     }
 

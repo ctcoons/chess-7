@@ -110,12 +110,13 @@ public class SQLAuthDAO extends SQLParent implements AuthDAO {
     }
 
     @Override
-    public void clear() {
+    public void clear() throws DataAccessException {
         String statement1 = "DELETE FROM authData";
         try {
             executeUpdate(statement1);
         } catch (DataAccessException e) {
-            System.out.println("Exception Thrown: " + e + ". Clearing AuthData not successful");
+            System.out.println("Clear Auth Data Throws Error--> " + e);
+            throw new DataAccessException("Failed to clear authData due to error: " + e);
         }
     }
 

@@ -39,7 +39,7 @@ class SQLUserDAOTest {
     }
 
     @Test
-    void clear() {
+    void clear() throws DataAccessException {
         try {
             UserData user = myDatabase.getUser("myUsername");
             assertEquals("myUsername", user.username());

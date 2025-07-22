@@ -48,7 +48,7 @@ public class UserService {
         return userData.password().equals(loginRequest.password());
     }
 
-    public void clearUserData(UserDAO userDAO) {
+    public void clearUserData(UserDAO userDAO) throws DataAccessException {
         userDAO.clear();
     }
 }
