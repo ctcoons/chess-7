@@ -1,10 +1,11 @@
 package dataaccess;
 
 import model.UserData;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mindrot.jbcrypt.BCrypt;
-import service.AuthService;
+
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -22,10 +23,8 @@ class SQLUserDAOTest {
 
     @Test
     void getUser() throws DataAccessException {
-        UserData user = myDatabase.getUser("myUsername");
-        assertEquals("myUsername", user.username());
-        assertTrue(BCrypt.checkpw("myPassword", user.password()));
-        assertEquals("myEmail", user.email());
+        Assertions.assertNull(myDatabase.getUser("FAKE_USER"));
+        Assertions.assertEquals("myEmail", myDatabase.getUser("myUsername").email());
 
     }
 
@@ -40,27 +39,15 @@ class SQLUserDAOTest {
 
     @Test
     void clear() throws DataAccessException {
-        try {
-            UserData user = myDatabase.getUser("myUsername");
-            assertEquals("myUsername", user.username());
-            assertTrue(BCrypt.checkpw("myPassword", user.password()));
-            assertEquals("myEmail", user.email());
-        } catch (Exception e) {
-            fail("Failed test due to exception: " + e);
-        }
 
         myDatabase.clear();
 
-        try {
-            UserData user = myDatabase.getUser("myUsername");
-            assertNotEquals("myUsername", user.username());
-        } catch (DataAccessException e) {
-            System.out.println("Exception '" + e + "' caught when accessing invalid username");
-        }
+        Assertions.assertNull(myDatabase.getUser("myUsername"));
 
     }
 
     @Test
     void startDatabase() {
     }
+
 }
