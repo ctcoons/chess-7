@@ -2,9 +2,11 @@ package service;
 
 
 import dataaccess.DataAccessException;
+import dataaccess.SQLUserDAO;
 import model.*;
 
 import dataaccess.UserDAO;
+import org.mindrot.jbcrypt.BCrypt;
 
 public class UserService {
 
@@ -37,6 +39,10 @@ public class UserService {
             userData = userDAO.getUser(loginRequest.username());
         } catch (DataAccessException e) {
             return false;
+        }
+
+        if (userDAO instanceof SQLUserDAO) {
+            return BCrypt.checkpw(loginRequest.password(), userData.password());
         }
 
         return userData.password().equals(loginRequest.password());
