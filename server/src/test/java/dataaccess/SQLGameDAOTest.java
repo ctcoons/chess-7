@@ -1,5 +1,7 @@
 package dataaccess;
 
+import chess.ChessGame;
+import com.google.gson.Gson;
 import model.GameData;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -41,15 +43,28 @@ class SQLGameDAOTest {
     }
 
     @Test
-    void clear() {
+    void clear() throws DataAccessException {
+        myDatabase.createGame("NewGame4");
+        assertFalse(myDatabase.listGames().isEmpty());
+        myDatabase.clear();
+        assertTrue(myDatabase.listGames().isEmpty());
     }
 
     @Test
     void contains() {
+        myDatabase.createGame("NewGame5");
+        assertTrue(myDatabase.contains("NewGame5"));
+        assertFalse(myDatabase.contains("FAKE_GAME_NAME_DOES_NOT_EXIST"));
     }
 
     @Test
-    void getGameByName() {
+    void getGameByName() throws DataAccessException {
+        myDatabase.createGame("NewGame6");
+        GameData game6data = myDatabase.getGameByName("NewGame6");
+        Assertions.assertEquals("NewGame6", game6data.gameName());
+        Assertions.assertNull(game6data.whiteUsername());
+        Assertions.assertNull(game6data.blackUsername());
+
     }
 
     @Test

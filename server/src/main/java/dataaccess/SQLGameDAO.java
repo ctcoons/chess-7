@@ -3,6 +3,7 @@ package dataaccess;
 import chess.ChessGame;
 import com.google.gson.Gson;
 import model.GameData;
+import org.junit.platform.engine.support.hierarchical.ThrowableCollector;
 import service.GameAlreadyExistsException;
 
 import java.sql.ResultSet;
@@ -59,17 +60,56 @@ public class SQLGameDAO extends SQLParent implements GameDAO {
 
     @Override
     public void clear() {
-
+        String statement1 = "DELETE FROM gameData";
+        try {
+            executeUpdate(statement1);
+        } catch (DataAccessException e) {
+            System.out.println("Exception Thrown: " + e + ". Clearing GameData not successful");
+        }
     }
 
     @Override
     public boolean contains(String gameName) {
-        return false;
+        var result = new ArrayList<String>();
+        try (var conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT id, gameName FROM gameData";
+            try (var ps = conn.prepareStatement(statement)) {
+                try (var rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        result.add(readGameNames(rs));
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("Error: " + e + " thrown while executing contains for gameName: " + gameName);
+            return false;
+        }
+        return result.contains(gameName);
     }
+
+    private String readGameNames(ResultSet rs) throws SQLException {
+        return rs.getString("gameName");
+    }
+
 
     @Override
     public GameData getGameByName(String gameName) throws DataAccessException {
-        return null;
+        try (var conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT id, whiteUsername, blackUsername, gameName, json FROM gameData WHERE gameName=?";
+            try (var ps = conn.prepareStatement(statement)) {
+                ps.setString(1, gameName);
+                try (var rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        return readGame(rs);
+                    } else {
+                        throw new DataAccessException("No Game By Game Name: " + gameName);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw new DataAccessException("Failed to get game by name: " + gameName + " Due to error: " + e);
+        }
+
     }
 
     @Override
