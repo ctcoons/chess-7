@@ -68,7 +68,11 @@ class SQLGameDAOTest {
     }
 
     @Test
-    void getGameByID() {
+    void getGameByID() throws DataAccessException {
+        myDatabase.createGame("NewGame7");
+        GameData game7data = myDatabase.getGameByName("NewGame7");
+        int gameID = game7data.gameID();
+        Assertions.assertEquals("NewGame7", myDatabase.getGameByID(gameID).gameName());
     }
 
     @Test

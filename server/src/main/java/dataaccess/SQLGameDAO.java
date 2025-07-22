@@ -114,7 +114,21 @@ public class SQLGameDAO extends SQLParent implements GameDAO {
 
     @Override
     public GameData getGameByID(int id) throws DataAccessException {
-        return null;
+        try (var conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT id, whiteUsername, blackUsername, gameName, json FROM gameData WHERE id=?";
+            try (var ps = conn.prepareStatement(statement)) {
+                ps.setInt(1, id);
+                try (var rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        return readGame(rs);
+                    } else {
+                        throw new DataAccessException("No Game By Game id: " + id);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw new DataAccessException("Failed to get game by id: " + id + " Due to error: " + e);
+        }
     }
 
     @Override
