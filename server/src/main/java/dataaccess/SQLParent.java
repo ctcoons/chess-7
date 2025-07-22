@@ -17,11 +17,10 @@ public class SQLParent {
 
             """
             CREATE TABLE IF NOT EXISTS  userData (
-              `id` int NOT NULL AUTO_INCREMENT,
               `username` varchar(256) NOT NULL UNIQUE,
               `password` varchar(256) NOT NULL,
               `email` varchar(256) NOT NULL,
-              PRIMARY KEY (`id`),
+              PRIMARY KEY (`username`),
               INDEX(username)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
             """,
@@ -30,9 +29,7 @@ public class SQLParent {
             CREATE TABLE IF NOT EXISTS  authData (
               `authToken` varchar(256) NOT NULL,
               `username` varchar(256) NOT NULL,
-              `userID` int NOT NULL,
               PRIMARY KEY (`authToken`),
-              FOREIGN KEY (`userID`) REFERENCES userData(id),
               INDEX(username)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
             """
@@ -82,6 +79,18 @@ public class SQLParent {
             throw new DataAccessException("Error: " + e);
         }
     }
+
+    public void clearDatabase() throws DataAccessException {
+
+        executeUpdate("SET FOREIGN_KEY_CHECKS = 0");
+        executeUpdate("DROP TABLE IF EXISTS authData");
+        executeUpdate("DROP TABLE IF EXISTS userData");
+        executeUpdate("SET FOREIGN_KEY_CHECKS = 1");
+        configureDatabase();
+
+
+    }
+
 
 }
 

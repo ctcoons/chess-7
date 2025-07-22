@@ -31,11 +31,33 @@ class SQLUserDAOTest {
 
     @Test
     void createUser() throws DataAccessException {
-
+        myDatabase.createUser(new UserData("user2", "pass2", "email2"));
+        UserData user = myDatabase.getUser("user2");
+        assertEquals("user2", user.username());
+        assertTrue(BCrypt.checkpw("pass2", user.password()));
+        assertEquals("email2", user.email());
     }
 
     @Test
     void clear() {
+        try {
+            UserData user = myDatabase.getUser("myUsername");
+            assertEquals("myUsername", user.username());
+            assertTrue(BCrypt.checkpw("myPassword", user.password()));
+            assertEquals("myEmail", user.email());
+        } catch (Exception e) {
+            fail("Failed test due to exception: " + e);
+        }
+
+        myDatabase.clear();
+
+        try {
+            UserData user = myDatabase.getUser("myUsername");
+            assertNotEquals("myUsername", user.username());
+        } catch (DataAccessException e) {
+            System.out.println("Exception '" + e + "' caught when accessing invalid username");
+        }
+
     }
 
     @Test
