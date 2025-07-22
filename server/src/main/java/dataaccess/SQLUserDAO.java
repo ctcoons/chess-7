@@ -28,7 +28,7 @@ public class SQLUserDAO extends SQLParent implements UserDAO {
                 }
             }
         } catch (Exception e) {
-            throw new DataAccessException("No User By This Username");
+            throw new DataAccessException("No User By This Username due to error: " + e);
         }
     }
 

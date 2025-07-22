@@ -62,13 +62,14 @@ public class Server {
 
     private Object clearApplication(Request request, Response response) throws DataAccessException {
 
-        try {
-            authService.clearAuthData(authDAO);
-            gameService.clearGameData(gameDAO);
-            userService.clearUserData(userDAO);
-        } catch (DataAccessException e) {
-            throw new DataAccessException("Error: " + e);
-        }
+        System.out.println("RUNNING  authService.clearAuthData(authDAO)");
+        authService.clearAuthData(authDAO);
+
+        System.out.println("RUNNING  gameService.clearGameData(gameDAO)");
+        gameService.clearGameData(gameDAO);
+
+        System.out.println("RUNNING  userService.clearUserData(userDAO)");
+        userService.clearUserData(userDAO);
 
         return "{}";
     }
@@ -135,6 +136,7 @@ public class Server {
 
 
         } else {
+            System.out.println("ListGames Not Authorized Thrown");
             throw new NotAuthorizedException("Not Authorized");
         }
     }
@@ -148,7 +150,7 @@ public class Server {
         try {
             authService.deleteAuth(authToken, authDAO);
         } catch (DataAccessException e) {
-            response.status(500);
+            System.out.println("Throwing logout failure from LOGOUT");
             throw new LogoutFailureException("Logout Failed");
         }
 
@@ -177,12 +179,11 @@ public class Server {
                 return authGson.toJson(authData);
 
             } else {
-                response.status(401);
+                System.out.println("Incorrect credentials thrown from login");
                 throw new IncorrectCredentialsException("Incorrect User Name and/or Password");
             }
         } catch (DataAccessException e) {
-            response.status(500);
-            throw e;
+            throw new IncorrectCredentialsException("Couldn't validate your credentials due to exception: " + e);
         }
 
     }

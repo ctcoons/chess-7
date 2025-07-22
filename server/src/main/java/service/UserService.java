@@ -35,11 +35,7 @@ public class UserService {
 
         UserData userData;
 
-        try {
-            userData = userDAO.getUser(loginRequest.username());
-        } catch (DataAccessException e) {
-            return false;
-        }
+        userData = userDAO.getUser(loginRequest.username());
 
         if (userDAO instanceof SQLUserDAO) {
             return BCrypt.checkpw(loginRequest.password(), userData.password());
