@@ -49,10 +49,10 @@ class SQLGameDAOTest {
     }
 
     @Test
-    void containsGame() throws DataAccessException {
-        myDatabase.createGame("NewGame5");
-        assertTrue(myDatabase.containsGameByName("NewGame5"));
-        assertFalse(myDatabase.containsGameByName("FAKE_GAME_NAME_DOES_NOT_EXIST"));
+    void containsGameByName() throws DataAccessException {
+        myDatabase.createGame("myGame10");
+        assertTrue(myDatabase.containsGameByName("myGame10"));
+        assertFalse(myDatabase.containsGameByName("VERY_FAKE_GAME"));
     }
 
     @Test
@@ -81,5 +81,12 @@ class SQLGameDAOTest {
         myDatabase.joinGame("username1", "NewGame7", "WHITE");
         GameData game7dataAfterJoin = myDatabase.getGameByName("NewGame7");
         Assertions.assertEquals("username1", game7dataAfterJoin.whiteUsername());
+    }
+
+    @Test
+    void containsGameByID() throws DataAccessException {
+        myDatabase.createGame("myGame11");
+        assertTrue(myDatabase.containsGameById(1));
+        assertFalse(myDatabase.containsGameById(1000));
     }
 }

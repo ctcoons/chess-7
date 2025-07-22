@@ -18,6 +18,7 @@ class SQLAuthDAOTest {
         myDatabase.clearDatabase();
     }
 
+
     @Test
     void createAuth() {
         String auth = null;

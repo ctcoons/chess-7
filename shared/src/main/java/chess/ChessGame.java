@@ -15,8 +15,6 @@ public class ChessGame {
     TeamColor currentTurnColor;
     ChessBoard board;
 
-//    ChessPosition blackKingPosition;
-//    ChessPosition whiteKingPosition;
 
     public ChessGame() {
 
@@ -24,8 +22,6 @@ public class ChessGame {
         ChessBoard newBoard = new ChessBoard();
         newBoard.resetBoard();
         this.board = newBoard;
-//        this.blackKingPosition = new ChessPosition(8, 5);
-//        this.whiteKingPosition = new ChessPosition(1, 5);
 
     }
 
@@ -45,7 +41,7 @@ public class ChessGame {
                 if (piece != null) {
                     ChessPiece copiedPiece = new ChessPiece(piece.getTeamColor(), piece.getPieceType());
                     this.board.addPiece(curPosition, copiedPiece);
-                    
+
                 }
             }
         }
@@ -190,37 +186,36 @@ public class ChessGame {
      */
     public boolean isInCheckmate(TeamColor teamColor) {
 
-        // If The Team is in Check
+        // If The Team is in chk
         // Check all Possible Moves of teamColor
         // If any of the moves results in NOT a check, inCheck == True
-        if (isInCheck(teamColor)) {
-            for (int row = 1; row < 9; row++) {
-                for (int col = 1; col < 9; col++) {
-                    ChessPosition curPosition = new ChessPosition(row, col);
-                    ChessPiece piece = board.getPiece(curPosition);
+        if (!isInCheck(teamColor)) {
+            return false;
+        }
+        for (int row = 1; row < 9; row++) {
+            for (int col = 1; col < 9; col++) {
+                ChessPosition curPosition = new ChessPosition(row, col);
+                ChessPiece piece = board.getPiece(curPosition);
 
-                    if (piece == null) {
-                        continue;
-                    }
-                    if (piece.getTeamColor() != teamColor) {
-                        continue;
-                    }
+                if (piece == null) {
+                    continue;
+                }
+                if (piece.getTeamColor() != teamColor) {
+                    continue;
+                }
 
-                    for (ChessMove move : piece.pieceMoves(board, curPosition)) {
+                for (ChessMove move : piece.pieceMoves(board, curPosition)) {
 
 
-                        ChessGame testGame = new ChessGame(this.board, this.currentTurnColor);
-                        testGame.doMove(move);
-                        if (!testGame.isInCheck(teamColor)) {
-                            return false;
-                        }
-
+                    ChessGame testGame = new ChessGame(this.board, this.currentTurnColor);
+                    testGame.doMove(move);
+                    if (!testGame.isInCheck(teamColor)) {
+                        return false;
                     }
 
                 }
+
             }
-        } else {
-            return false;
         }
 
         return true;

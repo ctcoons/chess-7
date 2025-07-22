@@ -120,7 +120,8 @@ public class ValidMovesCalculator {
 
                 validMoves.add(new ChessMove(myPosition, validDestination, null));
 
-                if ((myColor == ChessGame.TeamColor.BLACK && myPosition.getRow() == 7) || (myColor == ChessGame.TeamColor.WHITE && myPosition.getRow() == 2)) {
+                if ((myColor == ChessGame.TeamColor.BLACK && myPosition.getRow() == 7)
+                        || (myColor == ChessGame.TeamColor.WHITE && myPosition.getRow() == 2)) {
                     if (myBoard.getPiece(new ChessPosition(row + 2 * colorDif, col)) == null) {
                         ChessPosition newDest = new ChessPosition(row + 2 * colorDif, col);
                         validMoves.add(new ChessMove(myPosition, newDest, null));
