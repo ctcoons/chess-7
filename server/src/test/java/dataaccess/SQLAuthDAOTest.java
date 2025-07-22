@@ -61,10 +61,24 @@ class SQLAuthDAOTest {
     }
 
     @Test
-    void getAuthByAuthToken() {
+    void getAuthByAuthToken() throws DataAccessException {
+        myDatabase.createAuth("username5");
+        AuthData authData = myDatabase.getAuthByUsername("username5");
+        String authToken = authData.authToken();
+        String username = myDatabase.getAuthByAuthToken(authToken);
+        assertEquals("username5", username);
+
     }
 
     @Test
-    void clear() {
+    void clear() throws DataAccessException {
+        myDatabase.createAuth("username4");
+        AuthData authData = myDatabase.getAuthByUsername("username4");
+        Assertions.assertTrue(myDatabase.validateAuth(authData.authToken()));
+
+        myDatabase.clear();
+
+        Assertions.assertFalse(myDatabase.validateAuth(authData.authToken()));
+
     }
 }

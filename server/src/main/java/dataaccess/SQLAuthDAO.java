@@ -70,12 +70,31 @@ public class SQLAuthDAO extends SQLParent implements AuthDAO {
 
     @Override
     public String getAuthByAuthToken(String authToken) throws DataAccessException {
-        return "";
+        try (var conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT username FROM authData WHERE authToken=?";
+            try (var ps = conn.prepareStatement(statement)) {
+                ps.setString(1, authToken);
+                try (var rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        return rs.getString("username");
+                    } else {
+                        throw new DataAccessException("Couldn't get username by auth token");  // No auth found for this username
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw new DataAccessException("Failed get username from auth with error: " + e);
+        }
     }
 
     @Override
     public void clear() {
-
+        String statement1 = "DELETE FROM authData";
+        try {
+            executeUpdate(statement1);
+        } catch (DataAccessException e) {
+            System.out.println("Exception Thrown: " + e + ". Clearing AuthData not successful");
+        }
     }
 
 
