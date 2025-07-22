@@ -76,6 +76,12 @@ class SQLGameDAOTest {
     }
 
     @Test
-    void joinGame() {
+    void joinGame() throws DataAccessException {
+        myDatabase.createGame("NewGame7");
+        GameData game7data = myDatabase.getGameByName("NewGame7");
+        Assertions.assertNull(game7data.blackUsername(), game7data.whiteUsername());
+        myDatabase.joinGame("username1", "NewGame7", "WHITE");
+        GameData game7dataAfterJoin = myDatabase.getGameByName("NewGame7");
+        Assertions.assertEquals("username1", game7dataAfterJoin.whiteUsername());
     }
 }
