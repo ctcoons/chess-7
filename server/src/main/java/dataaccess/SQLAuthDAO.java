@@ -1,7 +1,6 @@
 package dataaccess;
 
 import model.AuthData;
-import org.mindrot.jbcrypt.BCrypt;
 
 import java.util.UUID;
 
@@ -14,13 +13,22 @@ public class SQLAuthDAO extends SQLParent implements AuthDAO {
 
     @Override
     public String createAuth(String username) throws DataAccessException {
-        var statement = "INSERT INTO authData (authToken, username) VALUES (?, ?)";
         String authToken = UUID.randomUUID().toString();
 
-        if (executeUpdate(statement, authToken, username) == 0) {
-            return authToken;
-        } else {
-            throw new DataAccessException("Didn't pass createAuth");
+        try (var conn = DatabaseManager.getConnection()) {
+            var statement = "INSERT INTO authData (authToken, username) VALUES (?, ?)";
+            try (var ps = conn.prepareStatement(statement)) {
+                ps.setString(1, authToken);
+                ps.setString(2, username);
+                int rowsAffected = ps.executeUpdate();
+                if (rowsAffected > 0) {
+                    return authToken;
+                } else {
+                    throw new DataAccessException("Failed to create auth");  // No auth found for this username
+                }
+            }
+        } catch (Exception e) {
+            throw new DataAccessException("Failed createAuth with error: " + e);
         }
     }
 
