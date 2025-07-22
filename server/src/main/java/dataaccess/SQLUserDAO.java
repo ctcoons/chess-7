@@ -6,7 +6,7 @@ import org.mindrot.jbcrypt.BCrypt;
 
 public class SQLUserDAO extends SQLParent implements UserDAO {
 
-    public SQLUserDAO() throws DataAccessException {
+    public SQLUserDAO() {
     }
 
 

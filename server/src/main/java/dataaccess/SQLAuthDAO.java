@@ -7,7 +7,7 @@ import java.util.UUID;
 
 public class SQLAuthDAO extends SQLParent implements AuthDAO {
 
-    public SQLAuthDAO() throws DataAccessException {
+    public SQLAuthDAO() {
 
     }
 

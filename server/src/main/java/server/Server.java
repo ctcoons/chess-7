@@ -25,9 +25,9 @@ public class Server {
     public GameService gameService;
 
     public Server() {
-        this.authDAO = new MemoryAuthDAO();
-        this.gameDAO = new MemoryGameDAO();
-        this.userDAO = new MemoryUserDAO();
+        this.authDAO = new SQLAuthDAO();
+        this.gameDAO = new SQLGameDAO();
+        this.userDAO = new SQLUserDAO();
         this.userService = new UserService();
         this.authService = new AuthService();
         this.gameService = new GameService();

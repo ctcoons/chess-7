@@ -9,8 +9,12 @@ import java.sql.SQLException;
 
 public class SQLParent {
 
-    public SQLParent() throws DataAccessException {
-        configureDatabase();
+    public SQLParent() {
+        try {
+            configureDatabase();
+        } catch (DataAccessException e) {
+            System.out.println("WARNING! SQL PARENT CONSTRUCTOR THREW ERROR: " + e);
+        }
     }
 
     private final String[] createStatements = {
@@ -32,7 +36,21 @@ public class SQLParent {
               PRIMARY KEY (`authToken`),
               INDEX(username)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+            """,
+
             """
+            CREATE TABLE IF NOT EXISTS  gameData (
+              `id` int NOT NULL AUTO_INCREMENT,
+              `gameName` varchar(256) NOT NULL UNIQUE,
+              `whiteUsername` varchar(256) DEFAULT NULL,
+              `blackUsername` varchar(256) DEFAULT NULL,
+              `json` TEXT NOT NULL,
+              PRIMARY KEY (`id`),
+              INDEX(gameName)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+            """
+
+
     };
 
 
@@ -85,6 +103,7 @@ public class SQLParent {
         executeUpdate("SET FOREIGN_KEY_CHECKS = 0");
         executeUpdate("DROP TABLE IF EXISTS authData");
         executeUpdate("DROP TABLE IF EXISTS userData");
+        executeUpdate("DROP TABLE IF EXISTS gameData");
         executeUpdate("SET FOREIGN_KEY_CHECKS = 1");
         configureDatabase();
 
