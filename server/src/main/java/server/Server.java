@@ -207,7 +207,7 @@ public class Server {
 
         int status = switch (e) {
             case IncorrectCredentialsException ignored -> 401;
-//            case DataAccessException ignored -> 400;
+            case DataAccessException ignored -> 400;
             case BadRequestException ignored -> 400;
             case RegisterException ignored -> 403;
             case LogoutFailureException ignored -> 401;

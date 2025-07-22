@@ -48,8 +48,9 @@ class SQLAuthDAOTest {
     void deleteAuth() throws DataAccessException {
         myDatabase.createAuth("username3");
         AuthData authData = myDatabase.getAuthByUsername("username3");
+        Assertions.assertTrue(myDatabase.validateAuth(authData.authToken()));
         myDatabase.deleteAuth(authData.authToken());
-        System.out.println("Passed Delete Auth");
+        Assertions.assertFalse(myDatabase.validateAuth(authData.authToken()));
 
     }
 

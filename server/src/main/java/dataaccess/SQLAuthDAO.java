@@ -54,8 +54,22 @@ public class SQLAuthDAO extends SQLParent implements AuthDAO {
 
     @Override
     public void deleteAuth(String authToken) throws DataAccessException {
-        var statement = "DELETE FROM authData WHERE authToken = ?";
-        executeUpdate(statement, authToken);
+        String statement = "DELETE FROM authData WHERE authToken = ?";
+        try (var conn = DatabaseManager.getConnection()) {
+            try (var ps = conn.prepareStatement(statement)) {
+
+                ps.setString(1, authToken);
+                int rowsAffected = ps.executeUpdate();
+
+                if (rowsAffected == 0) {
+                    throw new DataAccessException("No Such Auth Token in DB");
+                }
+
+            }
+        } catch (Exception e) {
+            throw new DataAccessException("Failed in delete Auth: " + e);
+        }
+
 
     }
 
