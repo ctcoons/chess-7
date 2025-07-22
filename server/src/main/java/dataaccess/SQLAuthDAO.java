@@ -53,7 +53,19 @@ public class SQLAuthDAO extends SQLParent implements AuthDAO {
 
     @Override
     public boolean validateAuth(String authToken) {
-        return false;
+        try (var conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT 1 FROM authData WHERE authToken = ?";
+            try (var ps = conn.prepareStatement(statement)) {
+                ps.setString(1, authToken);
+                try (var rs = ps.executeQuery()) {
+                    // No auth found for this username
+                    return rs.next();
+                }
+            }
+        } catch (Exception e) {
+            return false;
+        }
+
     }
 
     @Override
