@@ -31,8 +31,8 @@ public class MemoryGameDAO implements GameDAO {
     }
 
     @Override
-    public boolean contains(String gameName) {
-        return gameDataHashMap.containsKey(gameName);
+    public boolean containsGameByName(String gameName) throws DataAccessException {
+        return false;
     }
 
     @Override
@@ -78,8 +78,8 @@ public class MemoryGameDAO implements GameDAO {
     }
 
     @Override
-    public boolean containsGame(int id) throws DataAccessException {
-        return gameDataHashMap.containsKey(getGameByID(id).gameName());
+    public boolean containsGameById(int id) throws DataAccessException {
+        return false;
     }
 
 

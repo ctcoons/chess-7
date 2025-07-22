@@ -19,7 +19,7 @@ class GameServiceTest {
     public GameData gameData;
 
     @BeforeEach
-    void initialize() throws GameAlreadyExistsException {
+    void initialize() throws GameAlreadyExistsException, DataAccessException {
         gameService = new GameService();
         gameDAO = new MemoryGameDAO();
         chessGame = new ChessGame();

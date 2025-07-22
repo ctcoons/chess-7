@@ -143,16 +143,15 @@ public class Server {
 
 
     // *** LOGOUT HANDLER ***
-    private Object logout(Request request, Response response) throws LogoutFailureException {
+    private Object logout(Request request, Response response) throws LogoutFailureException, DataAccessException {
 
         String authToken = request.headers("Authorization");
 
-        try {
-            authService.deleteAuth(authToken, authDAO);
-        } catch (DataAccessException e) {
-            System.out.println("Throwing logout failure from LOGOUT");
-            throw new LogoutFailureException("Logout Failed");
+        if (authService.getUsernameByAuthToken(authToken, authDAO) == null) {
+            throw new LogoutFailureException("Failed to logout because wasn't logged in");
         }
+
+        authService.deleteAuth(authToken, authDAO);
 
 //        return response;
         return "{}";
@@ -168,22 +167,16 @@ public class Server {
             throw new BadRequestException("Must give a username and password");
         }
 
+        if (userService.login(loginRequest, userDAO)) {
+            String newAuthToken = authService.addAuth(loginRequest.username(), authDAO);
 
-        try {
-            if (userService.login(loginRequest, userDAO)) {
-                String newAuthToken = authService.addAuth(loginRequest.username(), authDAO);
+            AuthData authData = new AuthData(authService.getUsernameByAuthToken(newAuthToken, authDAO), newAuthToken);
+            Gson authGson = new Gson();
 
-                AuthData authData = new AuthData(authService.getUsernameByAuthToken(newAuthToken, authDAO), newAuthToken);
-                Gson authGson = new Gson();
-
-                return authGson.toJson(authData);
-
-            } else {
-                System.out.println("Incorrect credentials thrown from login");
-                throw new IncorrectCredentialsException("Incorrect User Name and/or Password");
-            }
-        } catch (DataAccessException e) {
-            throw new IncorrectCredentialsException("Couldn't validate your credentials due to exception: " + e);
+            return authGson.toJson(authData);
+        } else {
+            System.out.println("Incorrect credentials thrown from login");
+            throw new IncorrectCredentialsException("Incorrect User Name and/or Password");
         }
 
     }

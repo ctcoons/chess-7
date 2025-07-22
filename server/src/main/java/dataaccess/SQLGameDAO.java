@@ -6,6 +6,7 @@ import model.GameData;
 import org.junit.platform.engine.support.hierarchical.ThrowableCollector;
 import service.GameAlreadyExistsException;
 
+import javax.xml.crypto.Data;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -31,7 +32,8 @@ public class SQLGameDAO extends SQLParent implements GameDAO {
                 }
             }
         } catch (Exception e) {
-            throw new DataAccessException("Failed to retrieve games");
+            System.out.println("error: " + e);
+            throw new DataAccessException("Failed to retrieve games: " + e);
         }
         return result;
     }
@@ -61,15 +63,11 @@ public class SQLGameDAO extends SQLParent implements GameDAO {
     @Override
     public void clear() throws DataAccessException {
         String statement1 = "DELETE FROM gameData";
-        try {
-            executeUpdate(statement1);
-        } catch (DataAccessException e) {
-            throw new DataAccessException("Failed to clear Game Data because of error: " + e);
-        }
+        executeUpdate(statement1);
     }
 
     @Override
-    public boolean contains(String gameName) {
+    public boolean containsGameByName(String gameName) throws DataAccessException {
         var result = new ArrayList<String>();
         try (var conn = DatabaseManager.getConnection()) {
             var statement = "SELECT id, gameName FROM gameData";
@@ -81,8 +79,7 @@ public class SQLGameDAO extends SQLParent implements GameDAO {
                 }
             }
         } catch (Exception e) {
-            System.out.println("Error: " + e + " thrown while executing contains for gameName: " + gameName);
-            return false;
+            throw new DataAccessException("Exception in Contains" + e);
         }
         return result.contains(gameName);
     }
@@ -102,7 +99,7 @@ public class SQLGameDAO extends SQLParent implements GameDAO {
                     if (rs.next()) {
                         return readGame(rs);
                     } else {
-                        throw new DataAccessException("No Game By Game Name: " + gameName);
+                        return null;
                     }
                 }
             }
@@ -122,7 +119,7 @@ public class SQLGameDAO extends SQLParent implements GameDAO {
                     if (rs.next()) {
                         return readGame(rs);
                     } else {
-                        throw new DataAccessException("No Game By Game id: " + id);
+                        return null;
                     }
                 }
             }
@@ -131,7 +128,7 @@ public class SQLGameDAO extends SQLParent implements GameDAO {
         }
     }
 
-    public boolean containsGame(int id) throws DataAccessException {
+    public boolean containsGameById(int id) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
             var statement = "SELECT * FROM gameData WHERE id=?";
             try (var ps = conn.prepareStatement(statement)) {
@@ -151,7 +148,7 @@ public class SQLGameDAO extends SQLParent implements GameDAO {
         String statement;
         if (desiredColor.equals("WHITE")) {
             if (gameData.whiteUsername() != null) {
-                throw new DataAccessException("WHITE Taken by User: " + gameData.whiteUsername());
+                throw new DataAccessException("White Taken");
             } else {
                 statement = "UPDATE gameData SET whiteUsername = ? WHERE gameName = ?";
             }
@@ -166,7 +163,6 @@ public class SQLGameDAO extends SQLParent implements GameDAO {
         }
 
         executeUpdate(statement, username, gameName);
-
     }
 
 }

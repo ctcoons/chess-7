@@ -14,8 +14,8 @@ public class GameService {
         return gameDAO.listGames();
     }
 
-    public void createGame(String gameName, GameDAO gameDAO) throws GameAlreadyExistsException {
-        if (gameDAO.contains(gameName)) {
+    public void createGame(String gameName, GameDAO gameDAO) throws GameAlreadyExistsException, DataAccessException {
+        if (gameDAO.containsGameByName(gameName)) {
             throw new GameAlreadyExistsException("Game Name Taken");
         } else {
             gameDAO.createGame(gameName);
@@ -31,7 +31,7 @@ public class GameService {
         int id = joinGameRequest.gameID();
 
         // Check to see if the ID is good
-        if (!gameDAO.containsGame(id)) {
+        if (!gameDAO.containsGameById(id)) {
             throw new BadRequestException("No Game By ID: " + id);
         }
 

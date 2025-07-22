@@ -16,16 +16,10 @@ public class UserService {
     public void register(UserData userData, UserDAO userDAO) throws DataAccessException, RegisterException {
         // Look to see if there is a user already in the system
 
-        UserData possibleUser = null;
-
-        try {
-            possibleUser = userDAO.getUser(userData.username());
-        } catch (DataAccessException e) {
-            userDAO.createUser(userData);
-        }
-
-        if (possibleUser != null) {
+        if (userDAO.getUser(userData.username()) != null) {
             throw new RegisterException("Username Already Taken");
+        } else {
+            userDAO.createUser(userData);
         }
 
 
@@ -33,9 +27,11 @@ public class UserService {
 
     public boolean login(LoginRequest loginRequest, UserDAO userDAO) throws DataAccessException {
 
-        UserData userData;
+        UserData userData = userDAO.getUser(loginRequest.username());
 
-        userData = userDAO.getUser(loginRequest.username());
+        if (userData == null) {
+            return false;
+        }
 
         if (userDAO instanceof SQLUserDAO) {
             return BCrypt.checkpw(loginRequest.password(), userData.password());

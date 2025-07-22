@@ -23,12 +23,13 @@ public class SQLUserDAO extends SQLParent implements UserDAO {
                         String email = rs.getString("email");
                         return new UserData(username, password, email);
                     } else {
-                        throw new DataAccessException("User not found");
+                        System.out.println("Returning Null From getUser");
+                        return null;
                     }
                 }
             }
         } catch (Exception e) {
-            throw new DataAccessException("No User By This Username due to error: " + e);
+            throw new DataAccessException("No User By This Username due to error: " + e.getMessage());
         }
     }
 
@@ -40,12 +41,12 @@ public class SQLUserDAO extends SQLParent implements UserDAO {
         String password = BCrypt.hashpw(user.password(), BCrypt.gensalt());
         String email = user.email();
 
-        if (executeUpdate(statement, username, password, email) > 0) {
-            System.out.println("Passed Create User");
-        } else {
-            System.out.println("Didn't pass createUser");
-        }
 
+        try {
+            executeUpdate(statement, username, password, email);
+        } catch (Exception e) {
+            throw new DataAccessException("Failed to create user: " + e);
+        }
 
     }
 

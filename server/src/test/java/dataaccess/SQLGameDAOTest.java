@@ -1,7 +1,5 @@
 package dataaccess;
 
-import chess.ChessGame;
-import com.google.gson.Gson;
 import model.GameData;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -51,10 +49,10 @@ class SQLGameDAOTest {
     }
 
     @Test
-    void contains() {
+    void containsGame() throws DataAccessException {
         myDatabase.createGame("NewGame5");
-        assertTrue(myDatabase.contains("NewGame5"));
-        assertFalse(myDatabase.contains("FAKE_GAME_NAME_DOES_NOT_EXIST"));
+        assertTrue(myDatabase.containsGameByName("NewGame5"));
+        assertFalse(myDatabase.containsGameByName("FAKE_GAME_NAME_DOES_NOT_EXIST"));
     }
 
     @Test

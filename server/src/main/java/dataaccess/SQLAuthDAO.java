@@ -43,7 +43,7 @@ public class SQLAuthDAO extends SQLParent implements AuthDAO {
                         String authToken = rs.getString("authToken");
                         return new AuthData(username, authToken);
                     } else {
-                        return null;  // No auth found for this username
+                        return null;
                     }
                 }
             }
@@ -74,7 +74,7 @@ public class SQLAuthDAO extends SQLParent implements AuthDAO {
     }
 
     @Override
-    public boolean validateAuth(String authToken) {
+    public boolean validateAuth(String authToken) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
             var statement = "SELECT 1 FROM authData WHERE authToken = ?";
             try (var ps = conn.prepareStatement(statement)) {
@@ -85,7 +85,7 @@ public class SQLAuthDAO extends SQLParent implements AuthDAO {
                 }
             }
         } catch (Exception e) {
-            return false;
+            throw new DataAccessException("failed to validate auth");
         }
 
     }
@@ -100,7 +100,7 @@ public class SQLAuthDAO extends SQLParent implements AuthDAO {
                     if (rs.next()) {
                         return rs.getString("username");
                     } else {
-                        throw new DataAccessException("Couldn't get username by auth token");  // No auth found for this username
+                        return null;  // No auth found for this username
                     }
                 }
             }

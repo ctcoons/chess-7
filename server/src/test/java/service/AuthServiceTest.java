@@ -84,7 +84,7 @@ class AuthServiceTest {
     }
 
     @Test
-    void validateAuth() {
+    void validateAuth() throws DataAccessException {
         Assertions.assertTrue(authService.validateAuth(authToken1, authDAO));
         Assertions.assertFalse(authService.validateAuth("InvalidToken", authDAO));
     }

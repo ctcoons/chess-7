@@ -93,7 +93,7 @@ public class SQLParent {
 
                 return 0;
             }
-        } catch (SQLException | DataAccessException e) {
+        } catch (SQLException e) {
             throw new DataAccessException("Error: " + e);
         }
     }
