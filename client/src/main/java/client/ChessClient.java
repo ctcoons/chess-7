@@ -2,6 +2,7 @@ package client;
 
 import exception.ResponseException;
 import model.AuthData;
+import model.CreateGameResponse;
 import server.ServerFacade;
 
 import java.util.Arrays;
@@ -51,6 +52,7 @@ public class ChessClient {
         return switch (cmd) {
             case "logout" -> logout();
             case "quit" -> quit();
+            case "create" -> create(params);
             default -> help();
         };
     }
@@ -92,18 +94,19 @@ public class ChessClient {
         String username = params[0];
         String password = params[1];
 
-        var authData = server.login(username, password);
+        try {
+            var authData = server.login(username, password);
 
-        System.out.println(authData);
+            if (authData == null) {
+                throw new ResponseException(400, "Incorrect Credentials");
+            }
 
-        if (authData.authToken() == null) {
-            throw new ResponseException(400, "Incorrect Credentials");
+            state = State.LOGGEDIN;
+            authToken = authData.authToken();
+            return "Successfully logged in. Welcome " + username;
+        } catch (Exception e) {
+            throw new ResponseException(401, "Incorrect Username Or Password");
         }
-
-        state = State.LOGGEDIN;
-        authToken = authData.authToken();
-        return "Successfully logged in. Welcome " + username;
-
 
     }
 
@@ -115,6 +118,30 @@ public class ChessClient {
         state = State.LOGGEDOUT;
         return "Logged Out Successfully";
     }
+
+    public String create(String[] params) throws ResponseException {
+        assertSignedIn();
+        if (!(params.length == 2)) {
+            throw new ResponseException(400, "Must create game with exactly 1 argument: <GAME_NAME>");
+        }
+
+        String gameName = params[0];
+        var response = server.createNewGame(gameName);
+        if (response != null) {
+            return "Created Game '" + gameName + "' successfully.";
+        } else {
+            throw new ResponseException(400, "Failed to create game");
+        }
+    }
+
+    public String join(String[] params) throws ResponseException {
+        return " ";
+    }
+
+    public String observe(String[] params) throws ResponseException {
+        return " ";
+    }
+
 
     public String help() {
         if (state == State.LOGGEDOUT) {

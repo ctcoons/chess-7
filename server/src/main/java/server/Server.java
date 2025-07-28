@@ -168,6 +168,7 @@ public class Server {
         }
 
         if (userService.login(loginRequest, userDAO)) {
+            System.out.println("Validating user " + loginRequest.username() + " with password: " + loginRequest.password());
             String newAuthToken = authService.addAuth(loginRequest.username(), authDAO);
 
             AuthData authData = new AuthData(authService.getUsernameByAuthToken(newAuthToken, authDAO), newAuthToken);
