@@ -45,11 +45,11 @@ public class ServerFacade {
     }
 
 
-    public void createNewGame() {
+    public void createNewGame() throws ResponseException {
     }
 
 
-    public void joinGame() {
+    public void joinGame() throws ResponseException {
     }
 
 
@@ -65,7 +65,12 @@ public class ServerFacade {
             http.setRequestMethod(method);
             http.setDoOutput(true);
 
-            writeBody(request, http);
+            if (request instanceof String && (method.equals("GET") || method.equals("DELETE"))) {
+                http.setRequestProperty("Authorization", (String) request);
+            } else {
+                writeBody(request, http);
+            }
+            
             http.connect();
             throwIfNotSuccessful(http);
             return readBody(http, responseClass);

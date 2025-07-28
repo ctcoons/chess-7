@@ -1,6 +1,7 @@
 package client;
 
 import exception.ResponseException;
+import model.AuthData;
 import server.ServerFacade;
 
 import java.util.Arrays;
@@ -8,11 +9,14 @@ import java.util.Arrays;
 public class ChessClient {
     private final ServerFacade server;
     private final String serverUrl;
-    private State state = State.SIGNEDOUT;
+    public State state = State.LOGGEDOUT;
+    private boolean INGAME = false;
+    private String authToken;
 
     public ChessClient(String serverUrl) {
         this.server = new ServerFacade(serverUrl);
         this.serverUrl = serverUrl;
+        this.authToken = null;
     }
 
     public String eval(String input) {
@@ -20,41 +24,130 @@ public class ChessClient {
             var tokens = input.toLowerCase().split(" ");
             var cmd = (tokens.length > 0) ? tokens[0] : "help";
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
-            return switch (cmd) {
-                case "signin" -> signIn(params);
-                default -> help();
-            };
+            if (state == State.LOGGEDIN) {
+                if (INGAME) {
+                    return inGameCommands(cmd, params);
+                }
+                return signedInCommands(cmd, params);
+            } else {
+                return signedOutCommands(cmd, params);
+            }
+
         } catch (ResponseException ex) {
             return ex.getMessage();
         }
     }
 
-    public String signIn(String... params) throws ResponseException {
-//        if (params.length >= 1) {
-//            state = State.SIGNEDIN;
-//            visitorName = String.join("-", params);
-//            ws = new WebSocketFacade(serverUrl, notificationHandler);
-//            ws.enterPetShop(visitorName);
-//            return String.format("You signed in as %s.", visitorName);
-//        }
-        throw new ResponseException(400, "Expected: <yourname>");
+    private String signedOutCommands(String cmd, String[] params) throws ResponseException {
+        return switch (cmd) {
+            case "register" -> register(params);
+            case "login" -> login(params);
+            case "quit" -> quit();
+            default -> help();
+        };
+    }
+
+    private String signedInCommands(String cmd, String[] params) throws ResponseException {
+        return switch (cmd) {
+            case "logout" -> logout();
+            case "quit" -> quit();
+            default -> help();
+        };
+    }
+
+    private String inGameCommands(String cmd, String[] params) {
+        return switch (cmd) {
+            case "quit" -> quit();
+            default -> help();
+        };
+    }
+
+    public String quit() {
+        if (state == State.LOGGEDOUT) {
+            return "quit";
+        } else if (INGAME) {
+            INGAME = false;
+            return "Game Quit";
+        } else {
+            state = State.LOGGEDOUT;
+            return "Signed Out";
+        }
+    }
+
+    public String register(String... params) throws ResponseException {
+        if (!(params.length == 3)) {
+            throw new ResponseException(400, "Must Register with <USERNAME> <PASSWORD> <EMAIL>");
+        }
+
+        AuthData authData = server.register(params[0], params[1], params[2]);
+        authToken = authData.authToken();
+        state = State.LOGGEDIN;
+        return "Registered Successfully. Welcome " + params[0];
+    }
+
+    public String login(String... params) throws ResponseException {
+        if (!(params.length == 2)) {
+            throw new ResponseException(400, "Must log in with <USERNAME> <PASSWORD>");
+        }
+        String username = params[0];
+        String password = params[1];
+
+        var authData = server.login(username, password);
+
+        System.out.println(authData);
+
+        if (authData.authToken() == null) {
+            throw new ResponseException(400, "Incorrect Credentials");
+        }
+
+        state = State.LOGGEDIN;
+        authToken = authData.authToken();
+        return "Successfully logged in. Welcome " + username;
+
+
+    }
+
+    public String logout() throws ResponseException {
+        assertSignedIn();
+        System.out.println(authToken);
+        server.logout(authToken);
+        authToken = null;
+        state = State.LOGGEDOUT;
+        return "Logged Out Successfully";
     }
 
     public String help() {
-        if (state == State.SIGNEDOUT) {
+        if (state == State.LOGGEDOUT) {
             return """
-                    - signIn <yourname>
-                    - quit
+                    - "register" <USERNAME> <PASSWORD> <EMAIL>
+                    - "login" <USERNAME> <PASSWORD>
+                    - "help"
+                    - "quit"
                     """;
         }
+
+        if (INGAME) {
+            return """
+                    - "quit"
+                    - *** IN-GAME HELP COMMANDS (NOT IMPLEMENTED YET) ***
+                    """;
+        }
+
         return """
-                - list
-                - adopt <pet id>
-                - rescue <name> <CAT|DOG|FROG|FISH>
-                - adoptAll
-                - signOut
-                - quit
+                - "create" <NAME>
+                - "list"
+                - "join" <ID>
+                - "observe" <ID>
+                - "logout"
+                - "help"
                 """;
+    }
+
+
+    private void assertSignedIn() throws ResponseException {
+        if (state == State.LOGGEDOUT) {
+            throw new ResponseException(400, "You must sign in");
+        }
     }
 }
 
