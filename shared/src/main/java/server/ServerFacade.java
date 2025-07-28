@@ -39,12 +39,6 @@ public class ServerFacade {
     }
 
 
-//    public Collection<GameData> listGames(String authToken) throws ResponseException {
-//        var path = "/game";
-//        return this.makeRequest("GET", path, authToken, Collection.class);
-//    }
-
-
     public CreateGameResponse createNewGame(String gameName) throws ResponseException {
         CreateGameRequest createGameRequest = new CreateGameRequest(gameName);
         var path = "/game";
@@ -52,7 +46,17 @@ public class ServerFacade {
     }
 
 
+    public Collection<GameData> listGames(String authToken) throws ResponseException {
+        var path = "/game";
+        return this.makeRequest("GET", path, authToken, Collection.class);
+    }
+
+
     public void joinGame() throws ResponseException {
+    }
+
+
+    public void observeGame() throws ResponseException {
     }
 
 
