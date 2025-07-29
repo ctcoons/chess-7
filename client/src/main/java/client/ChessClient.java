@@ -3,20 +3,20 @@ package client;
 import exception.ResponseException;
 import model.AuthData;
 import model.CreateGameResponse;
+import model.GameData;
 import server.ServerFacade;
 
 import java.util.Arrays;
+import java.util.Collection;
 
 public class ChessClient {
     private final ServerFacade server;
-    private final String serverUrl;
     public State state = State.LOGGEDOUT;
     private boolean INGAME = false;
     private String authToken;
 
     public ChessClient(String serverUrl) {
         this.server = new ServerFacade(serverUrl);
-        this.serverUrl = serverUrl;
         this.authToken = null;
     }
 
@@ -53,6 +53,7 @@ public class ChessClient {
             case "logout" -> logout();
             case "quit" -> quit();
             case "create" -> create(params);
+            case "list" -> listGames(params);
             default -> help();
         };
     }
@@ -121,17 +122,33 @@ public class ChessClient {
 
     public String create(String[] params) throws ResponseException {
         assertSignedIn();
-        if (!(params.length == 2)) {
+        if (!(params.length == 1)) {
             throw new ResponseException(400, "Must create game with exactly 1 argument: <GAME_NAME>");
         }
 
         String gameName = params[0];
-        var response = server.createNewGame(gameName);
+        CreateGameResponse response = server.createNewGame(gameName, authToken);
         if (response != null) {
             return "Created Game '" + gameName + "' successfully.";
         } else {
             throw new ResponseException(400, "Failed to create game");
         }
+    }
+
+    public String listGames(String[] params) throws ResponseException {
+        if (!(params.length == 0)) {
+            throw new ResponseException(400, "No Arguments Needed For List Games");
+        }
+        assertSignedIn();
+        Collection<GameData> gameData = server.listGames(authToken);
+        StringBuilder result = new StringBuilder("Current Games:\n");
+        for (GameData game : gameData) {
+            int id = game.gameID();
+            String name = game.gameName();
+            result.append(id).append("): ").append(name).append("\n");
+        }
+
+        return result.toString();
     }
 
     public String join(String[] params) throws ResponseException {

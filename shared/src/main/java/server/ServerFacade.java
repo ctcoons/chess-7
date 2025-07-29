@@ -1,5 +1,6 @@
 package server;
 
+import chess.ChessGame;
 import com.google.gson.Gson;
 
 import exception.ResponseException;
@@ -9,6 +10,7 @@ import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Map;
 
 public class ServerFacade {
 
@@ -39,16 +41,28 @@ public class ServerFacade {
     }
 
 
-    public CreateGameResponse createNewGame(String gameName) throws ResponseException {
-        CreateGameRequest createGameRequest = new CreateGameRequest(gameName);
+    public CreateGameResponse createNewGame(String gameName, String authToken) throws ResponseException {
+        CreateGameRequestFacade createRequest = new CreateGameRequestFacade(gameName, authToken);
         var path = "/game";
-        return this.makeRequest("GET", path, createGameRequest, CreateGameResponse.class);
+        return this.makeRequest("POST", path, createRequest, CreateGameResponse.class);
     }
 
+    private static class GameListResponse {
+        Collection<GameData> games;
+
+        public Collection<GameData> getGames() {
+            return games;
+        }
+    }
 
     public Collection<GameData> listGames(String authToken) throws ResponseException {
         var path = "/game";
-        return this.makeRequest("GET", path, authToken, Collection.class);
+        GameListResponse response = this.makeRequest("GET", path, authToken, GameListResponse.class);
+        if (response != null) {
+            return response.getGames();
+        } else {
+            throw new ResponseException(400, "Failed to get Games");
+        }
     }
 
 
@@ -74,6 +88,10 @@ public class ServerFacade {
 
             if (request instanceof String && (method.equals("GET") || method.equals("DELETE"))) {
                 http.setRequestProperty("Authorization", (String) request);
+            } else if (request instanceof CreateGameRequestFacade) {
+                http.setRequestProperty("Authorization", ((CreateGameRequestFacade) request).authToken());
+                CreateGameRequest gameRequest = new CreateGameRequest(((CreateGameRequestFacade) request).gameName());
+                writeBody(gameRequest, http);
             } else {
                 writeBody(request, http);
             }
