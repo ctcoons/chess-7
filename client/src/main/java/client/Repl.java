@@ -1,6 +1,10 @@
 package client;
 
+import chess.ChessBoard;
 import chess.ChessGame;
+import chess.ChessPiece;
+import chess.ChessPosition;
+import model.GameData;
 import ui.EscapeSequences;
 
 import java.util.Scanner;
@@ -50,11 +54,24 @@ public class Repl {
         } else {
             System.out.println("Printing from white perspective");
         }
-        System.out.println(client.GAME);
 
-        ChessGame chessGame = client.GAME.game();
+        GameData gameData = client.GAME;
+        ChessGame chessGame = gameData.game();
+        ChessBoard chessBoard = chessGame.getBoard();
+        for (int row = 1; row < 9; row++) {
+            for (int col = 1; col < 9; col++) {
+                ChessPosition position = new ChessPosition(row, col);
+                ChessPiece piece = chessBoard.getPiece(position);
+                if (piece == null) {
+                    System.out.println("NULL_PIECE");
+                } else {
+                    System.out.println(piece.getPieceType());
+                }
 
-        System.out.println(chessGame);
+
+            }
+        }
+
 
     }
 

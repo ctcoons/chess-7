@@ -307,6 +307,14 @@ public class ChessGame {
     }
 
     @Override
+    public String toString() {
+        return "ChessGame{" +
+                "currentTurnColor=" + currentTurnColor +
+                ", board=" + board +
+                '}';
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) {
             return false;

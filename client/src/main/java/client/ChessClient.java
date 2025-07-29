@@ -61,6 +61,7 @@ public class ChessClient {
             case "create" -> create(params);
             case "list" -> listGames(params);
             case "join" -> join(params);
+            case "observe" -> observe(params);
             default -> help();
         };
     }
@@ -227,7 +228,33 @@ public class ChessClient {
     }
 
     public String observe(String[] params) throws ResponseException {
-        return " ";
+        assertSignedIn();
+        if (params.length != 1) {
+            throw new ResponseException(400, "Wrong Input. Format to observe a game: observe <ID>");
+        }
+
+        int id;
+        try {
+            id = Integer.parseInt(params[0]);
+        } catch (NumberFormatException e) {
+            throw new ResponseException(400, "Use the game ID to observe a game");
+        }
+
+        try {
+            GAME = server.getGame(id, authToken);
+        } catch (Exception e) {
+            throw new ResponseException(400, "Failed to get game");
+        }
+
+        INGAME = true;
+
+        COLOR = ChessGame.TeamColor.WHITE;
+
+        GAMEID = id;
+
+        return "Observing Game " + id + "...\n";
+
+
     }
 
 
