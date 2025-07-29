@@ -1,5 +1,6 @@
 package client;
 
+import chess.ChessGame;
 import exception.ResponseException;
 import model.AuthData;
 import model.CreateGameResponse;
@@ -15,7 +16,9 @@ public class ChessClient {
     public boolean INGAME = false;
     private String authToken;
     public String USERNAME;
-    public String COLOR;
+    public ChessGame.TeamColor COLOR;
+    public int GAMEID;
+    public GameData GAME;
 
     public ChessClient(String serverUrl) {
         this.server = new ServerFacade(serverUrl);
@@ -170,8 +173,8 @@ public class ChessClient {
                 blackUser = "empty";
             }
             result.append(id).append("): '").append(name);
-            result.append("'\t").append("White: ").append(whiteUser);
-            result.append("\t").append("Black: ").append(blackUser).append("\n");
+            result.append("'\t").append("WHITE: ").append(whiteUser);
+            result.append("\t").append("BLACK: ").append(blackUser).append("\n");
         }
 
         return result.toString();
@@ -199,8 +202,23 @@ public class ChessClient {
                 throw new ResponseException(400, "Must use a valid game ID and pick a color that is available");
             }
 
+            try {
+                GAME = server.getGame(id, authToken);
+            } catch (Exception e) {
+                throw new ResponseException(400, "Failed to get game");
+            }
+
             INGAME = true;
-            COLOR = color;
+
+
+            if (color.equals("BLACK")) {
+                COLOR = ChessGame.TeamColor.BLACK;
+            } else {
+                COLOR = ChessGame.TeamColor.WHITE;
+            }
+
+            GAMEID = id;
+
             return "Joining Game " + id + "...\nSuccess!";
         } else {
             throw new ResponseException(400, "Format to join a game: join <ID> [BLACK|WHITE]");

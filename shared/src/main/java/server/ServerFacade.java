@@ -40,6 +40,12 @@ public class ServerFacade {
         this.makeRequest("DELETE", path, authToken, null);
     }
 
+    public GameData getGame(int gameID, String authToken) throws ResponseException {
+        GetGameRequest getGameRequest = new GetGameRequest(gameID, authToken);
+        var path = "/game/" + gameID;
+        return this.makeRequest("GET", path, getGameRequest, GameData.class);
+    }
+
 
     public CreateGameResponse createNewGame(String gameName, String authToken) throws ResponseException {
         CreateGameRequestFacade createRequest = new CreateGameRequestFacade(gameName, authToken);
@@ -109,6 +115,8 @@ public class ServerFacade {
                 http.setRequestProperty("Authorization", ((JoinGameRequestFacade) request).authToken());
                 JoinGameRequest joinGame = new JoinGameRequest(((JoinGameRequestFacade) request).color(), ((JoinGameRequestFacade) request).id());
                 writeBody(joinGame, http);
+            } else if (request instanceof GetGameRequest) {
+                http.setRequestProperty("Authorization", ((GetGameRequest) request).authToken());
             } else {
                 writeBody(request, http);
             }

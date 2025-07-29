@@ -1,5 +1,6 @@
 package client;
 
+import chess.ChessGame;
 import ui.EscapeSequences;
 
 import java.util.Scanner;
@@ -44,7 +45,17 @@ public class Repl {
     }
 
     private void drawGame() {
-        System.out.println("\nDRAWING THE GAME");
+        if (client.COLOR == ChessGame.TeamColor.BLACK) {
+            System.out.println("Printing game from black perspective");
+        } else {
+            System.out.println("Printing from white perspective");
+        }
+        System.out.println(client.GAME);
+
+        ChessGame chessGame = client.GAME.game();
+
+        System.out.println(chessGame);
+
     }
 
 

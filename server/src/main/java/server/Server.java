@@ -43,6 +43,7 @@ public class Server {
         Spark.post("/session", this::login);
         Spark.delete("/session", this::logout);
         Spark.get("/game", this::listGames);
+        Spark.get("/game/:id", this::getGameById);
         Spark.post("/game", this::createGame);
         Spark.put("/game", this::joinGame);
         Spark.delete("/db", this::clearApplication);
@@ -58,6 +59,30 @@ public class Server {
         Spark.init();
         Spark.awaitInitialization();
         return Spark.port();
+    }
+
+    private Object getGameById(Request request, Response response) throws DataAccessException, NotAuthorizedException {
+
+        String authToken = request.headers("Authorization");
+
+        // √ Authenticate the User
+        if (authService.validateAuth(authToken, authDAO)) {
+
+            int gameID;
+            try {
+                gameID = Integer.parseInt(request.params("id"));
+            } catch (NumberFormatException e) {
+                throw new DataAccessException("Invalid Input For ID");
+            }
+
+            GameData gameData = gameService.getGameById(gameID, gameDAO);
+            Gson gameDataGson = new Gson();
+            return gameDataGson.toJson(gameData);
+
+        } else {
+            System.out.println("Join Game Exception Thrown");
+            throw new NotAuthorizedException("User Not Authorized");
+        }
     }
 
     private Object clearApplication(Request request, Response response) throws DataAccessException {
@@ -119,10 +144,6 @@ public class Server {
             System.out.println("Create Game Exception Thrown");
             throw new NotAuthorizedException("Not Authorized");
         }
-    }
-
-    private Object getGame() {
-        return null;
     }
 
     private Object listGames(Request request, Response response) throws NotAuthorizedException, DataAccessException {
