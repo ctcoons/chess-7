@@ -4,6 +4,7 @@ import dataaccess.DataAccessException;
 import exception.ResponseException;
 import model.AuthData;
 import model.CreateGameResponse;
+import model.GameData;
 import org.junit.jupiter.api.*;
 import server.Server;
 import server.ServerFacade;
@@ -12,6 +13,7 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
+import java.util.Collection;
 
 
 public class ServerFacadeTests {
@@ -65,11 +67,22 @@ public class ServerFacadeTests {
     }
 
     @Test
-    void logout() {
+    void logout() throws ResponseException {
+        facade.register("caleb", "caleb_password", "caleb@email.com");
+        AuthData authData = facade.login("caleb", "caleb_password");
+        Assertions.assertNotNull(authData);
+        facade.logout(authData.authToken());
+
+        Assertions.assertThrows(ResponseException.class, () -> {
+            facade.listGames(authData.authToken());
+        });
+
     }
 
     @Test
     void createNewGame() {
+
+
     }
 
     @Test

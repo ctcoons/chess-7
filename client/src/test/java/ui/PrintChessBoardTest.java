@@ -17,7 +17,7 @@ class PrintChessBoardTest {
     static void init() {
         game = new ChessGame();
         board = game.getBoard();
-        printChessBoard = new PrintChessBoard();
+        printChessBoard = new PrintChessBoard(ChessGame.TeamColor.BLACK);
     }
 
 

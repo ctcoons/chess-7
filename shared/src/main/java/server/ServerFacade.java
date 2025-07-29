@@ -83,10 +83,6 @@ public class ServerFacade {
     }
 
 
-    public void observeGame() throws ResponseException {
-    }
-
-
     public String clearApplication(String secretPassword) throws ResponseException {
         if (secretPassword.equals("secretpassword")) {
             var path = "/db";

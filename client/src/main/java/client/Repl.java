@@ -6,6 +6,7 @@ import chess.ChessPiece;
 import chess.ChessPosition;
 import model.GameData;
 import ui.EscapeSequences;
+import ui.PrintChessBoard;
 
 import java.util.Scanner;
 
@@ -24,13 +25,15 @@ public class Repl {
         System.out.println(WHITE_QUEEN + "Welcome to Chess. Sign in to start.");
         System.out.print(SET_TEXT_COLOR_BLUE + client.help());
 
+        System.out.print(moveCursorToLocation(15, 7));
         Scanner scanner = new Scanner(System.in);
         var result = "";
         while (!result.equals(("quit"))) {
             if (client.INGAME) {
-                drawGame();
+                drawGame(scanner);
             }
             printPrompt();
+
             String line = scanner.nextLine();
 
             try {
@@ -48,19 +51,37 @@ public class Repl {
         System.out.print("\n" + ERASE_SCREEN + "[" + client.state + "]" + ">>> " + SET_TEXT_COLOR_GREEN);
     }
 
-    private void drawGame() {
-        if (client.COLOR == ChessGame.TeamColor.BLACK) {
-            System.out.println("Printing game from black perspective");
-        } else {
-            System.out.println("Printing from white perspective");
+    private void drawGame(Scanner scanner) {
+        PrintChessBoard printChessBoard = new PrintChessBoard(client.COLOR);
+
+        var result = "";
+        while (!result.equals(("quit"))) {
+
+            String observer_status = client.OBSERVER ? "OBSERVER" : client.COLOR.toString();
+
+            System.out.print(ERASE_SCREEN + moveCursorToLocation(1, 1));
+            System.out.flush();
+
+            GameData gameData = client.GAME;
+            ChessGame chessGame = gameData.game();
+            ChessBoard chessBoard = chessGame.getBoard();
+
+            printChessBoard.print(chessBoard);
+
+            System.out.print(RESET_BG_COLOR);
+            System.out.print(SET_TEXT_COLOR_BLUE);
+
+            System.out.print("\n" + "[INGAME:" + observer_status + "]" + ">>> " + SET_TEXT_COLOR_GREEN);
+            String line = scanner.nextLine();
+            try {
+                result = client.eval(line);
+                System.out.print(SET_TEXT_COLOR_BLUE + result);
+
+            } catch (Throwable e) {
+                var msg = e.toString();
+                System.out.print(msg);
+            }
         }
-
-        GameData gameData = client.GAME;
-        ChessGame chessGame = gameData.game();
-        ChessBoard chessBoard = chessGame.getBoard();
-
-
+        System.out.println();
     }
-
-
 }

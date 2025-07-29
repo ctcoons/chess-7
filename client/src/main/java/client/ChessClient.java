@@ -19,6 +19,7 @@ public class ChessClient {
     public ChessGame.TeamColor COLOR;
     public int GAMEID;
     public GameData GAME;
+    public boolean OBSERVER = false;
 
     public ChessClient(String serverUrl) {
         this.server = new ServerFacade(serverUrl);
@@ -123,7 +124,6 @@ public class ChessClient {
 
     public String logout() throws ResponseException {
         assertSignedIn();
-        System.out.println(authToken);
         server.logout(authToken);
         authToken = null;
         USERNAME = null;
@@ -147,7 +147,12 @@ public class ChessClient {
         }
 
         String gameName = params[0];
-        CreateGameResponse response = server.createNewGame(gameName, authToken);
+        CreateGameResponse response;
+        try {
+            response = server.createNewGame(gameName, authToken);
+        } catch (Exception e) {
+            return "Game with name '" + gameName + "' already exists. Use another game name.";
+        }
         if (response != null) {
             return "Created Game '" + gameName + "' successfully.";
         } else {
@@ -210,17 +215,13 @@ public class ChessClient {
             }
 
             INGAME = true;
+            OBSERVER = false;
 
-
-            if (color.equals("BLACK")) {
-                COLOR = ChessGame.TeamColor.BLACK;
-            } else {
-                COLOR = ChessGame.TeamColor.WHITE;
-            }
+            COLOR = color.equals("BLACK") ? ChessGame.TeamColor.BLACK : ChessGame.TeamColor.WHITE;
 
             GAMEID = id;
 
-            return "Joining Game " + id + "...\nSuccess!";
+            return "Joining Game " + id + "...\n";
         } else {
             throw new ResponseException(400, "Format to join a game: join <ID> [BLACK|WHITE]");
         }
@@ -249,6 +250,8 @@ public class ChessClient {
         INGAME = true;
 
         COLOR = ChessGame.TeamColor.WHITE;
+
+        OBSERVER = true;
 
         GAMEID = id;
 
