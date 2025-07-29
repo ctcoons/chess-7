@@ -12,13 +12,13 @@ import java.util.*;
 public class ChessClient {
     private final ServerFacade server;
     public State state = State.LOGGEDOUT;
-    public boolean INGAME = false;
+    public boolean inGame = false;
     private String authToken;
-    public String USERNAME;
-    public ChessGame.TeamColor COLOR;
-    public int GAMEID;
-    public GameData GAME;
-    public boolean OBSERVER = false;
+    public String userName;
+    public ChessGame.TeamColor color;
+    public int gameId;
+    public GameData gaMe;
+    public boolean observer = false;
     private Integer mapIndex = 1;
     private Map<Integer, Integer> idMap = new HashMap<>();
 
@@ -33,7 +33,7 @@ public class ChessClient {
             var cmd = (tokens.length > 0) ? tokens[0] : "help";
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
             if (state == State.LOGGEDIN) {
-                if (INGAME) {
+                if (inGame) {
                     return inGameCommands(cmd, params);
                 }
                 return signedInCommands(cmd, params);
@@ -78,11 +78,11 @@ public class ChessClient {
     public String quit() {
         if (state == State.LOGGEDOUT) {
             return "quit";
-        } else if (INGAME) {
-            INGAME = false;
-            OBSERVER = false;
-            GAME = null;
-            COLOR = null;
+        } else if (inGame) {
+            inGame = false;
+            observer = false;
+            gaMe = null;
+            color = null;
             return "quit";
         } else {
             state = State.LOGGEDOUT;
@@ -105,7 +105,7 @@ public class ChessClient {
 
         authToken = authData.authToken();
         state = State.LOGGEDIN;
-        USERNAME = params[0];
+        userName = params[0];
         updateGames(authToken);
         return "Registered Successfully. Welcome " + params[0];
     }
@@ -126,7 +126,7 @@ public class ChessClient {
 
             state = State.LOGGEDIN;
             authToken = authData.authToken();
-            USERNAME = params[0];
+            userName = params[0];
             updateGames(authToken);
             return "Successfully logged in. Welcome " + username;
         } catch (Exception e) {
@@ -139,8 +139,8 @@ public class ChessClient {
         assertSignedIn();
         server.logout(authToken);
         authToken = null;
-        USERNAME = null;
-        COLOR = null;
+        userName = null;
+        color = null;
         state = State.LOGGEDOUT;
         return "Logged Out Successfully";
     }
@@ -268,17 +268,17 @@ public class ChessClient {
             }
 
             try {
-                GAME = server.getGame(id, authToken);
+                gaMe = server.getGame(id, authToken);
             } catch (Exception e) {
                 throw new ResponseException(400, "Failed to get game");
             }
 
-            INGAME = true;
-            OBSERVER = false;
+            inGame = true;
+            observer = false;
 
-            COLOR = color.equals("BLACK") ? ChessGame.TeamColor.BLACK : ChessGame.TeamColor.WHITE;
+            this.color = color.equals("BLACK") ? ChessGame.TeamColor.BLACK : ChessGame.TeamColor.WHITE;
 
-            GAMEID = id;
+            gameId = id;
 
             return "Joining Game " + index + "...\n";
         } else {
@@ -311,22 +311,22 @@ public class ChessClient {
         }
 
         try {
-            GAME = server.getGame(id, authToken);
+            gaMe = server.getGame(id, authToken);
         } catch (Exception e) {
             throw new ResponseException(400, "Failed to get game");
         }
 
-        if (GAME == null) {
+        if (gaMe == null) {
             throw new ResponseException(400, "No Game Found With This ID");
         }
 
-        INGAME = true;
+        inGame = true;
 
-        COLOR = ChessGame.TeamColor.WHITE;
+        color = ChessGame.TeamColor.WHITE;
 
-        OBSERVER = true;
+        observer = true;
 
-        GAMEID = id;
+        gameId = id;
 
         return "Observing Game " + index + "...\n";
 
@@ -343,7 +343,7 @@ public class ChessClient {
                     """;
         }
 
-        if (INGAME) {
+        if (inGame) {
             return """
                     - "quit"
                     - *** IN-GAME HELP COMMANDS (NOT IMPLEMENTED YET) ***

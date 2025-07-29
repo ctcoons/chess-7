@@ -17,33 +17,33 @@ public class PrintChessBoard {
     private static final int SQUARE_SIZE_IN_PADDED_CHARS = 2;
     ChessGame.TeamColor TEAM_COLOR;
     // Padded characters.
-    private final int START_ROW;
-    private final int END_ROW;
-    private final int ROW_DIR;
-    private final int START_COL;
-    private final int END_COL;
-    private final int COL_DIR;
+    private final int startRow;
+    private final int endRow;
+    private final int rowDir;
+    private final int startCol;
+    private final int endCol;
+    private final int colDir;
 
 
     public PrintChessBoard(ChessGame.TeamColor teamColor) {
         this.TEAM_COLOR = teamColor;
         if (teamColor == ChessGame.TeamColor.BLACK) {
-            START_ROW = 1;
-            END_ROW = 8;
-            ROW_DIR = 1;
+            startRow = 1;
+            endRow = 8;
+            rowDir = 1;
 
-            START_COL = 8;
-            END_COL = 1;
-            COL_DIR = -1;
+            startCol = 8;
+            endCol = 1;
+            colDir = -1;
 
         } else {
-            START_ROW = 8;
-            END_ROW = 1;
-            ROW_DIR = -1;
+            startRow = 8;
+            endRow = 1;
+            rowDir = -1;
 
-            START_COL = 1;
-            END_COL = 8;
-            COL_DIR = 1;
+            startCol = 1;
+            endCol = 8;
+            colDir = 1;
         }
 
     }
@@ -70,7 +70,7 @@ public class PrintChessBoard {
 
     private void drawChessBoard(ChessBoard board, PrintStream out) {
         boolean dark = false;
-        for (int row = START_ROW; row != END_ROW + ROW_DIR; row += ROW_DIR) {
+        for (int row = startRow; row != endRow + rowDir; row += rowDir) {
             drawLeftMargin(row, out);
 
             if (dark) {
@@ -89,7 +89,7 @@ public class PrintChessBoard {
     }
 
     private void drawRowOfSquares(ChessBoard board, int row, PrintStream out, boolean dark) {
-        for (int col = START_COL; col != END_COL + COL_DIR; col += COL_DIR) {
+        for (int col = startCol; col != endCol + colDir; col += colDir) {
 
 
             if (dark) {
@@ -156,7 +156,7 @@ public class PrintChessBoard {
         out.print("   ");
 
         String[] footers = {"a", "b", "c", "d", "e", "f", "g", "h"};
-        for (int col = START_COL - 1; col != END_COL + COL_DIR - 1; col += COL_DIR) {
+        for (int col = startCol - 1; col != endCol + colDir - 1; col += colDir) {
             drawFooter(out, footers[col]);
 
         }
@@ -198,36 +198,4 @@ public class PrintChessBoard {
 
 
 }
-
-/*
-for (int row = START_ROW; row != END_ROW + ROW_DIR; row += ROW_DIR) {
-            for (int col = START_COL; col != END_COL + COL_DIR; col += COL_DIR) {
-                ChessPosition position = new ChessPosition(row, col);
-                ChessPiece piece = board.getPiece(position);
-                if (piece == null) {
-                    System.out.println("NULL_PIECE");
-                } else {
-                    ChessGame.TeamColor pieceColor = piece.getTeamColor();
-                    ChessPiece.PieceType pieceType = piece.getPieceType();
-                    System.out.println(pieceColor + pieceType.toString());
-                }
-
-            }
-        }
- */
-
-
-
-
-
-/*
-                ChessPosition position = new ChessPosition(row, col);
-                ChessPiece piece = board.getPiece(position);
-                if (piece == null) {
-                    System.out.println("NULL_PIECE");
-                } else {
-                    System.out.println(piece.getPieceType());
-                }
- */
-
 

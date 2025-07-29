@@ -26,7 +26,7 @@ public class Repl {
         Scanner scanner = new Scanner(System.in);
         var result = "";
         while (!result.equals(("quit"))) {
-            if (client.INGAME) {
+            if (client.inGame) {
                 drawGame(scanner);
             }
             printPrompt();
@@ -49,17 +49,17 @@ public class Repl {
     }
 
     private void drawGame(Scanner scanner) {
-        PrintChessBoard printChessBoard = new PrintChessBoard(client.COLOR);
+        PrintChessBoard printChessBoard = new PrintChessBoard(client.color);
 
         var result = "";
         while (!result.equals(("quit"))) {
 
-            String observer_status = client.OBSERVER ? "OBSERVER" : client.COLOR.toString();
+            String observerStatus = client.observer ? "OBSERVER" : client.color.toString();
 
             System.out.print(ERASE_SCREEN + moveCursorToLocation(1, 1));
             System.out.flush();
 
-            GameData gameData = client.GAME;
+            GameData gameData = client.gaMe;
             ChessGame chessGame = gameData.game();
             ChessBoard chessBoard = chessGame.getBoard();
 
@@ -68,7 +68,7 @@ public class Repl {
             System.out.print(RESET_BG_COLOR);
             System.out.print(SET_TEXT_COLOR_BLUE);
 
-            System.out.print("\n" + "[INGAME:" + observer_status + "]" + ">>> " + SET_TEXT_COLOR_GREEN);
+            System.out.print("\n" + "[INGAME:" + observerStatus + "]" + ">>> " + SET_TEXT_COLOR_GREEN);
             String line = scanner.nextLine();
             try {
                 result = client.eval(line);
