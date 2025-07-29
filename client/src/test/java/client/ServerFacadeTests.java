@@ -3,6 +3,7 @@ package client;
 import dataaccess.DataAccessException;
 import exception.ResponseException;
 import model.AuthData;
+import model.CreateGameResponse;
 import org.junit.jupiter.api.*;
 import server.Server;
 import server.ServerFacade;
@@ -76,7 +77,11 @@ public class ServerFacadeTests {
     }
 
     @Test
-    void joinGame() {
+    void joinGame() throws ResponseException {
+        AuthData authData = facade.register("caleb", "caleb_password", "caleb@email.com");
+        CreateGameResponse createGameResponse = facade.createNewGame("ThisNewGame", authData.authToken());
+        int gameID = createGameResponse.gameID();
+        facade.joinGame(gameID, "WHITE", authData.authToken());
     }
 
     @Test

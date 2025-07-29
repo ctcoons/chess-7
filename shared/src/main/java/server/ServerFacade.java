@@ -66,7 +66,14 @@ public class ServerFacade {
     }
 
 
-    public void joinGame() throws ResponseException {
+    public void joinGame(int id, String color, String authToken) throws ResponseException {
+        var path = "/game";
+        JoinGameRequestFacade joinGame = new JoinGameRequestFacade(id, color, authToken);
+        try {
+            makeRequest("PUT", path, joinGame, null);
+        } catch (Exception e) {
+            throw new ResponseException(400, "Failed to join game due to: " + e.getMessage());
+        }
     }
 
 
@@ -98,6 +105,10 @@ public class ServerFacade {
                 http.setRequestProperty("Authorization", ((CreateGameRequestFacade) request).authToken());
                 CreateGameRequest gameRequest = new CreateGameRequest(((CreateGameRequestFacade) request).gameName());
                 writeBody(gameRequest, http);
+            } else if (request instanceof JoinGameRequestFacade) {
+                http.setRequestProperty("Authorization", ((JoinGameRequestFacade) request).authToken());
+                JoinGameRequest joinGame = new JoinGameRequest(((JoinGameRequestFacade) request).color(), ((JoinGameRequestFacade) request).id());
+                writeBody(joinGame, http);
             } else {
                 writeBody(request, http);
             }

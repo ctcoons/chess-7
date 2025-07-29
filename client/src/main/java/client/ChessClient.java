@@ -173,15 +173,32 @@ public class ChessClient {
 
     public String join(String[] params) throws ResponseException {
         if (params.length != 2) {
-            throw new ResponseException(400, "Format to join a game: Join <ID> [BLACK|WHITE]");
+            throw new ResponseException(400, "Wrong Input. Format to join a game: join <ID> [BLACK|WHITE]");
         }
 
-        if (!params[1].equals("BLACK") && !params[1].equals("WHITE")) {
-            throw new ResponseException(400, "Format to join a game: Join <ID> [BLACK|WHITE]");
+        int id;
+        try {
+            id = Integer.parseInt(params[0]);
+        } catch (NumberFormatException e) {
+            throw new ResponseException(400, "Use the game ID to join a game");
         }
 
-//        TODO: FINISH WRITING JOIN
-        return null;
+
+        String color = params[1].toUpperCase();
+
+        if (color.equals("BLACK") || color.equals("WHITE")) {
+            try {
+                server.joinGame(id, color, authToken);
+            } catch (Exception e) {
+                throw new ResponseException(400, "Must use a valid game ID and pick a color that is available");
+            }
+
+
+            return "Joining Game " + id + "...\nSuccess!";
+        } else {
+            throw new ResponseException(400, "Format to join a game: join <ID> [BLACK|WHITE]");
+        }
+
     }
 
     public String observe(String[] params) throws ResponseException {
