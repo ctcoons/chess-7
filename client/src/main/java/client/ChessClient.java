@@ -12,7 +12,7 @@ import java.util.Collection;
 public class ChessClient {
     private final ServerFacade server;
     public State state = State.LOGGEDOUT;
-    private boolean INGAME = false;
+    public boolean INGAME = false;
     private String authToken;
 
     public ChessClient(String serverUrl) {
@@ -193,7 +193,7 @@ public class ChessClient {
                 throw new ResponseException(400, "Must use a valid game ID and pick a color that is available");
             }
 
-
+            INGAME = true;
             return "Joining Game " + id + "...\nSuccess!";
         } else {
             throw new ResponseException(400, "Format to join a game: join <ID> [BLACK|WHITE]");

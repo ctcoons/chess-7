@@ -121,6 +121,10 @@ public class Server {
         }
     }
 
+    private Object getGame() {
+        return null;
+    }
+
     private Object listGames(Request request, Response response) throws NotAuthorizedException, DataAccessException {
 
         String authToken = request.headers("Authorization");
