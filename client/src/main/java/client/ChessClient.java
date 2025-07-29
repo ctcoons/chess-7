@@ -14,6 +14,8 @@ public class ChessClient {
     public State state = State.LOGGEDOUT;
     public boolean INGAME = false;
     private String authToken;
+    public String USERNAME;
+    public String COLOR;
 
     public ChessClient(String serverUrl) {
         this.server = new ServerFacade(serverUrl);
@@ -87,6 +89,7 @@ public class ChessClient {
         AuthData authData = server.register(params[0], params[1], params[2]);
         authToken = authData.authToken();
         state = State.LOGGEDIN;
+        USERNAME = params[0];
         return "Registered Successfully. Welcome " + params[0];
     }
 
@@ -106,6 +109,7 @@ public class ChessClient {
 
             state = State.LOGGEDIN;
             authToken = authData.authToken();
+            USERNAME = params[0];
             return "Successfully logged in. Welcome " + username;
         } catch (Exception e) {
             throw new ResponseException(401, "Incorrect Username Or Password");
@@ -118,6 +122,8 @@ public class ChessClient {
         System.out.println(authToken);
         server.logout(authToken);
         authToken = null;
+        USERNAME = null;
+        COLOR = null;
         state = State.LOGGEDOUT;
         return "Logged Out Successfully";
     }
@@ -194,6 +200,7 @@ public class ChessClient {
             }
 
             INGAME = true;
+            COLOR = color;
             return "Joining Game " + id + "...\nSuccess!";
         } else {
             throw new ResponseException(400, "Format to join a game: join <ID> [BLACK|WHITE]");
