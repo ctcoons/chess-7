@@ -15,7 +15,7 @@ public class PrintChessBoard {
     // Board dimensions.
     private static final int BOARD_SIZE_IN_SQUARES = 8;
     private static final int SQUARE_SIZE_IN_PADDED_CHARS = 2;
-    ChessGame.TeamColor TEAM_COLOR;
+    ChessGame.TeamColor teamColor;
     // Padded characters.
     private final int startRow;
     private final int endRow;
@@ -26,7 +26,7 @@ public class PrintChessBoard {
 
 
     public PrintChessBoard(ChessGame.TeamColor teamColor) {
-        this.TEAM_COLOR = teamColor;
+        this.teamColor = teamColor;
         if (teamColor == ChessGame.TeamColor.BLACK) {
             startRow = 1;
             endRow = 8;
