@@ -55,6 +55,7 @@ public class ChessClient {
             case "quit" -> quit();
             case "create" -> create(params);
             case "list" -> listGames(params);
+            case "join" -> join(params);
             default -> help();
         };
     }
@@ -171,7 +172,16 @@ public class ChessClient {
     }
 
     public String join(String[] params) throws ResponseException {
-        return " ";
+        if (params.length != 2) {
+            throw new ResponseException(400, "Format to join a game: Join <ID> [BLACK|WHITE]");
+        }
+
+        if (!params[1].equals("BLACK") && !params[1].equals("WHITE")) {
+            throw new ResponseException(400, "Format to join a game: Join <ID> [BLACK|WHITE]");
+        }
+
+//        TODO: FINISH WRITING JOIN
+        return null;
     }
 
     public String observe(String[] params) throws ResponseException {
