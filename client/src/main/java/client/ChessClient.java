@@ -44,6 +44,7 @@ public class ChessClient {
             case "register" -> register(params);
             case "login" -> login(params);
             case "quit" -> quit();
+            case "clear" -> clear(params);
             default -> help();
         };
     }
@@ -118,6 +119,14 @@ public class ChessClient {
         authToken = null;
         state = State.LOGGEDOUT;
         return "Logged Out Successfully";
+    }
+
+    private String clear(String... params) throws ResponseException {
+        if (params.length != 1) {
+            return "";
+        } else {
+            return server.clearApplication(params[0]);
+        }
     }
 
     public String create(String[] params) throws ResponseException {

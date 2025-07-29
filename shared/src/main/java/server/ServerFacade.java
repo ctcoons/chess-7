@@ -74,9 +74,15 @@ public class ServerFacade {
     }
 
 
-    public void clearApplication() throws ResponseException {
-        var path = "/db";
-        this.makeRequest("DELETE", path, null, null);
+    public String clearApplication(String secretPassword) throws ResponseException {
+        if (secretPassword.equals("secretpassword")) {
+            var path = "/db";
+            this.makeRequest("DELETE", path, null, null);
+            return "";
+        } else {
+            return " ";
+        }
+
     }
 
     private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass) throws ResponseException {

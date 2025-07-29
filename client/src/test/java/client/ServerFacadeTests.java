@@ -28,22 +28,8 @@ public class ServerFacadeTests {
     }
 
     @BeforeEach
-    public void clearServer() throws DataAccessException {
-        try {
-            String method = "DELETE";
-            var serverUrl = "http://localhost:" + port;
-            URL url = (new URI(serverUrl + "/db")).toURL();
-            HttpURLConnection http = (HttpURLConnection) url.openConnection();
-            http.setRequestMethod(method);
-            http.setDoOutput(true);
-            http.addRequestProperty("Content-Type", "application/json");
-            String reqData = "{}";
-            OutputStream reqBody = http.getOutputStream();
-            reqBody.write(reqData.getBytes());
-            http.connect();
-        } catch (Exception e) {
-            throw new DataAccessException("Failed To Clear DB in Setup");
-        }
+    public void clearServer() throws ResponseException {
+        facade.clearApplication("secretpassword");
     }
 
     @AfterAll
@@ -54,14 +40,27 @@ public class ServerFacadeTests {
 
     @Test
     void register() throws ResponseException {
-        AuthData authData = facade.register("jacob", "caleb_password", "caleb@email.com");
-        Assertions.assertEquals("jacob", authData.username());
-
+        AuthData authData = facade.register("caleb", "caleb_password", "caleb@email.com");
+        Assertions.assertEquals("caleb", authData.username());
 
     }
 
     @Test
-    void login() {
+    void login() throws ResponseException {
+        facade.register("caleb", "caleb_password", "caleb@email.com");
+        AuthData authData = facade.login("caleb", "caleb_password");
+        Assertions.assertNotNull(authData);
+
+        AuthData badAuth = null;
+
+        try {
+            badAuth = facade.login("caleb", "bad_password");
+        } catch (Exception e) {
+
+        }
+        Assertions.assertNull(badAuth);
+
+
     }
 
     @Test
