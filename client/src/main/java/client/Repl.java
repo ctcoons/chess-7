@@ -2,10 +2,7 @@ package client;
 
 import chess.ChessBoard;
 import chess.ChessGame;
-import chess.ChessPiece;
-import chess.ChessPosition;
 import model.GameData;
-import ui.EscapeSequences;
 import ui.PrintChessBoard;
 
 import java.util.Scanner;

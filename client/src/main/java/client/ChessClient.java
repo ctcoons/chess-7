@@ -7,8 +7,7 @@ import model.CreateGameResponse;
 import model.GameData;
 import server.ServerFacade;
 
-import java.util.Arrays;
-import java.util.Collection;
+import java.util.*;
 
 public class ChessClient {
     private final ServerFacade server;
@@ -20,6 +19,8 @@ public class ChessClient {
     public int GAMEID;
     public GameData GAME;
     public boolean OBSERVER = false;
+    private Integer mapIndex = 1;
+    private Map<Integer, Integer> idMap = new HashMap<>();
 
     public ChessClient(String serverUrl) {
         this.server = new ServerFacade(serverUrl);
@@ -79,7 +80,10 @@ public class ChessClient {
             return "quit";
         } else if (INGAME) {
             INGAME = false;
-            return "Game Quit";
+            OBSERVER = false;
+            GAME = null;
+            COLOR = null;
+            return "quit";
         } else {
             state = State.LOGGEDOUT;
             return "Signed Out";
@@ -91,10 +95,18 @@ public class ChessClient {
             throw new ResponseException(400, "Must Register with <USERNAME> <PASSWORD> <EMAIL>");
         }
 
-        AuthData authData = server.register(params[0], params[1], params[2]);
+        AuthData authData;
+
+        try {
+            authData = server.register(params[0], params[1], params[2]);
+        } catch (Exception e) {
+            throw new ResponseException(400, "Username Already Taken");
+        }
+
         authToken = authData.authToken();
         state = State.LOGGEDIN;
         USERNAME = params[0];
+        updateGames(authToken);
         return "Registered Successfully. Welcome " + params[0];
     }
 
@@ -115,6 +127,7 @@ public class ChessClient {
             state = State.LOGGEDIN;
             authToken = authData.authToken();
             USERNAME = params[0];
+            updateGames(authToken);
             return "Successfully logged in. Welcome " + username;
         } catch (Exception e) {
             throw new ResponseException(401, "Incorrect Username Or Password");
@@ -136,7 +149,13 @@ public class ChessClient {
         if (params.length != 1) {
             return "";
         } else {
-            return server.clearApplication(params[0]);
+            if (Objects.equals(server.clearApplication(params[0]), "")) {
+                idMap.clear();
+                mapIndex = 1;
+                return " ";
+            } else {
+                return "";
+            }
         }
     }
 
@@ -154,21 +173,51 @@ public class ChessClient {
             return "Game with name '" + gameName + "' already exists. Use another game name.";
         }
         if (response != null) {
+            int id = response.gameID();
+            idMap.put(mapIndex, id);
+            mapIndex++;
             return "Created Game '" + gameName + "' successfully.";
         } else {
             throw new ResponseException(400, "Failed to create game");
         }
     }
 
+    private void updateGames(String authToken) throws ResponseException {
+        HashMap<Integer, Integer> result = new HashMap<>();
+
+        try {
+            mapIndex = 1;
+            Collection<GameData> gameData = server.listGames(authToken);
+            for (GameData game : gameData) {
+                result.put(mapIndex, game.gameID());
+                mapIndex++;
+            }
+        } catch (Exception e) {
+            throw new ResponseException(400, e.getMessage());
+        }
+
+        idMap = result;
+    }
+
     public String listGames(String[] params) throws ResponseException {
         if (!(params.length == 0)) {
             throw new ResponseException(400, "No Arguments Needed For List Games");
         }
+
         assertSignedIn();
-        Collection<GameData> gameData = server.listGames(authToken);
+
+        try {
+            updateGames(authToken);
+        } catch (Exception e) {
+            throw new ResponseException(400, "Failed to update Games ID List While Listing Games");
+        }
+
         StringBuilder result = new StringBuilder("Current Games:\n");
-        for (GameData game : gameData) {
-            int id = game.gameID();
+
+        for (Map.Entry<Integer, Integer> entry : idMap.entrySet()) {
+            int id = entry.getValue();
+            GameData game = server.getGame(id, authToken);
+
             String name = game.gameName();
             String whiteUser = game.whiteUsername();
             if (whiteUser == null) {
@@ -178,7 +227,7 @@ public class ChessClient {
             if (blackUser == null) {
                 blackUser = "empty";
             }
-            result.append(id).append("): '").append(name);
+            result.append(entry.getKey()).append("): '").append(name);
             result.append("'\t").append("WHITE: ").append(whiteUser);
             result.append("\t").append("BLACK: ").append(blackUser).append("\n");
         }
@@ -191,11 +240,21 @@ public class ChessClient {
             throw new ResponseException(400, "Wrong Input. Format to join a game: join <ID> [BLACK|WHITE]");
         }
 
-        int id;
+        int index;
         try {
-            id = Integer.parseInt(params[0]);
+            index = Integer.parseInt(params[0]);
         } catch (NumberFormatException e) {
             throw new ResponseException(400, "Use the game ID to join a game");
+        }
+
+        Integer id;
+        try {
+            id = idMap.get(index);
+            if (id == null) {
+                throw new Exception("bad id");
+            }
+        } catch (Exception e) {
+            throw new ResponseException(400, "Game By This ID doesn't Exist");
         }
 
 
@@ -221,7 +280,7 @@ public class ChessClient {
 
             GAMEID = id;
 
-            return "Joining Game " + id + "...\n";
+            return "Joining Game " + index + "...\n";
         } else {
             throw new ResponseException(400, "Format to join a game: join <ID> [BLACK|WHITE]");
         }
@@ -234,17 +293,31 @@ public class ChessClient {
             throw new ResponseException(400, "Wrong Input. Format to observe a game: observe <ID>");
         }
 
-        int id;
+        int index;
         try {
-            id = Integer.parseInt(params[0]);
+            index = Integer.parseInt(params[0]);
         } catch (NumberFormatException e) {
             throw new ResponseException(400, "Use the game ID to observe a game");
+        }
+
+        Integer id;
+        try {
+            id = idMap.get(index);
+            if (id == null) {
+                throw new Exception("bad id");
+            }
+        } catch (Exception e) {
+            throw new ResponseException(400, "Game By This ID doesn't Exist");
         }
 
         try {
             GAME = server.getGame(id, authToken);
         } catch (Exception e) {
             throw new ResponseException(400, "Failed to get game");
+        }
+
+        if (GAME == null) {
+            throw new ResponseException(400, "No Game Found With This ID");
         }
 
         INGAME = true;
@@ -255,11 +328,10 @@ public class ChessClient {
 
         GAMEID = id;
 
-        return "Observing Game " + id + "...\n";
+        return "Observing Game " + index + "...\n";
 
 
     }
-
 
     public String help() {
         if (state == State.LOGGEDOUT) {
@@ -287,7 +359,6 @@ public class ChessClient {
                 - "help"
                 """;
     }
-
 
     private void assertSignedIn() throws ResponseException {
         if (state == State.LOGGEDOUT) {

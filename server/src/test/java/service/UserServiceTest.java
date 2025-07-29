@@ -29,7 +29,7 @@ class UserServiceTest {
         username = "username";
         email = "email";
         userData = new UserData(username, password, email);
-        userDAO = new MemoryUserDAO();
+        userDAO = new SQLUserDAO();
     }
 
     @Test

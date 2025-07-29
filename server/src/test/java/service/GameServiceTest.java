@@ -21,7 +21,7 @@ class GameServiceTest {
     @BeforeEach
     void initialize() throws GameAlreadyExistsException, DataAccessException {
         gameService = new GameService();
-        gameDAO = new MemoryGameDAO();
+        gameDAO = new SQLGameDAO();
         chessGame = new ChessGame();
         gameService.createGame("newGame", gameDAO);
         gameData = new GameData(1234, null, null, "newGame", chessGame);

@@ -1,6 +1,5 @@
 package client;
 
-import dataaccess.DataAccessException;
 import exception.ResponseException;
 import model.AuthData;
 import model.CreateGameResponse;
@@ -9,16 +8,11 @@ import org.junit.jupiter.api.*;
 import server.Server;
 import server.ServerFacade;
 
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URI;
-import java.net.URL;
 import java.util.Collection;
 
 
 public class ServerFacadeTests {
 
-    private static int port;
     private static Server server;
     static ServerFacade facade;
     private AuthData authData;
@@ -26,7 +20,7 @@ public class ServerFacadeTests {
     @BeforeAll
     public static void init() {
         server = new Server();
-        port = server.run(0);
+        int port = server.run(0);
         System.out.println("Started test HTTP server on " + port);
         facade = new ServerFacade("http://localhost:" + port);
     }
@@ -48,9 +42,7 @@ public class ServerFacadeTests {
     void register() throws ResponseException {
         facade.register("m", "m", "m");
 
-        Assertions.assertThrows(ResponseException.class, () -> {
-            facade.register("m", "m", "m");
-        });
+        Assertions.assertThrows(ResponseException.class, () -> facade.register("m", "m", "m"));
     }
 
     @Test
@@ -60,10 +52,11 @@ public class ServerFacadeTests {
 
         try {
             badAuth = facade.login("caleb", "bad_password");
-        } catch (Exception e) {
+        } catch (Exception ignored) {
 
         }
         Assertions.assertNull(badAuth);
+        Assertions.assertNotNull(facade.login("caleb", "caleb_password"));
 
 
     }
@@ -73,9 +66,7 @@ public class ServerFacadeTests {
 
         facade.logout(authData.authToken());
 
-        Assertions.assertThrows(ResponseException.class, () -> {
-            facade.listGames(authData.authToken());
-        });
+        Assertions.assertThrows(ResponseException.class, () -> facade.listGames(authData.authToken()));
 
     }
 
@@ -84,9 +75,7 @@ public class ServerFacadeTests {
 
         facade.createNewGame("new_game", authData.authToken());
 
-        Assertions.assertThrows(ResponseException.class, () -> {
-            facade.createNewGame("new_game", authData.authToken());
-        });
+        Assertions.assertThrows(ResponseException.class, () -> facade.createNewGame("new_game", authData.authToken()));
     }
 
     @Test
@@ -109,19 +98,27 @@ public class ServerFacadeTests {
         AuthData newAuthData = facade.login("joe", "joe");
 
 
-        Assertions.assertThrows(ResponseException.class, () -> {
-            facade.joinGame(gameID, "WHITE", newAuthData.authToken());
-        });
+        Assertions.assertThrows(ResponseException.class, () -> facade.joinGame(gameID, "WHITE", newAuthData.authToken()));
 
     }
 
     @Test
-    void getGame() {
+    void getGame() throws ResponseException {
+        CreateGameResponse createGameResponse = facade.createNewGame("ThisNewGame", authData.authToken());
+        int gameID = createGameResponse.gameID();
+
+        GameData gameData = facade.getGame(gameID, authData.authToken());
+        Assertions.assertNotNull(gameData.gameName());
 
     }
 
     @Test
-    void clearApplication() {
+    void clearApplication() throws ResponseException {
+        facade.clearApplication("secretpassword");
+        facade.register("caleb", "caleb_password", "caleb@email.com");
+        this.authData = facade.login("caleb", "caleb_password");
+        Collection<GameData> games = facade.listGames(authData.authToken());
+        Assertions.assertTrue(games.isEmpty());
     }
 
 }

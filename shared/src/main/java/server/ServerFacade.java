@@ -20,20 +20,17 @@ public class ServerFacade {
         this.serverUrl = url;
     }
 
-
     public AuthData register(String username, String password, String email) throws ResponseException {
         var path = "/user";
         var regReq = new RegisterRequest(username, password, email);
         return this.makeRequest("POST", path, regReq, AuthData.class);
     }
 
-
     public AuthData login(String username, String password) throws ResponseException {
         var path = "/session";
         var logReq = new LoginRequest(username, password);
         return this.makeRequest("POST", path, logReq, AuthData.class);
     }
-
 
     public void logout(String authToken) throws ResponseException {
         var path = "/session";
@@ -45,7 +42,6 @@ public class ServerFacade {
         var path = "/game/" + gameID;
         return this.makeRequest("GET", path, getGameRequest, GameData.class);
     }
-
 
     public CreateGameResponse createNewGame(String gameName, String authToken) throws ResponseException {
         CreateGameRequestFacade createRequest = new CreateGameRequestFacade(gameName, authToken);
@@ -71,7 +67,6 @@ public class ServerFacade {
         }
     }
 
-
     public void joinGame(int id, String color, String authToken) throws ResponseException {
         var path = "/game";
         JoinGameRequestFacade joinGame = new JoinGameRequestFacade(id, color, authToken);
@@ -81,7 +76,6 @@ public class ServerFacade {
             throw new ResponseException(400, "Failed to join game due to: " + e.getMessage());
         }
     }
-
 
     public String clearApplication(String secretPassword) throws ResponseException {
         if (secretPassword.equals("secretpassword")) {
@@ -162,7 +156,6 @@ public class ServerFacade {
         }
         return response;
     }
-
 
     private boolean isSuccessful(int status) {
         return status / 100 == 2;
