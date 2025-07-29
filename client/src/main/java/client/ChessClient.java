@@ -154,7 +154,17 @@ public class ChessClient {
         for (GameData game : gameData) {
             int id = game.gameID();
             String name = game.gameName();
-            result.append(id).append("): ").append(name).append("\n");
+            String whiteUser = game.whiteUsername();
+            if (whiteUser == null) {
+                whiteUser = "empty";
+            }
+            String blackUser = game.blackUsername();
+            if (blackUser == null) {
+                blackUser = "empty";
+            }
+            result.append(id).append("): '").append(name);
+            result.append("'\t").append("White: ").append(whiteUser);
+            result.append("\t").append("Black: ").append(blackUser).append("\n");
         }
 
         return result.toString();
@@ -189,7 +199,7 @@ public class ChessClient {
         return """
                 - "create" <NAME>
                 - "list"
-                - "join" <ID>
+                - "join" <ID> [WHITE|BLACK]
                 - "observe" <ID>
                 - "logout"
                 - "help"
