@@ -12,18 +12,23 @@ public class ConnectionManager {
 
     public ConcurrentHashMap<Integer, ConcurrentHashMap<String, Connection>> connections = new ConcurrentHashMap<>();
 
-    public void add(Integer gameID, String authToken, Session session) {
+    public void add(Integer gameId, String authToken, Session session) {
+        connections.putIfAbsent(gameId, new ConcurrentHashMap<>());
         var connection = new Connection(authToken, session);
-        connections.get(gameID).put(authToken, connection);
+        connections.get(gameId).put(authToken, connection);
     }
 
     public void removeUserFromGame(Integer gameID, String authToken) {
         connections.get(gameID).remove(authToken);
     }
 
-    public void broadcast(Integer gameID, String excludeAuthToken, ServerMessage serverMessage) throws IOException {
+    public void broadcast(Integer gameId, String excludeAuthToken, ServerMessage serverMessage) throws IOException {
         var removeList = new ArrayList<Connection>();
-        ConcurrentHashMap<String, Connection> participants = connections.get(gameID);
+        var participants = connections.get(gameId);
+        if (participants == null) {
+            return;
+        }
+
         for (var c : participants.values()) {
             if (c.session.isOpen()) {
                 if (!c.authToken.equals(excludeAuthToken)) {
@@ -36,7 +41,7 @@ public class ConnectionManager {
 
         // Clean up any connections that were left open.
         for (var c : removeList) {
-            connections.get(gameID).remove(c.authToken);
+            connections.get(gameId).remove(c.authToken);
         }
     }
 

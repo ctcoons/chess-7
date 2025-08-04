@@ -50,13 +50,19 @@ public class Repl implements NotificationHandler {
         System.out.print("\n" + ERASE_SCREEN + "[" + client.state + "]" + ">>> " + SET_TEXT_COLOR_GREEN);
     }
 
+    private void printInGamePrompt() {
+        System.out.print(RESET_BG_COLOR);
+        System.out.print(SET_TEXT_COLOR_BLUE);
+        String observerStatus = client.observer ? "OBSERVER" : client.color.toString();
+        System.out.print("\n" + "[INGAME:" + observerStatus + "]" + ">>> " + SET_TEXT_COLOR_GREEN);
+    }
+
     private void drawGame(Scanner scanner) {
         PrintChessBoard printChessBoard = new PrintChessBoard(client.color);
 
         var result = "";
         while (!result.equals(("quit"))) {
 
-            String observerStatus = client.observer ? "OBSERVER" : client.color.toString();
 
             System.out.print(ERASE_SCREEN + moveCursorToLocation(1, 1));
             System.out.flush();
@@ -67,10 +73,8 @@ public class Repl implements NotificationHandler {
 
             printChessBoard.print(chessBoard);
 
-            System.out.print(RESET_BG_COLOR);
-            System.out.print(SET_TEXT_COLOR_BLUE);
+            printInGamePrompt();
 
-            System.out.print("\n" + "[INGAME:" + observerStatus + "]" + ">>> " + SET_TEXT_COLOR_GREEN);
             String line = scanner.nextLine();
             try {
                 result = client.eval(line);
@@ -87,7 +91,6 @@ public class Repl implements NotificationHandler {
 
     public void notify(ServerMessage serverMessage) {
         System.out.println(SET_TEXT_COLOR_RED + serverMessage.getMessage());
-        printPrompt();
     }
 
 }
