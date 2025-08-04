@@ -1,6 +1,8 @@
 package server.websocket;
 
 import com.google.gson.Gson;
+import dataaccess.AuthDAO;
+import dataaccess.DataAccessException;
 import dataaccess.SQLAuthDAO;
 import exception.UnauthorizedException;
 import websocket.commands.UserGameCommand;
@@ -12,11 +14,12 @@ import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 @WebSocket
 public class WebSocketHandler {
 
-    public static void WebSocketHandler() {
-
-    }
-
     private final ConnectionManager connections = new ConnectionManager();
+    private final AuthDAO authDAO;
+
+    public WebSocketHandler(AuthDAO authDAO) {
+        this.authDAO = authDAO;
+    }
 
 
     @OnWebSocketMessage
@@ -25,16 +28,15 @@ public class WebSocketHandler {
             UserGameCommand command = new Gson().fromJson(msg, UserGameCommand.class);
 
             // Throws a custom exception.UnauthorizedException. Yours may work differently.
-
             String username = getUsername(command.getAuthToken());
 
-            saveSession(command.getGameID(), session);
+            saveSession(command, session);
 
             switch (command.getCommandType()) {
-                case CONNECT -> connect(session, username, (ConnectCommand) command);
-                case MAKE_MOVE -> makeMove(session, username, (MakeMoveCommand) command);
-                case LEAVE -> LeaveGame(session, username, (LeaveGameCommand) command);
-                case RESIGN -> resign(session, username, (ResignCommand) command);
+                case CONNECT -> connect(session, username, command);
+                case MAKE_MOVE -> makeMove(session, username, command);
+                case LEAVE -> LeaveGame(session, username, command);
+                case RESIGN -> resign(session, username, command);
             }
         } catch (UnauthorizedException ex) {
             // Serializes and sends the error message
@@ -45,7 +47,21 @@ public class WebSocketHandler {
         }
     }
 
-    private String getUsername(String authToken) {
+    private void saveSession(UserGameCommand command, Session session) {
+        connections.add(command.getGameID(), command.getAuthToken(), session);
+    }
+
+
+    private String getUsername(String authToken) throws UnauthorizedException {
+        if (authToken == null) {
+            throw new UnauthorizedException("Not Authorized??");
+        }
+
+        try {
+            return authDAO.getAuthByAuthToken(authToken);
+        } catch (Exception e) {
+            throw new UnauthorizedException("Also not authorized");
+        }
 
     }
 
