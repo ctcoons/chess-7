@@ -1,6 +1,8 @@
 package server.websocket;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import dataaccess.AuthDAO;
 import exception.UnauthorizedException;
 import org.eclipse.jetty.websocket.api.RemoteEndpoint;
@@ -29,7 +31,18 @@ public class WebSocketHandler {
     @OnWebSocketMessage
     public void onMessage(Session session, String msg) {
         try {
-            UserGameCommand command = new Gson().fromJson(msg, UserGameCommand.class);
+
+            JsonObject jsonObject = JsonParser.parseString(msg).getAsJsonObject();
+            String commandType = jsonObject.get("commandType").getAsString();
+            UserGameCommand.CommandType type = UserGameCommand.CommandType.valueOf(commandType);
+            Gson gson = new Gson();
+
+            UserGameCommand command = switch (type) {
+                case CONNECT -> gson.fromJson(jsonObject, ConnectCommand.class);
+                case MAKE_MOVE -> gson.fromJson(jsonObject, MakeMoveCommand.class);
+                case LEAVE -> gson.fromJson(jsonObject, LeaveGameCommand.class);
+                case RESIGN -> gson.fromJson(jsonObject, ResignCommand.class);
+            };
 
             // Throws a custom exception.UnauthorizedException. Yours may work differently.
             String username = getUsername(command.getAuthToken());

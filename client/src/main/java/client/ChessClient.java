@@ -32,6 +32,11 @@ public class ChessClient {
         this.authToken = null;
         this.serverUrl = serverUrl;
         this.notificationHandler = notificationHandler;
+        try {
+            this.ws = new WebSocketFacade(serverUrl, notificationHandler);
+        } catch (Exception ignore) {
+            System.out.print("Failed To Connect To WS");
+        }
     }
 
     public String eval(String input) {
@@ -287,7 +292,6 @@ public class ChessClient {
 
             gameId = id;
 
-            ws = new WebSocketFacade(serverUrl, notificationHandler);
             ws.joinGame(authToken, gameId, color);
 
             return "Joining Game " + index + "...\n";
@@ -338,7 +342,6 @@ public class ChessClient {
 
         gameId = id;
 
-        ws = new WebSocketFacade(serverUrl, notificationHandler);
         ws.joinGame(authToken, gameId, "observer");
 
         return "Observing Game " + index + "...\n";

@@ -5,6 +5,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import websocket.messages.ServerMessage;
 
+import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,9 +35,10 @@ class ChessClientTest {
     }
 
     @Test
-    void login() {
+    void login() throws IOException {
         client.eval("join 33 BLACK");
     }
+
 
     @Test
     void logout() {
@@ -52,6 +54,7 @@ class ChessClientTest {
 
     @Test
     void join() {
+
     }
 
     @Test
