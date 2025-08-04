@@ -171,7 +171,6 @@ public class Server {
         }
     }
 
-
     // *** LOGOUT HANDLER ***
     private Object logout(Request request, Response response) throws LogoutFailureException, DataAccessException {
 

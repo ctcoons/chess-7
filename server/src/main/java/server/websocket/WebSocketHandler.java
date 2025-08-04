@@ -20,6 +20,7 @@ public class WebSocketHandler {
             UserGameCommand command = new Gson().fromJson(msg, UserGameCommand.class);
 
             // Throws a custom exception.UnauthorizedException. Yours may work differently.
+
             String username = getUsername(command.getAuthToken());
 
             saveSession(command.getGameID(), session);

@@ -5,12 +5,12 @@ import org.eclipse.jetty.websocket.api.Session;
 import java.io.IOException;
 
 public class Connection {
-    public Integer gameID;
+    public String authToken;
     public Session session;
 
 
-    public Connection(Integer gameID, Session session) {
-        this.gameID = gameID;
+    public Connection(String authToken, Session session) {
+        this.authToken = authToken;
         this.session = session;
     }
 
