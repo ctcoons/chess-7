@@ -11,6 +11,7 @@ import websocket.commands.*;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
+import websocket.messages.ErrorMessage;
 import websocket.messages.ServerMessage;
 
 import java.io.IOException;
@@ -44,18 +45,18 @@ public class WebSocketHandler {
             }
         } catch (UnauthorizedException ex) {
             // Serializes and sends the error message
-            sendMessage(session.getRemote(), new ServerMessage(ServerMessage.ServerMessageType.ERROR), ex);
+            sendMessage(session.getRemote(), new ErrorMessage("Unauthorized"));
         } catch (Exception ex) {
             ex.printStackTrace();
-            sendMessage(session.getRemote(), new ServerMessage(ServerMessage.ServerMessageType.ERROR), ex);
+            sendMessage(session.getRemote(), new ServerMessage(ServerMessage.ServerMessageType.ERROR));
         }
     }
 
 
     private void connectToGame(Session session, String username, ConnectCommand command) {
         connections.add(command.getGameID(), command.getAuthToken(), session);
-        var message = String.format("%s is in the shop", visitorName);
-        var notification = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
+        var message = String.format("%s has joined the game", username);
+        var notification = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
         connections.broadcast(command.getGameID(), command.getAuthToken(), ServerMessage);
     }
 
@@ -68,11 +69,13 @@ public class WebSocketHandler {
     private void makeMove(Session session, String username, MakeMoveCommand command) {
     }
 
-    private void sendMessage(RemoteEndpoint remote, ServerMessage serverMessage, Exception ex) {
+    private void sendMessage(RemoteEndpoint remote, ServerMessage serverMessage) {
         try {
-            remote.sendString("ERROR: Type: " + serverMessage.getServerMessageType() + " With Exception: " + ex);
-        } catch (IOException ignore) {
-
+            Gson gson = new Gson();
+            String json = gson.toJson(serverMessage);
+            remote.sendString(json);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
