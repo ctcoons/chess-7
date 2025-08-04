@@ -9,6 +9,7 @@ import dataaccess.*;
 import model.*;
 
 
+import server.websocket.WebSocketHandler;
 import service.*;
 import spark.*;
 
@@ -23,6 +24,7 @@ public class Server {
     public UserService userService;
     public AuthService authService;
     public GameService gameService;
+    private final WebSocketHandler webSocketHandler;
 
     public Server() {
         this.authDAO = new SQLAuthDAO();
@@ -31,12 +33,15 @@ public class Server {
         this.userService = new UserService();
         this.authService = new AuthService();
         this.gameService = new GameService();
+        this.webSocketHandler = new WebSocketHandler();
     }
 
     public int run(int desiredPort) {
         Spark.port(desiredPort);
 
         Spark.staticFiles.location("web");
+
+        Spark.webSocket("/ws", webSocketHandler);
 
         //This line initializes the server and can be removed once you have a functioning endpoint 
         Spark.post("/user", this::register);
