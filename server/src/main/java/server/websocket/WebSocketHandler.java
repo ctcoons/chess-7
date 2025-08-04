@@ -1,6 +1,7 @@
 package server.websocket;
 
 import com.google.gson.Gson;
+import dataaccess.SQLAuthDAO;
 import exception.UnauthorizedException;
 import websocket.commands.UserGameCommand;
 
@@ -10,6 +11,10 @@ import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 
 @WebSocket
 public class WebSocketHandler {
+
+    public static void WebSocketHandler() {
+
+    }
 
     private final ConnectionManager connections = new ConnectionManager();
 
@@ -38,6 +43,10 @@ public class WebSocketHandler {
             ex.printStackTrace();
             sendMessage(session.getRemote(), new ErrorMessage("Error: " + ex.getMessage()));
         }
+    }
+
+    private String getUsername(String authToken) {
+
     }
 
 

@@ -18,8 +18,8 @@ import java.util.Map;
 
 public class Server {
 
-    public AuthDAO authDAO;
     public UserDAO userDAO;
+    public AuthDAO authDAO;
     public GameDAO gameDAO;
     public UserService userService;
     public AuthService authService;
@@ -27,9 +27,9 @@ public class Server {
     private final WebSocketHandler webSocketHandler;
 
     public Server() {
+        this.userDAO = new SQLUserDAO();
         this.authDAO = new SQLAuthDAO();
         this.gameDAO = new SQLGameDAO();
-        this.userDAO = new SQLUserDAO();
         this.userService = new UserService();
         this.authService = new AuthService();
         this.gameService = new GameService();
