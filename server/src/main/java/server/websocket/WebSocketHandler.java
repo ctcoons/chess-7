@@ -12,6 +12,7 @@ import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import websocket.messages.ErrorMessage;
+import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
 import java.io.IOException;
@@ -35,8 +36,6 @@ public class WebSocketHandler {
             // Throws a custom exception.UnauthorizedException. Yours may work differently.
             String username = getUsername(command.getAuthToken());
 
-            saveSession(command, session);
-
             switch (command.getCommandType()) {
                 case CONNECT -> connectToGame(session, username, (ConnectCommand) command);
                 case MAKE_MOVE -> makeMove(session, username, (MakeMoveCommand) command);
@@ -48,16 +47,16 @@ public class WebSocketHandler {
             sendMessage(session.getRemote(), new ErrorMessage("Unauthorized"));
         } catch (Exception ex) {
             ex.printStackTrace();
-            sendMessage(session.getRemote(), new ServerMessage(ServerMessage.ServerMessageType.ERROR));
+            sendMessage(session.getRemote(), new ErrorMessage("Found Some Error: " + ex));
         }
     }
 
 
     private void connectToGame(Session session, String username, ConnectCommand command) {
-        connections.add(command.getGameID(), command.getAuthToken(), session);
+        saveSession(command, session);
         var message = String.format("%s has joined the game", username);
-        var notification = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
-        connections.broadcast(command.getGameID(), command.getAuthToken(), ServerMessage);
+        var notification = new NotificationMessage(message);
+        connections.broadcast(command.getGameID(), command.getAuthToken(), notification);
     }
 
     private void resign(Session session, String username, ResignCommand command) {
@@ -82,7 +81,6 @@ public class WebSocketHandler {
     private void saveSession(UserGameCommand command, Session session) {
         connections.add(command.getGameID(), command.getAuthToken(), session);
     }
-
 
     private String getUsername(String authToken) throws UnauthorizedException {
         if (authToken == null) {
