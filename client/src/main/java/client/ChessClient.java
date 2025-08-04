@@ -1,6 +1,8 @@
 package client;
 
 import chess.ChessGame;
+import client.websocket.NotificationHandler;
+import client.websocket.WebSocketFacade;
 import exception.ResponseException;
 import model.AuthData;
 import model.CreateGameResponse;
@@ -11,6 +13,8 @@ import java.util.*;
 
 public class ChessClient {
     private final ServerFacade server;
+    private final NotificationHandler notificationHandler;
+    private WebSocketFacade ws;
     public State state = State.LOGGEDOUT;
     public boolean inGame = false;
     private String authToken;
@@ -22,9 +26,10 @@ public class ChessClient {
     private Integer mapIndex = 1;
     private Map<Integer, Integer> idMap = new HashMap<>();
 
-    public ChessClient(String serverUrl) {
+    public ChessClient(String serverUrl, NotificationHandler notificationHandler) {
         this.server = new ServerFacade(serverUrl);
         this.authToken = null;
+        this.notificationHandler = notificationHandler;
     }
 
     public String eval(String input) {

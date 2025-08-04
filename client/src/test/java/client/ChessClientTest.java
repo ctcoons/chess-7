@@ -1,7 +1,9 @@
 package client;
 
+import client.websocket.NotificationHandler;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import websocket.messages.ServerMessage;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -15,7 +17,12 @@ class ChessClientTest {
 
     @BeforeAll
     public static void init() {
-        client = new ChessClient("http://localhost:8080");
+        client = new ChessClient("http://localhost:8080", new NotificationHandler() {
+            @Override
+            public void notify(ServerMessage serverMessage) {
+
+            }
+        });
     }
 
     @Test

@@ -73,14 +73,14 @@ public class Server {
         // √ Authenticate the User
         if (authService.validateAuth(authToken, authDAO)) {
 
-            int gameId;
+            int gameID;
             try {
-                gameId = Integer.parseInt(request.params("id"));
+                gameID = Integer.parseInt(request.params("id"));
             } catch (NumberFormatException e) {
                 throw new DataAccessException("Invalid Input For ID");
             }
 
-            GameData gameData = gameService.getGameById(gameId, gameDAO);
+            GameData gameData = gameService.getGameById(gameID, gameDAO);
             Gson gameDataGson = new Gson();
             return gameDataGson.toJson(gameData);
 
