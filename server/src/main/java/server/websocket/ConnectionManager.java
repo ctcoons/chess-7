@@ -21,12 +21,13 @@ public class ConnectionManager {
         connections.get(gameID).remove(authToken);
     }
 
-    public void broadcast(Integer gameID, String excludeVisitorName, ServerMessage serverMessage) throws IOException {
+    public void broadcast(Integer gameID, String excludeAuthToken, ServerMessage serverMessage) throws IOException {
         var removeList = new ArrayList<Connection>();
-        for (var c : connections.values()) {
+        ConcurrentHashMap<String, Connection> participants = connections.get(gameID);
+        for (var c : participants.values()) {
             if (c.session.isOpen()) {
-                if (!c.visitorName.equals(excludeVisitorName)) {
-                    c.send(notification.toString());
+                if (!c.authToken.equals(excludeAuthToken)) {
+                    c.send(serverMessage.toString());
                 }
             } else {
                 removeList.add(c);
@@ -35,7 +36,7 @@ public class ConnectionManager {
 
         // Clean up any connections that were left open.
         for (var c : removeList) {
-            connections.remove(c.visitorName);
+            connections.get(gameID).remove(c.authToken);
         }
     }
 
