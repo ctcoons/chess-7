@@ -14,6 +14,7 @@ import java.util.*;
 public class ChessClient {
     private final ServerFacade server;
     private final NotificationHandler notificationHandler;
+    private final String serverUrl;
     private WebSocketFacade ws;
     public State state = State.LOGGEDOUT;
     public boolean inGame = false;
@@ -29,6 +30,7 @@ public class ChessClient {
     public ChessClient(String serverUrl, NotificationHandler notificationHandler) {
         this.server = new ServerFacade(serverUrl);
         this.authToken = null;
+        this.serverUrl = serverUrl;
         this.notificationHandler = notificationHandler;
     }
 
@@ -285,6 +287,9 @@ public class ChessClient {
 
             gameId = id;
 
+            ws = new WebSocketFacade(serverUrl, notificationHandler);
+            ws.joinGame(authToken, gameId, color);
+
             return "Joining Game " + index + "...\n";
         } else {
             throw new ResponseException(400, "Format to join a game: join <ID> [BLACK|WHITE]");
@@ -332,6 +337,9 @@ public class ChessClient {
         observer = true;
 
         gameId = id;
+
+        ws = new WebSocketFacade(serverUrl, notificationHandler);
+        ws.joinGame(authToken, gameId, "observer");
 
         return "Observing Game " + index + "...\n";
 

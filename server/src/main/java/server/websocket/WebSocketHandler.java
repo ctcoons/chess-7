@@ -2,8 +2,6 @@ package server.websocket;
 
 import com.google.gson.Gson;
 import dataaccess.AuthDAO;
-import dataaccess.DataAccessException;
-import dataaccess.SQLAuthDAO;
 import exception.UnauthorizedException;
 import org.eclipse.jetty.websocket.api.RemoteEndpoint;
 import websocket.commands.*;
@@ -54,9 +52,9 @@ public class WebSocketHandler {
 
     private void connectToGame(Session session, String username, ConnectCommand command) throws IOException {
         saveSession(command, session);
-        var message = String.format("%s has joined the game", username);
+        var message = String.format("%s has joined the game as %s", username, command.getWhoIsConnecting());
         var notification = new NotificationMessage(message);
-        connections.broadcast(command.getGameID(), command.getAuthToken(), notification);
+        connections.broadcast(command.getGameId(), command.getAuthToken(), notification);
     }
 
     private void resign(Session session, String username, ResignCommand command) {
@@ -79,7 +77,7 @@ public class WebSocketHandler {
     }
 
     private void saveSession(UserGameCommand command, Session session) {
-        connections.add(command.getGameID(), command.getAuthToken(), session);
+        connections.add(command.getGameId(), command.getAuthToken(), session);
     }
 
     private String getUsername(String authToken) throws UnauthorizedException {

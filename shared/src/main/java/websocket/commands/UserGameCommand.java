@@ -1,7 +1,5 @@
 package websocket.commands;
 
-import exception.UnauthorizedException;
-
 import java.util.Objects;
 
 /**
@@ -16,12 +14,12 @@ public class UserGameCommand {
 
     private final String authToken;
 
-    private final Integer gameID;
+    private final Integer gameId;
 
-    public UserGameCommand(CommandType commandType, String authToken, Integer gameID) {
+    public UserGameCommand(CommandType commandType, String authToken, Integer gameId) {
         this.commandType = commandType;
         this.authToken = authToken;
-        this.gameID = gameID;
+        this.gameId = gameId;
     }
 
     public enum CommandType {
@@ -39,8 +37,8 @@ public class UserGameCommand {
         return authToken;
     }
 
-    public Integer getGameID() {
-        return gameID;
+    public Integer getGameId() {
+        return gameId;
     }
 
     @Override
@@ -54,11 +52,11 @@ public class UserGameCommand {
         UserGameCommand that = (UserGameCommand) o;
         return getCommandType() == that.getCommandType() &&
                 Objects.equals(getAuthToken(), that.getAuthToken()) &&
-                Objects.equals(getGameID(), that.getGameID());
+                Objects.equals(getGameId(), that.getGameId());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getCommandType(), getAuthToken(), getGameID());
+        return Objects.hash(getCommandType(), getAuthToken(), getGameId());
     }
 }
