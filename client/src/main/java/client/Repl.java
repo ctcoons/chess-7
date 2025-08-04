@@ -2,14 +2,16 @@ package client;
 
 import chess.ChessBoard;
 import chess.ChessGame;
+import client.websocket.NotificationHandler;
 import model.GameData;
 import ui.PrintChessBoard;
+import websocket.messages.ServerMessage;
 
 import java.util.Scanner;
 
 import static ui.EscapeSequences.*;
 
-public class Repl {
+public class Repl implements NotificationHandler {
 
     private final ChessClient client;
 
@@ -81,4 +83,11 @@ public class Repl {
         }
         System.out.println();
     }
+
+
+    public void notify(ServerMessage serverMessage) {
+        System.out.println(SET_TEXT_COLOR_RED + serverMessage.getMessage());
+        printPrompt();
+    }
+
 }

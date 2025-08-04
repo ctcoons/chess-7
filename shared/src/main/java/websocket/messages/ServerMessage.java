@@ -26,6 +26,10 @@ public class ServerMessage {
         return this.serverMessageType;
     }
 
+    public String getMessage() {
+        return this.msg;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {

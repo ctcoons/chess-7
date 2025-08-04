@@ -73,14 +73,14 @@ public class Server {
         // √ Authenticate the User
         if (authService.validateAuth(authToken, authDAO)) {
 
-            int gameID;
+            int gameId;
             try {
-                gameID = Integer.parseInt(request.params("id"));
+                gameId = Integer.parseInt(request.params("id"));
             } catch (NumberFormatException e) {
                 throw new DataAccessException("Invalid Input For ID");
             }
 
-            GameData gameData = gameService.getGameById(gameID, gameDAO);
+            GameData gameData = gameService.getGameById(gameId, gameDAO);
             Gson gameDataGson = new Gson();
             return gameDataGson.toJson(gameData);
 
@@ -117,6 +117,7 @@ public class Server {
 
             JoinGameRequest joinGameRequest = fromJson(request, JoinGameRequest.class);
             gameService.joinGame(username, joinGameRequest, gameDAO);
+
 
             return "{}";
         } else {

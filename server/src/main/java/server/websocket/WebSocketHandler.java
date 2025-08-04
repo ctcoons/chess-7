@@ -52,7 +52,7 @@ public class WebSocketHandler {
     }
 
 
-    private void connectToGame(Session session, String username, ConnectCommand command) {
+    private void connectToGame(Session session, String username, ConnectCommand command) throws IOException {
         saveSession(command, session);
         var message = String.format("%s has joined the game", username);
         var notification = new NotificationMessage(message);
