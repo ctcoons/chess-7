@@ -44,6 +44,7 @@ public class SQLParent {
               `gameName` varchar(256) NOT NULL UNIQUE,
               `whiteUsername` varchar(256) DEFAULT NULL,
               `blackUsername` varchar(256) DEFAULT NULL,
+              `winner` ENUM('WHITE', 'BLACK', 'DRAW') DEFAULT NULL,
               `json` TEXT NOT NULL,
               PRIMARY KEY (`id`),
               INDEX(gameName)

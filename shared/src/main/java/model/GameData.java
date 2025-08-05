@@ -1,4 +1,5 @@
 package model;
+
 import chess.ChessGame;
 
 public record GameData(
@@ -6,5 +7,15 @@ public record GameData(
         String whiteUsername,
         String blackUsername,
         String gameName,
-        ChessGame game){
+        Winner winner,
+        ChessGame game) {
+
+    public enum Winner {
+        WHITE,
+        BLACK,
+        DRAW
+    }
+
 }
+
+
