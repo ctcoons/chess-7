@@ -24,7 +24,7 @@ class GameServiceTest {
         gameDAO = new SQLGameDAO();
         chessGame = new ChessGame();
         gameService.createGame("newGame", gameDAO);
-        gameData = new GameData(1234, null, null, "newGame", chessGame);
+        gameData = new GameData(1234, null, null, "newGame", null, chessGame);
 
     }
 

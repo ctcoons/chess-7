@@ -76,7 +76,7 @@ public class WebSocketHandler {
 
     private void leaveGame(String username, LeaveGameCommand command) throws IOException {
         endSession(command);
-        var message = String.format("(%s) %s has left the game", username, command.getWhoIsConnecting());
+        var message = String.format("(%s) %s has left the game", command.getWhoIsConnecting(), username);
         var notification = new NotificationMessage(message);
         connections.broadcast(command.getGameId(), command.getAuthToken(), notification);
     }

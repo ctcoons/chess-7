@@ -43,7 +43,7 @@ public class SQLGameDAO extends SQLParent implements GameDAO {
         var gameName = rs.getString("gameName");
         var json = rs.getString("json");
         ChessGame chessGame = new Gson().fromJson(json, ChessGame.class);
-        return new GameData(id, whiteUsername, blackUsername, gameName, chessGame);
+        return new GameData(id, whiteUsername, blackUsername, gameName, null, chessGame);
     }
 
     @Override

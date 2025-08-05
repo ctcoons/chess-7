@@ -19,7 +19,7 @@ public class MemoryGameDAO implements GameDAO {
 
     @Override
     public void createGame(String gameName) {
-        GameData gameData = new GameData(iD, null, null, gameName, new ChessGame());
+        GameData gameData = new GameData(iD, null, null, gameName, null, new ChessGame());
         gameDataHashMap.put(gameName, gameData);
         iD++;
     }
@@ -68,9 +68,9 @@ public class MemoryGameDAO implements GameDAO {
         GameData updatedGame;
 
         if (desiredColor.equals("WHITE")) {
-            updatedGame = new GameData(gameData.gameID(), username, gameData.blackUsername(), gameData.gameName(), gameData.game());
+            updatedGame = new GameData(gameData.gameID(), username, gameData.blackUsername(), gameData.gameName(), null, gameData.game());
         } else {
-            updatedGame = new GameData(gameData.gameID(), gameData.whiteUsername(), username, gameData.gameName(), gameData.game());
+            updatedGame = new GameData(gameData.gameID(), gameData.whiteUsername(), username, gameData.gameName(), null, gameData.game());
         }
 
         gameDataHashMap.remove(gameData.gameName());
