@@ -1,6 +1,7 @@
 package server;
 
 import chess.ChessGame;
+import chess.ChessMove;
 import com.google.gson.Gson;
 
 import exception.ResponseException;
@@ -30,6 +31,10 @@ public class ServerFacade {
         var path = "/session";
         var logReq = new LoginRequest(username, password);
         return this.makeRequest("POST", path, logReq, AuthData.class);
+    }
+
+    public void makeMove(ChessMove chessMove) {
+
     }
 
     public void leaveGame(int gameId, AuthData authData) throws ResponseException {

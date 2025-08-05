@@ -78,6 +78,11 @@ public class Repl implements NotificationHandler {
             System.out.print(ERASE_SCREEN + moveCursorToLocation(1, 1));
             System.out.flush();
 
+            GameData gameData = client.gaMe;
+            ChessGame chessGame = gameData.game();
+
+            printChessBoard.print(chessGame, null);
+
             printInGamePrompt();
             String line = scanner.nextLine();
 
@@ -107,10 +112,6 @@ public class Repl implements NotificationHandler {
                 System.out.print(msg);
             }
 
-            GameData gameData = client.gaMe;
-            ChessGame chessGame = gameData.game();
-
-            printChessBoard.print(chessGame, null);
 
         }
         System.out.println();

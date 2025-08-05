@@ -1,8 +1,11 @@
 package dataaccess;
 
 import chess.ChessGame;
+import chess.ChessMove;
+import chess.ChessPiece;
 import com.google.gson.Gson;
 import model.GameData;
+import model.MakeMoveResponse;
 
 
 import java.sql.ResultSet;
@@ -155,6 +158,86 @@ public class SQLGameDAO extends SQLParent implements GameDAO {
 
         executeUpdate(statement, null, gameData.gameName());
 
+    }
+
+    @Override
+    public MakeMoveResponse makeMove(int gameId, ChessMove chessMove) throws DataAccessException {
+        GameData curGame = getGameByID(gameId);
+
+        ChessPiece piece = curGame.game().getBoard().getPiece(chessMove.getStartPosition());
+
+        // MAKE SURE THE PIECE ISN'T NULL
+        if (piece == null) {
+            return new MakeMoveResponse(false, "No Piece Here", curGame);
+        }
+
+        // THE COLOR OF THE PIECE BELONGS TO THE TURN THAT IT IS
+        ChessGame.TeamColor pieceColorTryingToMove = piece.getTeamColor();
+        ChessGame.TeamColor startingTurn = curGame.game().getTeamTurn();
+        if (pieceColorTryingToMove != startingTurn) {
+            return new MakeMoveResponse(false, "Can't Move A Piece That Isn't Yours", curGame);
+        }
+
+        // No MOVES ALLOWED IF GAME ALREADY WON
+        if (curGame.winner() != null) {
+            return new MakeMoveResponse(false, "Game Already Over", curGame);
+        }
+
+        // TRY TO MAKE THE MOVE
+        GameData updatedGame;
+        try {
+            // 1. Make a move
+            curGame.game().makeMove(chessMove);
+
+            // 2. Find out if there is a winner
+            GameData.Winner winner;
+            ChessGame.TeamColor endingTurn = curGame.game().getTeamTurn();
+            if (curGame.game().isInStalemate(endingTurn)) {
+                winner = GameData.Winner.DRAW;
+            } else if (curGame.game().isInCheckmate(endingTurn)) {
+                winner = returnOppositeColor(endingTurn);
+            } else {
+                winner = null;
+            }
+
+            // Set updatedGameData
+            updatedGame = new GameData(
+                    curGame.gameID(),
+                    curGame.whiteUsername(),
+                    curGame.blackUsername(),
+                    curGame.gameName(),
+                    winner,
+                    curGame.game()
+            );
+        } catch (Exception e) {
+            return new MakeMoveResponse(false, "Failed to make move due to error: " + e.getMessage(), curGame);
+        }
+
+
+        try (var conn = DatabaseManager.getConnection()) {
+            var statement = "UPDATE gameData SET winner = ?, game = ? WHERE id = ?";
+            try (var ps = conn.prepareStatement(statement)) {
+                if (updatedGame.winner() == null) {
+                    ps.setNull(1, java.sql.Types.VARCHAR);
+                } else {
+                    ps.setString(1, updatedGame.winner().toString());
+                }
+                ps.setString(2, new Gson().toJson(updatedGame.game()));
+                ps.setInt(3, gameId);
+                int rowsUpdated = ps.executeUpdate();
+                if (rowsUpdated == 1) {
+                    return new MakeMoveResponse(true, null, updatedGame);
+                } else {
+                    return new MakeMoveResponse(false, "Faled To Complete", curGame);
+                }
+            }
+        } catch (Exception e) {
+            throw new DataAccessException("Wasn't Able To Update The Game in MakeMove " + e);
+        }
+    }
+
+    private GameData.Winner returnOppositeColor(ChessGame.TeamColor endingTurn) {
+        return ChessGame.TeamColor.BLACK.equals(endingTurn) ? GameData.Winner.BLACK : GameData.Winner.WHITE;
     }
 
     @Override

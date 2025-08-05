@@ -1,7 +1,9 @@
 package dataaccess;
 
 import chess.ChessGame;
+import chess.ChessMove;
 import model.GameData;
+import model.MakeMoveResponse;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -85,6 +87,11 @@ public class MemoryGameDAO implements GameDAO {
     @Override
     public void leaveGame(int gameId, String username) {
 
+    }
+
+    @Override
+    public MakeMoveResponse makeMove(int gameId, ChessMove chessMove) throws DataAccessException {
+        return null;
     }
 
 

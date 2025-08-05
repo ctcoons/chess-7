@@ -1,5 +1,6 @@
 package client.websocket;
 
+import chess.ChessMove;
 import com.google.gson.Gson;
 import exception.ResponseException;
 import server.ServerFacade;
@@ -52,7 +53,6 @@ public class WebSocketFacade extends Endpoint {
         try {
             var connectCommand = new ConnectCommand(authToken, gameID, whoIsConnecting);
             this.session.getBasicRemote().sendText(new Gson().toJson(connectCommand));
-            System.out.print("Sent Message To Other Players ??");
         } catch (IOException ex) {
             throw new ResponseException(500, ex.getMessage());
         }
@@ -62,10 +62,13 @@ public class WebSocketFacade extends Endpoint {
         try {
             var leaveCommand = new LeaveGameCommand(authToken, gameID, whoIsConnecting);
             this.session.getBasicRemote().sendText(new Gson().toJson(leaveCommand));
-            System.out.print("Sent Message To Other Players ??");
         } catch (IOException ex) {
             throw new ResponseException(500, ex.getMessage());
         }
+    }
+
+    public void makeMove(String authToken, int gameID, ChessMove chessMove) {
+        // TODO: Finish this
     }
 
 

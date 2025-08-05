@@ -180,7 +180,6 @@ public class ChessClient {
 
         try {
 
-            gaMe.game().makeMove(new ChessMove(startPosition, endPosition, pieceType));
 
         } catch (Exception e) {
             return "Invalid move";
@@ -472,6 +471,20 @@ public class ChessClient {
         return "Observing Game " + index + "...\n";
 
 
+    }
+
+    // TODO: Decide if Update Game method is necessary
+    public void updateGame() throws ResponseException {
+        if (!inGame) {
+            System.out.print("Can't Update Game Because Not In Game");
+            return;
+        }
+
+        try {
+            gaMe = server.getGame(gameId, authToken);
+        } catch (Exception e) {
+            throw new ResponseException(400, "Failed to get game");
+        }
     }
 
     public String help() {

@@ -45,7 +45,7 @@ public class SQLParent {
               `whiteUsername` varchar(256) DEFAULT NULL,
               `blackUsername` varchar(256) DEFAULT NULL,
               `winner` ENUM('WHITE', 'BLACK', 'DRAW') DEFAULT NULL,
-              `json` TEXT NOT NULL,
+              `game` TEXT NOT NULL,
               PRIMARY KEY (`id`),
               INDEX(gameName)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci

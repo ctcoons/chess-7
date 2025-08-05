@@ -50,6 +50,7 @@ public class Server {
         Spark.get("/game", this::listGames);
         Spark.get("/game/:id", this::getGameById);
         Spark.put("/game/:id/:username", this::leaveGame);
+        Spark.post("/game/:id/:username", this::makeMove);
         Spark.post("/game", this::createGame);
         Spark.put("/game", this::joinGame);
         Spark.delete("/db", this::clearApplication);
@@ -65,6 +66,19 @@ public class Server {
         Spark.init();
         Spark.awaitInitialization();
         return Spark.port();
+    }
+
+    private Object makeMove(Request request, Response response) throws DataAccessException {
+
+        MakeMoveRequest makeMoveRequest = fromJson(request, MakeMoveRequest.class);
+        int gameId;
+        try {
+            gameId = Integer.parseInt(request.params("id"));
+        } catch (NumberFormatException e) {
+            throw new DataAccessException("Invalid Input For ID");
+        }
+        GameData gameData = gameService.makeMove(gameId, makeMoveRequest.chessMove(), gameDAO);
+
     }
 
     private Object leaveGame(Request request, Response response) throws DataAccessException, NotAuthorizedException {

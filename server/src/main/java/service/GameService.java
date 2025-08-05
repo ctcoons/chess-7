@@ -1,5 +1,6 @@
 package service;
 
+import chess.ChessMove;
 import dataaccess.DataAccessException;
 import dataaccess.GameDAO;
 import model.GameData;
@@ -67,5 +68,9 @@ public class GameService {
 
     public void clearGameData(GameDAO gameDAO) throws DataAccessException {
         gameDAO.clear();
+    }
+
+    public GameData makeMove(int gameId, ChessMove chessMove, GameDAO gameDAO) throws DataAccessException {
+        return gameDAO.makeMove(gameId, chessMove);
     }
 }
