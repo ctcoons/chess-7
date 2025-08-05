@@ -10,7 +10,12 @@ import websocket.messages.ServerMessage;
 
 public class ConnectionManager {
 
-    public ConcurrentHashMap<Integer, ConcurrentHashMap<String, Connection>> connections = new ConcurrentHashMap<>();
+    public ConcurrentHashMap<Integer, ConcurrentHashMap<String, Connection>> connections;
+
+
+    public ConnectionManager() {
+        this.connections = new ConcurrentHashMap<>();
+    }
 
     public void add(Integer gameId, String authToken, Session session) {
         connections.putIfAbsent(gameId, new ConcurrentHashMap<>());
@@ -18,8 +23,12 @@ public class ConnectionManager {
         connections.get(gameId).put(authToken, connection);
     }
 
-    public void removeUserFromGame(Integer gameID, String authToken) {
-        connections.get(gameID).remove(authToken);
+    public void removeUserFromGame(Integer gameId, String authToken) {
+        if (connections.get(gameId) == null) {
+            return;
+        }
+
+        connections.get(gameId).remove(authToken);
     }
 
     public void broadcast(Integer gameId, String excludeAuthToken, ServerMessage serverMessage) throws IOException {
@@ -32,7 +41,7 @@ public class ConnectionManager {
         for (var c : participants.values()) {
             if (c.session.isOpen()) {
                 if (!c.authToken.equals(excludeAuthToken)) {
-                    c.send(serverMessage.toString());
+                    c.send(serverMessage.getMessage());
                 }
             } else {
                 removeList.add(c);

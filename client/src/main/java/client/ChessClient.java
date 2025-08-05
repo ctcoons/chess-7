@@ -292,6 +292,7 @@ public class ChessClient {
 
             gameId = id;
 
+
             ws.joinGame(authToken, gameId, color);
 
             return "Joining Game " + index + "...\n";

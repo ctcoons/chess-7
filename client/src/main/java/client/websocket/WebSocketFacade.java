@@ -9,6 +9,7 @@ import websocket.messages.ServerMessage;
 
 import javax.websocket.*;
 import java.io.IOException;
+import java.lang.module.ResolutionException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -50,23 +51,11 @@ public class WebSocketFacade extends Endpoint {
         try {
             var connectCommand = new ConnectCommand(authToken, gameID, whoIsConnecting);
             this.session.getBasicRemote().sendText(new Gson().toJson(connectCommand));
+            System.out.print("Sent Message To Other Players ??");
         } catch (IOException ex) {
             throw new ResponseException(500, ex.getMessage());
         }
     }
-
-/*
-    public void leavePetShop(String visitorName) throws ResponseException {
-        try {
-            var action = new Action(Action.Type.EXIT, visitorName);
-            this.session.getBasicRemote().sendText(new Gson().toJson(action));
-            this.session.close();
-        } catch (IOException ex) {
-            throw new ResponseException(500, ex.getMessage());
-        }
-    }
-
- */
 
 }
 

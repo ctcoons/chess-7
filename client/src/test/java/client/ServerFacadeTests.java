@@ -33,7 +33,8 @@ public class ServerFacadeTests {
     }
 
     @AfterAll
-    static void stopServer() {
+    static void stopServer() throws ResponseException {
+        facade.clearApplication("secretpassword");
         server.stop();
     }
 

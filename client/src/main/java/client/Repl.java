@@ -13,7 +13,7 @@ import static ui.EscapeSequences.*;
 
 public class Repl implements NotificationHandler {
 
-    private final ChessClient client;
+    public final ChessClient client;
 
     public Repl(String serverUrl) {
         client = new ChessClient(serverUrl, this);

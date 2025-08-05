@@ -20,16 +20,18 @@ import java.io.IOException;
 @WebSocket
 public class WebSocketHandler {
 
-    private final ConnectionManager connections = new ConnectionManager();
+    private final ConnectionManager connections;
     private final AuthDAO authDAO;
 
     public WebSocketHandler(AuthDAO authDAO) {
         this.authDAO = authDAO;
+        this.connections = new ConnectionManager();
     }
 
 
     @OnWebSocketMessage
     public void onMessage(Session session, String msg) {
+        System.out.print("MESSAGE RECEIVED");
         try {
 
             JsonObject jsonObject = JsonParser.parseString(msg).getAsJsonObject();
