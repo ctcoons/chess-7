@@ -72,9 +72,8 @@ public class Repl implements NotificationHandler {
 
             GameData gameData = client.gaMe;
             ChessGame chessGame = gameData.game();
-            ChessBoard chessBoard = chessGame.getBoard();
 
-            printChessBoard.print(chessBoard);
+            printChessBoard.print(chessGame, null);
 
             printInGamePrompt();
 
@@ -87,6 +86,7 @@ public class Repl implements NotificationHandler {
 
                 try {
                     ChessPosition highlightPosition = new Gson().fromJson(result, ChessPosition.class);
+                    printChessBoard.print(chessGame, highlightPosition);
                     continue;
                 } catch (Exception ignore) {
                 }

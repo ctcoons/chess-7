@@ -113,8 +113,8 @@ public class ChessClient {
         }
 
         try {
-            int row = mapRowLetterToInt(param.substring(0, 1));
-            int col = Integer.parseInt(param.substring(1, 2));
+            int col = mapRowLetterToInt(param.substring(0, 1));
+            int row = Integer.parseInt(param.substring(1, 2));
             if (!(row >= 1 && row <= 8 && col >= 1 && col <= 8)) {
                 return null;
             }
@@ -124,9 +124,9 @@ public class ChessClient {
         }
     }
 
-    private int mapRowLetterToInt(String row) {
-        row = row.toUpperCase();
-        return switch (row) {
+    private int mapRowLetterToInt(String col) {
+        col = col.toUpperCase();
+        return switch (col) {
             case "A" -> 1;
             case "B" -> 2;
             case "C" -> 3;

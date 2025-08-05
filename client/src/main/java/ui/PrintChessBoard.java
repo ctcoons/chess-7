@@ -1,12 +1,11 @@
 package ui;
 
-import chess.ChessBoard;
-import chess.ChessGame;
-import chess.ChessPiece;
-import chess.ChessPosition;
+import chess.*;
 
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Collection;
 
 import static ui.EscapeSequences.*;
 
@@ -23,6 +22,8 @@ public class PrintChessBoard {
     private final int startCol;
     private final int endCol;
     private final int colDir;
+    private ChessPosition highlightPosition;
+    private Collection<ChessPosition> squaresToHighlight = new ArrayList<>();
 
 
     public PrintChessBoard(ChessGame.TeamColor teamColor) {
@@ -48,7 +49,23 @@ public class PrintChessBoard {
 
     }
 
-    public void print(ChessBoard board) {
+    public void print(ChessGame chessGame, ChessPosition highlightPosition) {
+
+        ChessBoard board = chessGame.getBoard();
+
+        this.highlightPosition = highlightPosition;
+        if (highlightPosition != null) {
+            Collection<ChessMove> validMoves = chessGame.validMoves(this.highlightPosition);
+            squaresToHighlight.add(highlightPosition);
+            if (!validMoves.isEmpty()) {
+                for (ChessMove move : validMoves) {
+                    squaresToHighlight.add(move.getEndPosition());
+                }
+            }
+        } else {
+            squaresToHighlight.clear();
+        }
+
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
         out.print(ERASE_SCREEN);
 
@@ -91,11 +108,20 @@ public class PrintChessBoard {
     private void drawRowOfSquares(ChessBoard board, int row, PrintStream out, boolean dark) {
         for (int col = startCol; col != endCol + colDir; col += colDir) {
 
+            ChessPosition curPosition = new ChessPosition(row, col);
 
             if (dark) {
-                setDarkGrey(out);
+                if (squaresToHighlight.contains(curPosition)) {
+                    setDarkGreen(out);
+                } else {
+                    setDarkGrey(out);
+                }
             } else {
-                setLightGrey(out);
+                if (squaresToHighlight.contains(curPosition)) {
+                    setLightGreen(out);
+                } else {
+                    setLightGrey(out);
+                }
             }
 //            out.print(" ");
 
@@ -115,6 +141,16 @@ public class PrintChessBoard {
         }
         setBlack(out);
         out.println();
+    }
+
+    private void setLightGreen(PrintStream out) {
+        out.print(SET_BG_COLOR_GREEN);
+        out.print(SET_TEXT_COLOR_GREEN);
+    }
+
+    private void setDarkGreen(PrintStream out) {
+        out.print(SET_BG_COLOR_DARK_GREEN);
+        out.print(SET_TEXT_COLOR_GREEN);
     }
 
     private String getUnicodePiece(ChessBoard board, int row, int col, PrintStream out) {
@@ -195,7 +231,6 @@ public class PrintChessBoard {
         out.print(SET_BG_COLOR_DARK_GREY);
         out.print(SET_TEXT_COLOR_DARK_GREY);
     }
-
 
 }
 

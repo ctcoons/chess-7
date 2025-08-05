@@ -23,6 +23,6 @@ class PrintChessBoardTest {
 
     @Test
     void print() {
-        printChessBoard.print(board);
+        printChessBoard.print(game, null);
     }
 }
