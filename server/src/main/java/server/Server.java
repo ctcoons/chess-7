@@ -49,6 +49,7 @@ public class Server {
         Spark.delete("/session", this::logout);
         Spark.get("/game", this::listGames);
         Spark.get("/game/:id", this::getGameById);
+        Spark.put("/game/:id/:username", this::leaveGame);
         Spark.post("/game", this::createGame);
         Spark.put("/game", this::joinGame);
         Spark.delete("/db", this::clearApplication);
@@ -64,6 +65,10 @@ public class Server {
         Spark.init();
         Spark.awaitInitialization();
         return Spark.port();
+    }
+
+    private Object leaveGame(Request request, Response response) {
+        // TODO: Write What Happens when they leave a game
     }
 
     private Object getGameById(Request request, Response response) throws DataAccessException, NotAuthorizedException {

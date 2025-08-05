@@ -32,6 +32,11 @@ public class ServerFacade {
         return this.makeRequest("POST", path, logReq, AuthData.class);
     }
 
+    public void leaveGame(int gameId, AuthData authData) throws ResponseException {
+        var path = "/game/" + gameId + "/" + authData.username();
+        this.makeRequest("PUT", path, authData, null);
+    }
+
     public void logout(String authToken) throws ResponseException {
         var path = "/session";
         this.makeRequest("DELETE", path, authToken, null);

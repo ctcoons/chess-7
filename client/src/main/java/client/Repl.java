@@ -26,6 +26,7 @@ public class Repl implements NotificationHandler {
 
         System.out.print(moveCursorToLocation(15, 7));
         Scanner scanner = new Scanner(System.in);
+
         var result = "";
         while (!result.equals(("quit"))) {
             if (client.inGame) {
@@ -78,6 +79,9 @@ public class Repl implements NotificationHandler {
             String line = scanner.nextLine();
             try {
                 result = client.eval(line);
+                if (result.equals("redraw")) {
+                    continue;
+                }
                 System.out.print(SET_TEXT_COLOR_BLUE + result);
 
             } catch (Throwable e) {

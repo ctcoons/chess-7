@@ -57,5 +57,16 @@ public class WebSocketFacade extends Endpoint {
         }
     }
 
+    public void quitGame(String authToken, int gameID, String whoIsConnecting) throws ResponseException {
+        try {
+            var connectCommand = new ConnectCommand(authToken, gameID, whoIsConnecting);
+            this.session.getBasicRemote().sendText(new Gson().toJson(connectCommand));
+            System.out.print("Sent Message To Other Players ??");
+        } catch (IOException ex) {
+            throw new ResponseException(500, ex.getMessage());
+        }
+    }
+
+
 }
 

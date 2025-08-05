@@ -4,6 +4,7 @@ import chess.ChessGame;
 import client.websocket.NotificationHandler;
 import client.websocket.WebSocketFacade;
 import exception.ResponseException;
+import jdk.jshell.spi.ExecutionControl;
 import model.AuthData;
 import model.CreateGameResponse;
 import model.GameData;
@@ -82,15 +83,43 @@ public class ChessClient {
 
     private String inGameCommands(String cmd, String[] params) {
         return switch (cmd) {
+            case "highlight" -> highlightMoves(params);
+            case "resign" -> resign();
+            case "move" -> makeMove(params);
+            case "redraw" -> redraw();
             case "quit" -> quit();
             default -> help();
         };
+    }
+
+    private String highlightMoves(String[] params) {
+        return " ";
+    }
+
+    private String resign() {
+        return " ";
+    }
+
+    private String makeMove(String[] params) {
+        return " ";
+    }
+
+    private String redraw() {
+        return "redraw";
     }
 
     public String quit() {
         if (state == State.LOGGEDOUT) {
             return "quit";
         } else if (inGame) {
+            if (!observer) {
+                try {
+                    leaveGame();
+                } catch (ResponseException e) {
+                    return "FAILED TO QUIT GAME";
+                }
+            }
+//            TODO: Make the WS Notification for when someone quits; ws.jj;
             inGame = false;
             observer = false;
             gaMe = null;
@@ -100,6 +129,10 @@ public class ChessClient {
             state = State.LOGGEDOUT;
             return "Signed Out";
         }
+    }
+
+    private void leaveGame() throws ResponseException {
+        server.leaveGame(gameId, new AuthData(userName, authToken));
     }
 
     public String register(String... params) throws ResponseException {
@@ -363,7 +396,10 @@ public class ChessClient {
         if (inGame) {
             return """
                     - "quit"
-                    - *** IN-GAME HELP COMMANDS (NOT IMPLEMENTED YET) ***
+                    - "highlight [row][column]; ex. highlight d7"
+                    - "redraw"
+                    - "resign"
+                    - "move (from)[row][column] (to)[row][column]; ex. move e2 e4"
                     """;
         }
 

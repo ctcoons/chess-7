@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.google.gson.Gson;
 import org.eclipse.jetty.websocket.api.Session;
 import websocket.messages.ServerMessage;
 
@@ -41,7 +42,7 @@ public class ConnectionManager {
         for (var c : participants.values()) {
             if (c.session.isOpen()) {
                 if (!c.authToken.equals(excludeAuthToken)) {
-                    c.send(serverMessage.getMessage());
+                    c.send(new Gson().toJson(serverMessage));
                 }
             } else {
                 removeList.add(c);

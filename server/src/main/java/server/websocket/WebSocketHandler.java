@@ -31,7 +31,6 @@ public class WebSocketHandler {
 
     @OnWebSocketMessage
     public void onMessage(Session session, String msg) {
-        System.out.print("MESSAGE RECEIVED");
         try {
 
             JsonObject jsonObject = JsonParser.parseString(msg).getAsJsonObject();
@@ -50,10 +49,10 @@ public class WebSocketHandler {
             String username = getUsername(command.getAuthToken());
 
             switch (command.getCommandType()) {
-                case CONNECT -> connectToGame(session, username, (ConnectCommand) command);
-                case MAKE_MOVE -> makeMove(session, username, (MakeMoveCommand) command);
-                case LEAVE -> leaveGame(session, username, (LeaveGameCommand) command);
-                case RESIGN -> resign(session, username, (ResignCommand) command);
+                case CONNECT -> connectToGame(session, username, new Gson().fromJson(msg, ConnectCommand.class));
+                case MAKE_MOVE -> makeMove(session, username, new Gson().fromJson(msg, MakeMoveCommand.class));
+                case LEAVE -> leaveGame(session, username, new Gson().fromJson(msg, LeaveGameCommand.class));
+                case RESIGN -> resign(session, username, new Gson().fromJson(msg, ResignCommand.class));
             }
         } catch (UnauthorizedException ex) {
             // Serializes and sends the error message
