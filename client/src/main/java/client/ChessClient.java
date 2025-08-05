@@ -1,6 +1,8 @@
 package client;
 
 import chess.ChessGame;
+import chess.ChessMove;
+import chess.ChessPiece;
 import chess.ChessPosition;
 import client.websocket.NotificationHandler;
 import client.websocket.WebSocketFacade;
@@ -94,6 +96,7 @@ public class ChessClient {
         };
     }
 
+
     private String highlightMoves(String[] params) {
         if (params.length != 1) {
             return "To Highlight A Move, type: highlight [row][col]; for example: highlight a1";
@@ -144,7 +147,46 @@ public class ChessClient {
     }
 
     private String makeMove(String[] params) {
-        return " ";
+        // Game is Over
+        if (gaMe.winner() != null) {
+            return "Game Has Finished";
+        }
+
+        // Start and end position required
+        if (params.length != 2) {
+            return "To Make A Move, enter: move (start)[row][col] (end)[row][col]; \n" +
+                    "for example: move e2 e4";
+        }
+
+        // Must Be Your Turn
+        if (gaMe.game().getTeamTurn() != color) {
+            return "Not your turn. Wait until " + gaMe.game().getTeamTurn() + " makes a move.";
+        }
+
+        ChessPosition startPosition = validPosition(params[0]);
+        ChessPosition endPosition = validPosition(params[1]);
+
+        if (startPosition == null || endPosition == null) {
+            return "Invalid format; enter: move [row][col] [row][col]; " +
+                    "for example: move e2 e4; Moves must start abd end between a1 and h8";
+        }
+
+        ChessPiece.PieceType pieceType = gaMe.game().getBoard().getPiece(startPosition).getPieceType();
+
+        if (pieceType == null) {
+            // TODO: Here i could highlight the piece they tried to move for some extra flare
+            return "No Piece Found At " + params[0];
+        }
+
+        try {
+
+            gaMe.game().makeMove(new ChessMove(startPosition, endPosition, pieceType));
+
+        } catch (Exception e) {
+            return "Invalid move";
+        }
+
+        return "Moved " + pieceType + " " + params[0] + " to " + params[1];
     }
 
     private String redraw() {

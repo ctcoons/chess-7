@@ -61,35 +61,43 @@ public class Repl implements NotificationHandler {
     }
 
     private void drawGame(Scanner scanner) {
+        // MAKE THE PRINTER OBJECT
         PrintChessBoard printChessBoard = new PrintChessBoard(client.color);
+
+        // Print The OG copy of the Board
+        GameData ogGameData = client.gaMe;
+        ChessGame ogChessGame = ogGameData.game();
+        System.out.print(ogChessGame.getTeamTurn() + " TURN");
+
 
         var result = "";
         while (!result.equals(("quit"))) {
 
 
+            // Still Doesn't Work Like I Want it to. We Want this to clear the screen
             System.out.print(ERASE_SCREEN + moveCursorToLocation(1, 1));
             System.out.flush();
 
-            GameData gameData = client.gaMe;
-            ChessGame chessGame = gameData.game();
-
-            printChessBoard.print(chessGame, null);
-
             printInGamePrompt();
-
             String line = scanner.nextLine();
+
+            // Try / Catch Block for the client.eval()
             try {
                 result = client.eval(line);
                 if (result.equals("redraw")) {
+                    printChessBoard.print(client.gaMe.game(), null);
                     continue;
                 }
 
+                // Highlight Moves
                 try {
                     ChessPosition highlightPosition = new Gson().fromJson(result, ChessPosition.class);
-                    printChessBoard.print(chessGame, highlightPosition);
+                    printChessBoard.print(client.gaMe.game(), highlightPosition);
                     continue;
                 } catch (Exception ignore) {
                 }
+
+                // Make a Move
 
 
                 System.out.print(SET_TEXT_COLOR_BLUE + result);
@@ -98,6 +106,12 @@ public class Repl implements NotificationHandler {
                 var msg = e.toString();
                 System.out.print(msg);
             }
+
+            GameData gameData = client.gaMe;
+            ChessGame chessGame = gameData.game();
+
+            printChessBoard.print(chessGame, null);
+
         }
         System.out.println();
     }
