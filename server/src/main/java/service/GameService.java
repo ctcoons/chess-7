@@ -14,6 +14,10 @@ public class GameService {
         return gameDAO.listGames();
     }
 
+    public void leaveGame(int gameId, String username, GameDAO gameDAO) throws DataAccessException {
+        gameDAO.leaveGame(gameId, username);
+    }
+
     public void createGame(String gameName, GameDAO gameDAO) throws GameAlreadyExistsException, DataAccessException {
         if (gameDAO.containsGameByName(gameName)) {
             throw new GameAlreadyExistsException("Game Name Taken");

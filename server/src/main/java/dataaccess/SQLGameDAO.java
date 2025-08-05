@@ -141,6 +141,23 @@ public class SQLGameDAO extends SQLParent implements GameDAO {
     }
 
     @Override
+    public void leaveGame(int gameId, String username) throws DataAccessException {
+        GameData gameData = getGameByID(gameId);
+        String statement;
+
+        if (gameData.whiteUsername() != null && gameData.whiteUsername().equals(username)) {
+            statement = "UPDATE gameData SET whiteUsername = ? WHERE gameName = ?";
+        } else if (gameData.blackUsername() != null && gameData.blackUsername().equals(username)) {
+            statement = "UPDATE gameData SET blackUsername = ? WHERE gameName = ?";
+        } else {
+            throw new DataAccessException("This User Isn't Playing");
+        }
+
+        executeUpdate(statement, null, gameData.gameName());
+
+    }
+
+    @Override
     public void joinGame(String username, String gameName, String desiredColor) throws DataAccessException {
         GameData gameData = getGameByName(gameName);
         String statement;

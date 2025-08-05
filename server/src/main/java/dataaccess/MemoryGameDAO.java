@@ -82,5 +82,10 @@ public class MemoryGameDAO implements GameDAO {
         return false;
     }
 
+    @Override
+    public void leaveGame(int gameId, String username) {
+
+    }
+
 
 }

@@ -23,5 +23,6 @@ public interface GameDAO {
 
     boolean containsGameById(int id) throws DataAccessException;
 
+    void leaveGame(int gameId, String username) throws DataAccessException;
 
 }

@@ -67,8 +67,24 @@ public class Server {
         return Spark.port();
     }
 
-    private Object leaveGame(Request request, Response response) {
-        // TODO: Write What Happens when they leave a game
+    private Object leaveGame(Request request, Response response) throws DataAccessException, NotAuthorizedException {
+
+        AuthData authData = fromJson(request, AuthData.class);
+
+        if (authService.validateAuth(authData.authToken(), authDAO)) {
+            int gameId;
+            try {
+                gameId = Integer.parseInt(request.params("id"));
+            } catch (NumberFormatException e) {
+                throw new DataAccessException("Invalid Input For ID");
+            }
+            String username = request.params("username");
+            gameService.leaveGame(gameId, username, gameDAO);
+            return "{}";
+
+        } else {
+            throw new NotAuthorizedException("User Not Authorized");
+        }
     }
 
     private Object getGameById(Request request, Response response) throws DataAccessException, NotAuthorizedException {
