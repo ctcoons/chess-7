@@ -77,8 +77,8 @@ public class Server {
         } catch (NumberFormatException e) {
             throw new DataAccessException("Invalid Input For ID");
         }
-        GameData gameData = gameService.makeMove(gameId, makeMoveRequest.chessMove(), gameDAO);
-
+        MakeMoveResponse makeMoveResponse = gameService.makeMove(gameId, makeMoveRequest.chessMove(), gameDAO);
+        return new Gson().toJson(makeMoveResponse);
     }
 
     private Object leaveGame(Request request, Response response) throws DataAccessException, NotAuthorizedException {

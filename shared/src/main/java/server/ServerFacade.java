@@ -33,8 +33,9 @@ public class ServerFacade {
         return this.makeRequest("POST", path, logReq, AuthData.class);
     }
 
-    public void makeMove(ChessMove chessMove) {
-
+    public MakeMoveResponse makeMove(MakeMoveRequest makeMoveRequest, String username) throws ResponseException {
+        var path = "/game/" + makeMoveRequest.gameId() + "/" + username;
+        return this.makeRequest("POST", path, makeMoveRequest, MakeMoveResponse.class);
     }
 
     public void leaveGame(int gameId, AuthData authData) throws ResponseException {

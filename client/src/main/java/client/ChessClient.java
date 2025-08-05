@@ -9,9 +9,7 @@ import client.websocket.WebSocketFacade;
 import com.google.gson.Gson;
 import exception.ResponseException;
 import jdk.jshell.spi.ExecutionControl;
-import model.AuthData;
-import model.CreateGameResponse;
-import model.GameData;
+import model.*;
 import server.ServerFacade;
 
 import java.util.*;
@@ -96,7 +94,6 @@ public class ChessClient {
         };
     }
 
-
     private String highlightMoves(String[] params) {
         if (params.length != 1) {
             return "To Highlight A Move, type: highlight [row][col]; for example: highlight a1";
@@ -179,7 +176,15 @@ public class ChessClient {
         }
 
         try {
+            ChessMove move = new ChessMove(startPosition, endPosition, pieceType);
+            MakeMoveRequest request = new MakeMoveRequest(move, gameId);
+            MakeMoveResponse response = server.makeMove(request, userName);
+            gaMe = response.gameData();
+            if (!response.success()) {
+                return response.responseMessage();
+            }
 
+            ws.makeMove(authToken, response, move);
 
         } catch (Exception e) {
             return "Invalid move";
