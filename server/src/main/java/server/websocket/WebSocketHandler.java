@@ -51,7 +51,7 @@ public class WebSocketHandler {
             switch (command.getCommandType()) {
                 case CONNECT -> connectToGame(session, username, new Gson().fromJson(msg, ConnectCommand.class));
                 case MAKE_MOVE -> makeMove(session, username, new Gson().fromJson(msg, MakeMoveCommand.class));
-                case LEAVE -> leaveGame(session, username, new Gson().fromJson(msg, LeaveGameCommand.class));
+                case LEAVE -> leaveGame(username, new Gson().fromJson(msg, LeaveGameCommand.class));
                 case RESIGN -> resign(session, username, new Gson().fromJson(msg, ResignCommand.class));
             }
         } catch (UnauthorizedException ex) {
@@ -74,8 +74,13 @@ public class WebSocketHandler {
     private void resign(Session session, String username, ResignCommand command) {
     }
 
-    private void leaveGame(Session session, String username, LeaveGameCommand command) {
+    private void leaveGame(String username, LeaveGameCommand command) throws IOException {
+        endSession(command);
+        var message = String.format("(%s) %s has left the game", username, command.getWhoIsConnecting());
+        var notification = new NotificationMessage(message);
+        connections.broadcast(command.getGameId(), command.getAuthToken(), notification);
     }
+
 
     private void makeMove(Session session, String username, MakeMoveCommand command) {
     }
@@ -92,6 +97,10 @@ public class WebSocketHandler {
 
     private void saveSession(UserGameCommand command, Session session) {
         connections.add(command.getGameId(), command.getAuthToken(), session);
+    }
+
+    private void endSession(LeaveGameCommand command) {
+        connections.removeUserFromGame(command.getGameId(), command.getAuthToken());
     }
 
     private String getUsername(String authToken) throws UnauthorizedException {

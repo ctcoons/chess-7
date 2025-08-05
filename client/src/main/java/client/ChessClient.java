@@ -114,12 +114,17 @@ public class ChessClient {
         } else if (inGame) {
             if (!observer) {
                 try {
-                    leaveGame();
+                    leavePlayerGame();
                 } catch (ResponseException e) {
-                    return "FAILED TO QUIT GAME";
+                    return "FAILED TO QUIT GAME " + e.getMessage();
+                }
+            } else {
+                try {
+                    ws.quitGame(authToken, gameId, "Observer");
+                } catch (ResponseException e) {
+                    return "Failed to quit game" + e;
                 }
             }
-//            TODO: Make the WS Notification for when someone quits; ws.jj;
             inGame = false;
             observer = false;
             gaMe = null;
@@ -131,8 +136,9 @@ public class ChessClient {
         }
     }
 
-    private void leaveGame() throws ResponseException {
+    private void leavePlayerGame() throws ResponseException {
         server.leaveGame(gameId, new AuthData(userName, authToken));
+        ws.quitGame(authToken, gameId, color.name());
     }
 
     public String register(String... params) throws ResponseException {

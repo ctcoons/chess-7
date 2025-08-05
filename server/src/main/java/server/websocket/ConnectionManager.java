@@ -28,7 +28,6 @@ public class ConnectionManager {
         if (connections.get(gameId) == null) {
             return;
         }
-
         connections.get(gameId).remove(authToken);
     }
 

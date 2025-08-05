@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import exception.ResponseException;
 import server.ServerFacade;
 import websocket.commands.ConnectCommand;
+import websocket.commands.LeaveGameCommand;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ServerMessage;
 
@@ -59,8 +60,8 @@ public class WebSocketFacade extends Endpoint {
 
     public void quitGame(String authToken, int gameID, String whoIsConnecting) throws ResponseException {
         try {
-            var connectCommand = new ConnectCommand(authToken, gameID, whoIsConnecting);
-            this.session.getBasicRemote().sendText(new Gson().toJson(connectCommand));
+            var leaveCommand = new LeaveGameCommand(authToken, gameID, whoIsConnecting);
+            this.session.getBasicRemote().sendText(new Gson().toJson(leaveCommand));
             System.out.print("Sent Message To Other Players ??");
         } catch (IOException ex) {
             throw new ResponseException(500, ex.getMessage());
