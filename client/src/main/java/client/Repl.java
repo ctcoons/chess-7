@@ -2,7 +2,9 @@ package client;
 
 import chess.ChessBoard;
 import chess.ChessGame;
+import chess.ChessPosition;
 import client.websocket.NotificationHandler;
+import com.google.gson.Gson;
 import model.GameData;
 import ui.PrintChessBoard;
 import websocket.messages.ServerMessage;
@@ -82,6 +84,14 @@ public class Repl implements NotificationHandler {
                 if (result.equals("redraw")) {
                     continue;
                 }
+
+                try {
+                    ChessPosition highlightPosition = new Gson().fromJson(result, ChessPosition.class);
+                    continue;
+                } catch (Exception ignore) {
+                }
+
+
                 System.out.print(SET_TEXT_COLOR_BLUE + result);
 
             } catch (Throwable e) {

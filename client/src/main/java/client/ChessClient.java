@@ -1,8 +1,10 @@
 package client;
 
 import chess.ChessGame;
+import chess.ChessPosition;
 import client.websocket.NotificationHandler;
 import client.websocket.WebSocketFacade;
+import com.google.gson.Gson;
 import exception.ResponseException;
 import jdk.jshell.spi.ExecutionControl;
 import model.AuthData;
@@ -93,7 +95,48 @@ public class ChessClient {
     }
 
     private String highlightMoves(String[] params) {
-        return " ";
+        if (params.length != 1) {
+            return "To Highlight A Move, type: highlight [row][col]; for example: highlight a1";
+        }
+
+        ChessPosition highlightPosition = validPosition(params[0]);
+        if (highlightPosition == null) {
+            return "Invalid format; type: highlight [row][col]; for example: highlight a1; Must be between a1 and h8";
+        }
+
+        return new Gson().toJson(highlightPosition);
+    }
+
+    private ChessPosition validPosition(String param) {
+        if (param.length() != 2) {
+            return null;
+        }
+
+        try {
+            int row = mapRowLetterToInt(param.substring(0, 1));
+            int col = Integer.parseInt(param.substring(1, 2));
+            if (!(row >= 1 && row <= 8 && col >= 1 && col <= 8)) {
+                return null;
+            }
+            return new ChessPosition(row, col);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private int mapRowLetterToInt(String row) {
+        row = row.toUpperCase();
+        return switch (row) {
+            case "A" -> 1;
+            case "B" -> 2;
+            case "C" -> 3;
+            case "D" -> 4;
+            case "E" -> 5;
+            case "F" -> 6;
+            case "G" -> 7;
+            case "H" -> 8;
+            default -> 9;
+        };
     }
 
     private String resign() {
