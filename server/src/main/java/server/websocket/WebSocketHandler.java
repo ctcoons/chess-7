@@ -98,7 +98,7 @@ public class WebSocketHandler {
 
     private void makeMove(Session session, String username, MakeMoveCommand mmcmd) throws IOException {
         if (connections.sendLoadGameForMove(mmcmd, session)) {
-            var message = String.format("%s moved from %s to %s", username, mmcmd.move.start, mmcmd.move.end);
+            var message = String.format("%s moved from %s to %s", username, mmcmd.move.getStartPosition(), mmcmd.move.getEndPosition());
             var notification = new NotificationMessage(message);
             connections.broadcast(mmcmd.getGameID(), mmcmd.getAuthToken(), notification);
             try {

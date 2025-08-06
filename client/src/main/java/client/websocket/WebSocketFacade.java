@@ -126,11 +126,10 @@ public class WebSocketFacade extends Endpoint {
         }
     }
 
-    public void makeMove(String authToken, int gameID, String start, String end) throws ResponseException {
+    public void makeMove(String authToken, int gameID, ChessPosition start, ChessPosition end) throws ResponseException {
         // TODO: Finish this
         try {
-            UnprocessedMove move = new UnprocessedMove(start, end);
-            var makeMoveCommand = new MakeMoveCommand(authToken, gameID, move);
+            var makeMoveCommand = new MakeMoveCommand(authToken, gameID, new ChessMove(start, end, null));
             this.session.getBasicRemote().sendText(new Gson().toJson(makeMoveCommand));
         } catch (IOException ex) {
             throw new ResponseException(500, ex.getMessage());

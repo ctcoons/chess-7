@@ -171,51 +171,15 @@ public class ChessClient {
                     """;
         }
 
-        // Must Be Your Turn
-//        if (gaMe.game().getTeamTurn() != color) {
-//            return "Not your turn. Wait until " + gaMe.game().getTeamTurn() + " makes a move.\n";
-//        }
-//
-//        ChessPosition startPosition = validPosition(params[0]);
-//        ChessPosition endPosition = validPosition(params[1]);
-//
-//        if (startPosition == null || endPosition == null) {
-//            return "Invalid format; enter: move [row][col] [row][col]; " +
-//                    "for example: move e2 e4; Moves must start abd end between a1 and h8";
-//        }
-//
-//        ChessPiece piece = gaMe.game().getBoard().getPiece(startPosition);
-//
-//
-//        if (piece == null) {
-//            // TODO: Here i could highlight the piece they tried to move for some extra flare
-//            notificationHandler.redraw(gaMe.game(), startPosition);
-//            return "No Piece Found At " + params[0] + "\n";
-//        }
-//
-//        ChessPiece.PieceType pieceType = piece.getPieceType();
+        ChessPosition start = validPosition(params[0]);
+        ChessPosition end = validPosition(params[0]);
 
-//        try {
-//            ChessMove move = new ChessMove(startPosition, endPosition, null);
-//            MakeMoveRequest request = new MakeMoveRequest(move, gameId);
-//            MakeMoveResponse response = server.makeMove(request, userName);
-//            gaMe = response.gameData();
-//
-//            if (!response.success()) {
-//                return response.responseMessage();
-//            }
-        String start = params[0];
-        String end = params[1];
 
         try {
             ws.makeMove(authToken, gameId, start, end);
         } catch (ResponseException e) {
             return "FAILED TO DO THIS ACTION IN THE MAKING OF A MOVE";
         }
-//
-//        } catch (Exception e) {
-//            return "Invalid move 2 " + e.getMessage();
-//        }
 
         return "Moved \n";
     }
