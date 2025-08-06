@@ -32,7 +32,7 @@ public class WebSocketHandler {
     public WebSocketHandler(Server server) {
         this.server = server;
         this.authDAO = server.authDAO;
-        this.connections = new ConnectionManager(server);
+        this.connections = new ConnectionManager(this.server);
     }
 
 
@@ -73,10 +73,11 @@ public class WebSocketHandler {
 
     private void connectToGame(Session session, String username, ConnectCommand command) throws IOException {
         saveSession(command, session);
-        connections.sendLoadGame(command, session);
-        var message = String.format("%s has joined the game as %s", username, command.getWhoIsConnecting());
-        var notification = new NotificationMessage(message);
-        connections.broadcast(command.getGameID(), command.getAuthToken(), notification);
+        if (connections.sendLoadGame(command, session)) {
+            var message = String.format("%s has joined the game as %s", username, command.getWhoIsConnecting());
+            var notification = new NotificationMessage(message);
+            connections.broadcast(command.getGameID(), command.getAuthToken(), notification);
+        }
     }
 
     private void resign(Session session, String username, ResignCommand command) throws IOException {
@@ -96,11 +97,17 @@ public class WebSocketHandler {
 
 
     private void makeMove(Session session, String username, MakeMoveCommand mmcmd) throws IOException {
-        var message = String.format("%s moved from %s to %s", username, mmcmd.getStartMove(), mmcmd.getEndMove());
-        var notification = new NotificationMessage(message);
-        connections.broadcast(mmcmd.getGameID(), mmcmd.getAuthToken(), notification);
-        var loadGameMessage = new LoadGameMessage(mmcmd.getGameData());
-        connections.broadcast(mmcmd.getGameID(), mmcmd.getAuthToken(), loadGameMessage);
+        if (connections.sendLoadGameForMove(mmcmd, session)) {
+            var message = String.format("%s moved from %s to %s", username, mmcmd.move.start, mmcmd.move.end);
+            var notification = new NotificationMessage(message);
+            connections.broadcast(mmcmd.getGameID(), mmcmd.getAuthToken(), notification);
+            try {
+                var loadGameMessage = new LoadGameMessage(server.gameDAO.getGameByID(mmcmd.getGameID()));
+                connections.broadcast(mmcmd.getGameID(), mmcmd.getAuthToken(), loadGameMessage);
+            } catch (Exception e) {
+                throw new IOException(e.getMessage());
+            }
+        }
     }
 
     private void sendMessage(RemoteEndpoint remote, ServerMessage serverMessage) {

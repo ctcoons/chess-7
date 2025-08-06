@@ -4,10 +4,7 @@ import chess.*;
 import client.ChessClient;
 import com.google.gson.Gson;
 import exception.ResponseException;
-import model.GameData;
-import model.MakeMoveResponse;
-import model.ResignRequest;
-import model.ResignResponse;
+import model.*;
 import websocket.commands.ConnectCommand;
 import websocket.commands.LeaveGameCommand;
 import websocket.commands.MakeMoveCommand;
@@ -129,16 +126,27 @@ public class WebSocketFacade extends Endpoint {
         }
     }
 
-    public void makeMove(String authToken, MakeMoveResponse makeMoveResponse, ChessMove chessMove) throws ResponseException {
+    public void makeMove(String authToken, int gameID, String start, String end) throws ResponseException {
         // TODO: Finish this
         try {
-            var makeMoveCommand = new MakeMoveCommand(authToken, makeMoveResponse, chessMove);
+            UnprocessedMove move = new UnprocessedMove(start, end);
+            var makeMoveCommand = new MakeMoveCommand(authToken, gameID, move);
             this.session.getBasicRemote().sendText(new Gson().toJson(makeMoveCommand));
         } catch (IOException ex) {
             throw new ResponseException(500, ex.getMessage());
         }
 
 
+    }
+
+
+    public void observeGame(String authToken, int gameId, String observer, GameData game) throws ResponseException {
+        ConnectCommand connectCommand = new ConnectCommand(authToken, gameId, observer, game);
+        try {
+            this.session.getBasicRemote().sendText(new Gson().toJson(connectCommand));
+        } catch (IOException ex) {
+            throw new ResponseException(500, ex.getMessage());
+        }
     }
 
 
