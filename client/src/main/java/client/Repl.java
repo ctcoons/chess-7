@@ -1,6 +1,5 @@
 package client;
 
-import chess.ChessBoard;
 import chess.ChessGame;
 import chess.ChessPosition;
 import client.websocket.NotificationHandler;
@@ -10,7 +9,6 @@ import model.ResignRequest;
 import ui.PrintChessBoard;
 import websocket.messages.ServerMessage;
 
-import java.awt.desktop.SystemSleepEvent;
 import java.util.Scanner;
 
 import static ui.EscapeSequences.*;
@@ -18,11 +16,10 @@ import static ui.EscapeSequences.*;
 public class Repl implements NotificationHandler {
 
     public final ChessClient client;
-    public final PrintChessBoard printChessBoard;
+    public PrintChessBoard printChessBoard;
 
     public Repl(String serverUrl) {
         client = new ChessClient(serverUrl, this);
-        this.printChessBoard = new PrintChessBoard(client.color);
     }
 
     public void run() {
@@ -66,12 +63,7 @@ public class Repl implements NotificationHandler {
     private void drawGame(Scanner scanner) {
         // MAKE THE PRINTER OBJECT
 
-
-        // Print The OG copy of the Board
-        GameData ogGameData = client.gaMe;
-        ChessGame ogChessGame = ogGameData.game();
-        System.out.print(ogChessGame.getTeamTurn() + " TURN\n");
-
+        this.printChessBoard = new PrintChessBoard(client.color);
 
         var result = "";
         while (!result.equals(("quit"))) {
@@ -83,6 +75,11 @@ public class Repl implements NotificationHandler {
 
             GameData gameData = client.gaMe;
             ChessGame chessGame = gameData.game();
+            if (gameData.winner() != null) {
+                System.out.print(gameData.winner() + " WINS!\n");
+            } else {
+                System.out.print(chessGame.getTeamTurn() + " turn\n");
+            }
 
             printChessBoard.print(chessGame, null);
 
@@ -143,6 +140,7 @@ public class Repl implements NotificationHandler {
 
     @Override
     public void redraw(ChessGame game, ChessPosition highlightPosition) {
+        System.out.print(game.getTeamTurn() + " turn\n");
         printChessBoard.print(game, highlightPosition);
         printInGamePrompt();
     }

@@ -216,7 +216,7 @@ public class SQLGameDAO extends SQLParent implements GameDAO {
                     curGame.game()
             );
         } catch (Exception e) {
-            return new MakeMoveResponse(false, "Failed to make move due to error: " + e.getMessage(), curGame);
+            return new MakeMoveResponse(false, "Failed to make move due to error: " + e.getMessage() + "\n", curGame);
         }
 
 

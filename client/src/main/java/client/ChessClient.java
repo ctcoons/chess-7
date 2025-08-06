@@ -8,7 +8,6 @@ import client.websocket.NotificationHandler;
 import client.websocket.WebSocketFacade;
 import com.google.gson.Gson;
 import exception.ResponseException;
-import jdk.jshell.spi.ExecutionControl;
 import model.*;
 import server.ServerFacade;
 
@@ -51,7 +50,11 @@ public class ChessClient {
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
             if (state == State.LOGGEDIN) {
                 if (inGame) {
-                    return inGameCommands(cmd, params);
+                    if (!observer) {
+                        return inGameCommands(cmd, params);
+                    } else {
+                        return observeCommands(cmd, params);
+                    }
                 }
                 return signedInCommands(cmd, params);
             } else {
@@ -67,7 +70,7 @@ public class ChessClient {
         return switch (cmd) {
             case "register" -> register(params);
             case "login" -> login(params);
-            case "quit" -> quit();
+            case "quit", "leave" -> quit();
             case "clear" -> clear(params);
             default -> help();
         };
@@ -76,7 +79,7 @@ public class ChessClient {
     private String signedInCommands(String cmd, String[] params) throws ResponseException {
         return switch (cmd) {
             case "logout" -> logout();
-            case "quit" -> quit();
+            case "quit", "leave" -> quit();
             case "create" -> create(params);
             case "list" -> listGames(params);
             case "join" -> join(params);
@@ -91,7 +94,16 @@ public class ChessClient {
             case "resign" -> resign();
             case "move" -> makeMove(params);
             case "redraw" -> redraw();
-            case "quit" -> quit();
+            case "quit", "leave" -> quit();
+            default -> help();
+        };
+    }
+
+    private String observeCommands(String cmd, String[] params) {
+        return switch (cmd) {
+            case "highlight" -> highlightMoves(params);
+            case "redraw" -> redraw();
+            case "quit", "leave" -> quit();
             default -> help();
         };
     }
@@ -148,18 +160,20 @@ public class ChessClient {
     private String makeMove(String[] params) {
         // Game is Over
         if (gaMe.winner() != null) {
-            return "Game Has Finished";
+            return "Game Has Finished\n";
         }
 
         // Start and end position required
         if (params.length != 2) {
-            return "To Make A Move, enter: move (start)[row][col] (end)[row][col]; \n" +
-                    "for example: move e2 e4";
+            return """
+                    To Make A Move, enter: move (start)[row][col] (end)[row][col];\s
+                    for example: move e2 e4
+                    """;
         }
 
         // Must Be Your Turn
         if (gaMe.game().getTeamTurn() != color) {
-            return "Not your turn. Wait until " + gaMe.game().getTeamTurn() + " makes a move.";
+            return "Not your turn. Wait until " + gaMe.game().getTeamTurn() + " makes a move.\n";
         }
 
         ChessPosition startPosition = validPosition(params[0]);
@@ -170,12 +184,16 @@ public class ChessClient {
                     "for example: move e2 e4; Moves must start abd end between a1 and h8";
         }
 
-        ChessPiece.PieceType pieceType = gaMe.game().getBoard().getPiece(startPosition).getPieceType();
+        ChessPiece piece = gaMe.game().getBoard().getPiece(startPosition);
 
-        if (pieceType == null) {
+
+        if (piece == null) {
             // TODO: Here i could highlight the piece they tried to move for some extra flare
-            return "No Piece Found At " + params[0];
+            notificationHandler.redraw(gaMe.game(), startPosition);
+            return "No Piece Found At " + params[0] + "\n";
         }
+
+        ChessPiece.PieceType pieceType = piece.getPieceType();
 
         try {
             ChessMove move = new ChessMove(startPosition, endPosition, null);
@@ -431,7 +449,7 @@ public class ChessClient {
 
             ws.joinGame(authToken, gameId, color);
 
-            System.out.print("Joining as " + this.color);
+            System.out.print("Joining as " + this.color + " ");
 
             return "Joining Game " + index + "...\n";
         } else {
@@ -491,7 +509,7 @@ public class ChessClient {
 
     }
 
-    // TODO: Decide if Update Game method is necessary
+
     public void updateGame() throws ResponseException {
         if (!inGame) {
             System.out.print("Can't Update Game Because Not In Game");
@@ -516,8 +534,15 @@ public class ChessClient {
         }
 
         if (inGame) {
+            if (observer) {
+                return """
+                        - "leave"
+                        - "highlight [row][column]; ex. highlight d7"
+                        - "redraw"
+                        """;
+            }
             return """
-                    - "quit"
+                    - "leave"
                     - "highlight [row][column]; ex. highlight d7"
                     - "redraw"
                     - "resign"
