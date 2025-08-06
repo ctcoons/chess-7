@@ -16,10 +16,11 @@ import static ui.EscapeSequences.*;
 public class Repl implements NotificationHandler {
 
     public final ChessClient client;
+    public final PrintChessBoard printChessBoard;
 
     public Repl(String serverUrl) {
         client = new ChessClient(serverUrl, this);
-
+        this.printChessBoard = new PrintChessBoard(client.color);
     }
 
     public void run() {
@@ -62,12 +63,12 @@ public class Repl implements NotificationHandler {
 
     private void drawGame(Scanner scanner) {
         // MAKE THE PRINTER OBJECT
-        PrintChessBoard printChessBoard = new PrintChessBoard(client.color);
+
 
         // Print The OG copy of the Board
         GameData ogGameData = client.gaMe;
         ChessGame ogChessGame = ogGameData.game();
-        System.out.print(ogChessGame.getTeamTurn() + " TURN");
+        System.out.print(ogChessGame.getTeamTurn() + " TURN\n");
 
 
         var result = "";
@@ -90,7 +91,6 @@ public class Repl implements NotificationHandler {
             try {
                 result = client.eval(line);
                 if (result.equals("redraw")) {
-                    printChessBoard.print(client.gaMe.game(), null);
                     continue;
                 }
 
@@ -120,6 +120,13 @@ public class Repl implements NotificationHandler {
 
     public void notify(ServerMessage serverMessage) {
         System.out.println(SET_TEXT_COLOR_RED + serverMessage.getMessage());
+
+    }
+
+    @Override
+    public void redraw(ChessGame game, ChessPosition highlightPosition) {
+        printChessBoard.print(game, highlightPosition);
+        printInGamePrompt();
     }
 
 }

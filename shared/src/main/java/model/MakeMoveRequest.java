@@ -6,4 +6,5 @@ public record MakeMoveRequest(
         ChessMove chessMove,
         int gameId
 ) {
+
 }

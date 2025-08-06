@@ -1,19 +1,19 @@
 package client.websocket;
 
 import chess.ChessMove;
+import client.ChessClient;
 import com.google.gson.Gson;
 import exception.ResponseException;
 import model.MakeMoveResponse;
-import server.ServerFacade;
 import websocket.commands.ConnectCommand;
 import websocket.commands.LeaveGameCommand;
 import websocket.commands.MakeMoveCommand;
-import websocket.commands.UserGameCommand;
+import websocket.messages.ErrorMessage;
+import websocket.messages.LoadGameMessage;
 import websocket.messages.ServerMessage;
 
 import javax.websocket.*;
 import java.io.IOException;
-import java.lang.module.ResolutionException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -22,9 +22,11 @@ public class WebSocketFacade extends Endpoint {
 
     Session session;
     NotificationHandler notificationHandler;
+    ChessClient chessClient;
 
 
-    public WebSocketFacade(String url, NotificationHandler notificationHandler) throws ResponseException {
+    public WebSocketFacade(String url, NotificationHandler notificationHandler, ChessClient chessClient) throws ResponseException {
+        this.chessClient = chessClient;
         try {
             url = url.replace("http", "ws");
             URI socketURI = new URI(url + "/ws");
@@ -38,7 +40,11 @@ public class WebSocketFacade extends Endpoint {
                 @Override
                 public void onMessage(String message) {
                     ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
-                    notificationHandler.notify(serverMessage);
+                    switch (serverMessage.getServerMessageType()) {
+                        case LOAD_GAME -> loadGame(message);
+                        case ERROR -> errorHandler(message);
+                        default -> notificationHandler.notify(serverMessage);
+                    }
                 }
             });
         } catch (DeploymentException | IOException | URISyntaxException ex) {
@@ -49,6 +55,16 @@ public class WebSocketFacade extends Endpoint {
     //Endpoint requires this method, but you don't have to do anything
     @Override
     public void onOpen(Session session, EndpointConfig endpointConfig) {
+    }
+
+    public void loadGame(String message) {
+        LoadGameMessage loadGameMessage = new Gson().fromJson(message, LoadGameMessage.class);
+        chessClient.gaMe = loadGameMessage.game;
+    }
+
+    public void errorHandler(String message) {
+        ErrorMessage errorMessage = new Gson().fromJson(message, ErrorMessage.class);
+        notificationHandler.notify(errorMessage);
     }
 
     public void joinGame(String authToken, int gameID, String whoIsConnecting) throws ResponseException {

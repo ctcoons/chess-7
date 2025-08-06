@@ -12,6 +12,7 @@ import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import websocket.messages.ErrorMessage;
+import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
@@ -82,7 +83,12 @@ public class WebSocketHandler {
     }
 
 
-    private void makeMove(Session session, String username, MakeMoveCommand command) {
+    private void makeMove(Session session, String username, MakeMoveCommand mmcmd) throws IOException {
+        var message = String.format("%s moved from %s to %s", username, mmcmd.getStartMove(), mmcmd.getEndMove());
+        var notification = new NotificationMessage(message);
+        connections.broadcast(mmcmd.getGameId(), mmcmd.getAuthToken(), notification);
+        var loadGameMessage = new LoadGameMessage(mmcmd.getGameData());
+        connections.broadcast(mmcmd.getGameId(), mmcmd.getAuthToken(), loadGameMessage);
     }
 
     private void sendMessage(RemoteEndpoint remote, ServerMessage serverMessage) {

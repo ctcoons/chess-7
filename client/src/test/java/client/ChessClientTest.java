@@ -1,5 +1,7 @@
 package client;
 
+import chess.ChessGame;
+import chess.ChessPosition;
 import client.websocket.NotificationHandler;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -23,6 +25,12 @@ class ChessClientTest {
             public void notify(ServerMessage serverMessage) {
 
             }
+
+            @Override
+            public void redraw(ChessGame game, ChessPosition highlightPosition) {
+
+            }
+
         });
     }
 

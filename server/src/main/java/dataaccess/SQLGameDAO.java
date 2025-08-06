@@ -24,7 +24,7 @@ public class SQLGameDAO extends SQLParent implements GameDAO {
     public Collection<GameData> listGames() throws DataAccessException {
         var result = new ArrayList<GameData>();
         try (var conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT id, whiteUsername, blackUsername, gameName, json FROM gameData";
+            var statement = "SELECT id, whiteUsername, blackUsername, gameName, game FROM gameData";
             try (var ps = conn.prepareStatement(statement)) {
                 try (var rs = ps.executeQuery()) {
                     while (rs.next()) {
@@ -44,17 +44,17 @@ public class SQLGameDAO extends SQLParent implements GameDAO {
         var whiteUsername = rs.getString("whiteUsername");
         var blackUsername = rs.getString("blackUsername");
         var gameName = rs.getString("gameName");
-        var json = rs.getString("json");
+        var json = rs.getString("game");
         ChessGame chessGame = new Gson().fromJson(json, ChessGame.class);
         return new GameData(id, whiteUsername, blackUsername, gameName, null, chessGame);
     }
 
     @Override
     public void createGame(String gameName) {
-        var statement = "INSERT INTO gameData (gameName, json) VALUES (?, ?)";
-        var json = new Gson().toJson(new ChessGame());
+        var statement = "INSERT INTO gameData (gameName, game) VALUES (?, ?)";
+        var game = new Gson().toJson(new ChessGame());
         try {
-            executeUpdate(statement, gameName, json);
+            executeUpdate(statement, gameName, game);
         } catch (DataAccessException e) {
             System.out.println("WARNING! DID NOT CREATE GAME: " + gameName + " DUE TO ERROR: " + e);
         }
@@ -93,7 +93,7 @@ public class SQLGameDAO extends SQLParent implements GameDAO {
     @Override
     public GameData getGameByName(String gameName) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT id, whiteUsername, blackUsername, gameName, json FROM gameData WHERE gameName=?";
+            var statement = "SELECT id, whiteUsername, blackUsername, gameName, game FROM gameData WHERE gameName=?";
             try (var ps = conn.prepareStatement(statement)) {
                 ps.setString(1, gameName);
                 try (var rs = ps.executeQuery()) {
@@ -113,7 +113,7 @@ public class SQLGameDAO extends SQLParent implements GameDAO {
     @Override
     public GameData getGameByID(int id) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT id, whiteUsername, blackUsername, gameName, json FROM gameData WHERE id=?";
+            var statement = "SELECT id, whiteUsername, blackUsername, gameName, game FROM gameData WHERE id=?";
             try (var ps = conn.prepareStatement(statement)) {
                 ps.setInt(1, id);
                 try (var rs = ps.executeQuery()) {
@@ -162,6 +162,11 @@ public class SQLGameDAO extends SQLParent implements GameDAO {
 
     @Override
     public MakeMoveResponse makeMove(int gameId, ChessMove chessMove) throws DataAccessException {
+
+        System.out.print(gameId);
+        System.out.print(chessMove.toString());
+
+
         GameData curGame = getGameByID(gameId);
 
         ChessPiece piece = curGame.game().getBoard().getPiece(chessMove.getStartPosition());
@@ -226,12 +231,14 @@ public class SQLGameDAO extends SQLParent implements GameDAO {
                 ps.setInt(3, gameId);
                 int rowsUpdated = ps.executeUpdate();
                 if (rowsUpdated == 1) {
-                    return new MakeMoveResponse(true, null, updatedGame);
+                    System.out.print("Updated in SQL?");
+                    return new MakeMoveResponse(true, "All Good", updatedGame);
                 } else {
-                    return new MakeMoveResponse(false, "Faled To Complete", curGame);
+                    throw new DataAccessException("Updated Too Many Rows");
                 }
             }
         } catch (Exception e) {
+            System.out.print("Error Thrown By The Exception");
             throw new DataAccessException("Wasn't Able To Update The Game in MakeMove " + e);
         }
     }

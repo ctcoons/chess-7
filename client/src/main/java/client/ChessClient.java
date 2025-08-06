@@ -36,7 +36,7 @@ public class ChessClient {
         this.serverUrl = serverUrl;
         this.notificationHandler = notificationHandler;
         try {
-            this.ws = new WebSocketFacade(serverUrl, notificationHandler);
+            this.ws = new WebSocketFacade(serverUrl, notificationHandler, this);
         } catch (Exception ignore) {
             System.out.print("Failed To Connect To WS");
         }
@@ -176,10 +176,11 @@ public class ChessClient {
         }
 
         try {
-            ChessMove move = new ChessMove(startPosition, endPosition, pieceType);
+            ChessMove move = new ChessMove(startPosition, endPosition, null);
             MakeMoveRequest request = new MakeMoveRequest(move, gameId);
             MakeMoveResponse response = server.makeMove(request, userName);
             gaMe = response.gameData();
+
             if (!response.success()) {
                 return response.responseMessage();
             }
@@ -187,10 +188,10 @@ public class ChessClient {
             ws.makeMove(authToken, response, move);
 
         } catch (Exception e) {
-            return "Invalid move";
+            return "Invalid move 2 " + e.getMessage();
         }
 
-        return "Moved " + pieceType + " " + params[0] + " to " + params[1];
+        return "Moved " + pieceType + " " + params[0] + " to " + params[1] + "\n";
     }
 
     private String redraw() {
@@ -246,7 +247,6 @@ public class ChessClient {
         authToken = authData.authToken();
         state = State.LOGGEDIN;
         userName = params[0];
-        updateGames(authToken);
         return "Registered Successfully. Welcome " + params[0];
     }
 
@@ -267,7 +267,6 @@ public class ChessClient {
             state = State.LOGGEDIN;
             authToken = authData.authToken();
             userName = params[0];
-            updateGames(authToken);
             return "Successfully logged in. Welcome " + username;
         } catch (Exception e) {
             throw new ResponseException(401, "Incorrect Username Or Password");
@@ -333,6 +332,7 @@ public class ChessClient {
                 mapIndex++;
             }
         } catch (Exception e) {
+            System.out.print("Failed TO Update THE list of Games");
             throw new ResponseException(400, e.getMessage());
         }
 
