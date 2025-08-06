@@ -47,13 +47,13 @@ public class Server {
         Spark.post("/user", this::register);
         Spark.post("/session", this::login);
         Spark.delete("/session", this::logout);
-        Spark.get("/game", this::listGames);
-        Spark.get("/game/:id", this::getGameById);
-        Spark.put("/game/:id/:username", this::leaveGame);
         Spark.put("/game/:id/:username/resign", this::resign);
+        Spark.put("/game/:id/:username", this::leaveGame);
         Spark.post("/game/:id/:username", this::makeMove);
+        Spark.get("/game/:id", this::getGameById);
         Spark.post("/game", this::createGame);
         Spark.put("/game", this::joinGame);
+        Spark.get("/game", this::listGames);
         Spark.delete("/db", this::clearApplication);
 
 

@@ -429,8 +429,9 @@ public class ChessClient {
 
             gameId = id;
 
-
             ws.joinGame(authToken, gameId, color);
+
+            System.out.print("Joining as " + this.color);
 
             return "Joining Game " + index + "...\n";
         } else {
