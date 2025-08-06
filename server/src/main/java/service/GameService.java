@@ -76,7 +76,7 @@ public class GameService {
         return gameDAO.makeMove(gameId, chessMove);
     }
 
-    public void resign(int gameId, ResignRequest resignRequest, GameDAO gameDAO) throws DataAccessException {
-        gameDAO.resign(gameId, resignRequest);
+    public String resign(int gameId, String resigner, GameDAO gameDAO) throws DataAccessException {
+        return gameDAO.resign(gameId, resigner);
     }
 }

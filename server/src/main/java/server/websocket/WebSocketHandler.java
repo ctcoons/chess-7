@@ -21,6 +21,7 @@ import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
 import java.io.IOException;
+import java.util.Map;
 
 @WebSocket
 public class WebSocketHandler {
@@ -81,20 +82,29 @@ public class WebSocketHandler {
     }
 
     private void resign(Session session, String username, ResignCommand command) throws IOException {
-        ResignRequest resignRequest = command.getResignRequest();
-        GameData.Winner winner1 = resignRequest.teamColor().equals(ChessGame.TeamColor.WHITE) ? GameData.Winner.BLACK : GameData.Winner.WHITE;
-        var message = String.format("%s has resigned. %s Wins!", username, winner1);
-        var notification = new NotificationMessage(message);
-        connections.broadcast(command.getGameID(), command.getAuthToken(), notification);
+        String winner = connections.resign(session, command);
+        if (winner != null) {
+            var message = String.format("%s has resigned. %s Wins!", username, winner);
+            var notification = new NotificationMessage(message);
+            connections.broadcast(command.getGameID(), command.getAuthToken(), notification);
+            try {
+                GameData game = server.gameDAO.getGameByID(command.getGameID());
+                System.out.println("GAME AFTER RESIGNATION: " + game);
+            } catch (Exception e) {
+                System.out.println("mytest Failed because of " + e.getMessage());
+            }
+        }
     }
 
     private void leaveGame(String username, LeaveGameCommand command) throws IOException {
-        endSession(command);
-        var message = String.format("(%s) %s has left the game", command.getWhoIsConnecting(), username);
-        var notification = new NotificationMessage(message);
-        connections.broadcast(command.getGameID(), command.getAuthToken(), notification);
+        String role = connections.roleOfWhoLeft(username, command.getAuthToken(), command.getGameID());
+        if (role != null) {
+            endSession(command);
+            var message = String.format("(%s) %s has left the game", role, username);
+            var notification = new NotificationMessage(message);
+            connections.broadcast(command.getGameID(), command.getAuthToken(), notification);
+        }
     }
-
 
     private void makeMove(Session session, String username, MakeMoveCommand mmcmd) throws IOException {
         if (connections.sendLoadGameForMove(mmcmd, session)) {

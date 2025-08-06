@@ -30,5 +30,5 @@ public interface GameDAO {
 
     MakeMoveResponse makeMove(int gameId, ChessMove chessMove) throws DataAccessException;
 
-    void resign(int gameId, ResignRequest resignRequest);
+    String resign(int gameId, String resigner);
 }

@@ -114,7 +114,7 @@ public class SQLGameDAO extends SQLParent implements GameDAO {
     @Override
     public GameData getGameByID(int id) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT id, whiteUsername, blackUsername, gameName, game FROM gameData WHERE id=?";
+            var statement = "SELECT id, whiteUsername, blackUsername, gameName, winner, game FROM gameData WHERE id=?";
             try (var ps = conn.prepareStatement(statement)) {
                 ps.setInt(1, id);
                 try (var rs = ps.executeQuery()) {
@@ -186,6 +186,7 @@ public class SQLGameDAO extends SQLParent implements GameDAO {
 
         // No MOVES ALLOWED IF GAME ALREADY WON
         if (curGame.winner() != null) {
+            System.out.println("GAME WON?? " + curGame);
             return new MakeMoveResponse(false, "Game Already Over", curGame);
         }
 
@@ -245,17 +246,32 @@ public class SQLGameDAO extends SQLParent implements GameDAO {
     }
 
     @Override
-    public void resign(int gameId, ResignRequest resignRequest) {
-        GameData.Winner winner1 = resignRequest.teamColor().equals(ChessGame.TeamColor.WHITE) ? GameData.Winner.BLACK : GameData.Winner.WHITE;
-
+    public String resign(int gameId, String resigner) {
         GameData curGame;
 
         try {
             curGame = getGameByID(gameId);
         } catch (Exception e) {
             System.out.print("FAILED TO RESIGN BECAUSE COULDN'T GET OG GAME");
-            return;
+            return null;
         }
+
+        GameData.Winner winner1;
+        String winnerName;
+
+        if (curGame.blackUsername() != null && curGame.blackUsername().equals(resigner)) {
+            winner1 = GameData.Winner.WHITE;
+            winnerName = curGame.whiteUsername();
+        } else if (curGame.whiteUsername() != null && curGame.whiteUsername().equals(resigner)) {
+            winner1 = GameData.Winner.BLACK;
+            winnerName = curGame.blackUsername();
+        } else {
+            System.out.println("Couldn't resign you because you aren't in the game");
+            return null;
+        }
+        
+
+        curGame.game().setWinner(winner1);
 
         GameData updatedGame = new GameData(
                 curGame.gameID(),
@@ -266,6 +282,8 @@ public class SQLGameDAO extends SQLParent implements GameDAO {
                 curGame.game()
         );
 
+        System.out.println("What is being put in SQL: " + updatedGame);
+
         try (var conn = DatabaseManager.getConnection()) {
             var statement = "UPDATE gameData SET winner = ?, game = ? WHERE id = ?";
             try (var ps = conn.prepareStatement(statement)) {
@@ -274,15 +292,15 @@ public class SQLGameDAO extends SQLParent implements GameDAO {
                 ps.setInt(3, gameId);
                 int rowsUpdated = ps.executeUpdate();
                 if (rowsUpdated == 1) {
-                    System.out.print("Updated resignation in SQL");
+                    return winnerName;
                 } else {
                     throw new DataAccessException("Updated Too Many Rows");
                 }
             }
         } catch (Exception e) {
-            System.out.print("Error Thrown By The Exception!");
+            System.out.print("Error Thrown By The Exception! " + e.getMessage());
+            return null;
         }
-
     }
 
     private GameData.Winner returnOppositeColor(ChessGame.TeamColor endingTurn) {

@@ -10,6 +10,7 @@ import com.google.gson.Gson;
 import exception.ResponseException;
 import model.*;
 import server.ServerFacade;
+import websocket.commands.ResignCommand;
 
 import java.util.*;
 
@@ -199,13 +200,13 @@ public class ChessClient {
         } else if (inGame) {
             if (!observer) {
                 try {
-                    leavePlayerGame();
+                    ws.quitGame(authToken, gameId);
                 } catch (ResponseException e) {
                     return "FAILED TO QUIT GAME " + e.getMessage();
                 }
             } else {
                 try {
-                    ws.quitGame(authToken, gameId, "Observer");
+                    ws.quitGame(authToken, gameId);
                 } catch (ResponseException e) {
                     return "Failed to quit game" + e;
                 }
@@ -219,11 +220,6 @@ public class ChessClient {
             state = State.LOGGEDOUT;
             return "Signed Out";
         }
-    }
-
-    private void leavePlayerGame() throws ResponseException {
-        server.leaveGame(gameId, new AuthData(userName, authToken));
-        ws.quitGame(authToken, gameId, color.name());
     }
 
     public String register(String... params) throws ResponseException {
@@ -544,9 +540,8 @@ public class ChessClient {
     }
 
     public void resignFromGame() throws ResponseException {
-        ResignRequest resignRequest = new ResignRequest(true, gameId, userName, authToken, color);
-        server.resign(resignRequest);
-        ws.resign(resignRequest);
+        ResignCommand resignCommand = new ResignCommand(authToken, gameId);
+        ws.resign(resignCommand);
         updateGames(authToken);
         observer = true;
     }

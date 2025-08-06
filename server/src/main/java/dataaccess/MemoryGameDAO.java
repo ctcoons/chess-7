@@ -96,8 +96,8 @@ public class MemoryGameDAO implements GameDAO {
     }
 
     @Override
-    public void resign(int gameId, ResignRequest resignRequest) {
-
+    public String resign(int gameId, String resigner) {
+        return null;
     }
 
 

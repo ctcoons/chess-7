@@ -1,5 +1,7 @@
 package chess;
 
+import model.GameData;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
@@ -14,6 +16,7 @@ public class ChessGame {
 
     TeamColor currentTurnColor;
     ChessBoard board;
+    GameData.Winner winner;
 
 
     public ChessGame() {
@@ -23,6 +26,15 @@ public class ChessGame {
         newBoard.resetBoard();
         this.board = newBoard;
 
+    }
+
+
+    public GameData.Winner getWinner() {
+        return this.winner;
+    }
+
+    public void setWinner(GameData.Winner winner) {
+        this.winner = winner;
     }
 
     public ChessGame(ChessBoard copy, TeamColor copyTurnColor) {

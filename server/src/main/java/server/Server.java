@@ -77,7 +77,7 @@ public class Server {
         } catch (NumberFormatException e) {
             throw new DataAccessException("Invalid Input For ID");
         }
-        gameService.resign(gameId, resignRequest, gameDAO);
+        gameService.resign(gameId, resignRequest.username(), gameDAO);
         return "{}";
     }
 

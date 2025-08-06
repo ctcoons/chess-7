@@ -16,16 +16,18 @@ import org.eclipse.jetty.websocket.api.Session;
 import server.Server;
 import websocket.commands.ConnectCommand;
 import websocket.commands.MakeMoveCommand;
+import websocket.commands.ResignCommand;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
+import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
 
 public class ConnectionManager {
 
     public ConcurrentHashMap<Integer, ConcurrentHashMap<String, Connection>> connections;
-    private Server server;
+    private final Server server;
 
     public ConnectionManager(Server server) {
         this.connections = new ConcurrentHashMap<>();
@@ -67,7 +69,6 @@ public class ConnectionManager {
             connections.get(gameId).remove(c.authToken);
         }
     }
-
 
     public boolean sendLoadGameForMove(MakeMoveCommand command, Session session) throws IOException {
         // Must Be Your Turn
@@ -125,7 +126,7 @@ public class ConnectionManager {
         }
 
         // Game Isn't Over
-        if (oldGameData.winner() != null) {
+        if (oldGameData.game().getWinner() != null) {
             c.send(gson.toJson(new ErrorMessage("ERROR: Game Is Over")));
             return false;
         }
@@ -179,7 +180,6 @@ public class ConnectionManager {
 
     }
 
-
     public boolean sendLoadGame(ConnectCommand command, Session session) throws IOException {
 
         int gameID = command.getGameID();
@@ -223,43 +223,97 @@ public class ConnectionManager {
         return false;
     }
 
-    private ChessPosition validPosition(String param) {
-        if (param == null) {
+    public String resign(Session session, ResignCommand command) throws IOException {
+        int gameID = command.getGameID();
+        String authToken = command.getAuthToken();
+        Gson gson = new Gson();
+        Connection c = connections.get(gameID).get(authToken);
+
+        // Make Sure the session is open
+        if (!c.session.isOpen()) {
+            System.out.print("Session isn't Open");
             return null;
         }
 
-        if (param.length() != 2) {
+        // Get the current game based off the id provided
+        GameData gameData;
+        try {
+            gameData = server.gameDAO.getGameByID(gameID);
+        } catch (DataAccessException e) {
+            c.send(gson.toJson(new ErrorMessage("ERROR: Can't Make This Move " + e.getMessage())));
+            return null;
+        }
+
+        // Make sure That there isn't currently a winner
+        if (gameData.game().getWinner() != null) {
+            c.send(gson.toJson(new ErrorMessage("ERROR: Game Is Over. No Resigning.")));
+            return null;
+        }
+
+        // MUST BE A PLAYER TO RESIGN
+        String username;
+        try {
+            username = server.authDAO.getAuthByAuthToken(authToken);
+            if (username == null || (!username.equals(gameData.whiteUsername()) && !username.equals(gameData.blackUsername()))) {
+                c.send(gson.toJson(new ErrorMessage("Error: No Observers Can Resign!")));
+                return null;
+            }
+        } catch (Exception e) {
+            c.send(gson.toJson(new ErrorMessage("Error: Can Only Sign Out Players Who are PLAYING")));
+            return null;
+        }
+
+
+        try {
+            System.out.println(username);
+            System.out.println(gameData);
+            String winner = server.gameDAO.resign(gameID, username);
+            c.send(gson.toJson(new NotificationMessage("You Have Lost Due To Resignation :( ")));
+            return winner;
+        } catch (Exception e) {
+            c.send(gson.toJson(new ErrorMessage("Error: We Had an error Resigning you " + e.getMessage())));
+            return null;
+        }
+
+    }
+
+    public String roleOfWhoLeft(String username, String authToken, Integer gameID) throws IOException {
+        GameData game;
+        Gson gson = new Gson();
+        Connection c = connections.get(gameID).get(authToken);
+
+        // Make Sure the session is open
+        if (!c.session.isOpen()) {
+            System.out.print("Session isn't Open");
+            return null;
+        }
+
+
+        // Load the Game
+        try {
+            game = server.gameDAO.getGameByID(gameID);
+        } catch (Exception e) {
+            c.send(gson.toJson(new ErrorMessage("Error: We Had an error Resigning you " + e.getMessage())));
             return null;
         }
 
         try {
-            int col = mapRowLetterToInt(param.substring(0, 1));
-            int row = Integer.parseInt(param.substring(1, 2));
-            if (!(row >= 1 && row <= 8 && col >= 1 && col <= 8)) {
-                return null;
+            // See if This Guy is an observer or a player
+            if (game.whiteUsername() != null && game.whiteUsername().equals(username)) {
+                server.gameDAO.leaveGame(gameID, username);
+                return "WHITE";
+            } else if (game.blackUsername() != null && game.blackUsername().equals(username)) {
+                server.gameDAO.leaveGame(gameID, username);
+                return "BLACK";
+            } else {
+                return "OBSERVER";
             }
-            return new ChessPosition(row, col);
-        } catch (Exception e) {
+        } catch (DataAccessException e) {
+            c.send(gson.toJson(new ErrorMessage("Error: We couldn't find your username in this game " + e.getMessage())));
             return null;
         }
+
     }
-
-    private int mapRowLetterToInt(String col) {
-        col = col.toUpperCase();
-        return switch (col) {
-            case "A" -> 1;
-            case "B" -> 2;
-            case "C" -> 3;
-            case "D" -> 4;
-            case "E" -> 5;
-            case "F" -> 6;
-            case "G" -> 7;
-            case "H" -> 8;
-            default -> 9;
-        };
-    }
-
-
 }
 
 
