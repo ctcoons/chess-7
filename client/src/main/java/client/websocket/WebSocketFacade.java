@@ -1,15 +1,17 @@
 package client.websocket;
 
-import chess.ChessMove;
+import chess.*;
 import client.ChessClient;
 import com.google.gson.Gson;
 import exception.ResponseException;
+import model.GameData;
 import model.MakeMoveResponse;
 import websocket.commands.ConnectCommand;
 import websocket.commands.LeaveGameCommand;
 import websocket.commands.MakeMoveCommand;
 import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
+import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
 import javax.websocket.*;
@@ -59,7 +61,37 @@ public class WebSocketFacade extends Endpoint {
 
     public void loadGame(String message) {
         LoadGameMessage loadGameMessage = new Gson().fromJson(message, LoadGameMessage.class);
+        GameData gameData = loadGameMessage.game;
+        ChessGame chessGame = gameData.game();
+        ChessPosition highlightPosition = null;
+        if (gameData.winner() != null) {
+            notificationHandler.notify(new NotificationMessage(gameData.winner() + " WINS"));
+        } else if (chessGame.isInCheck(ChessGame.TeamColor.WHITE)) {
+            notificationHandler.notify(new NotificationMessage("WHITE IN CHECK"));
+            highlightPosition = findKing(chessGame, ChessGame.TeamColor.WHITE);
+        } else if (chessGame.isInCheck(ChessGame.TeamColor.BLACK)) {
+            notificationHandler.notify(new NotificationMessage("BLACK IN CHECK"));
+            highlightPosition = findKing(chessGame, ChessGame.TeamColor.BLACK);
+        }
         chessClient.gaMe = loadGameMessage.game;
+        notificationHandler.redraw(loadGameMessage.game.game(), highlightPosition);
+    }
+
+    private ChessPosition findKing(ChessGame chessGame, ChessGame.TeamColor teamColor) {
+        ChessBoard board = chessGame.getBoard();
+        for (int row = 1; row < 9; row++) {
+            for (int col = 1; col < 9; col++) {
+                ChessPosition pos = new ChessPosition(row, col);
+                ChessPiece piece = board.getPiece(pos);
+                if (piece == null) {
+                    continue;
+                }
+                if (piece.getPieceType() == ChessPiece.PieceType.KING && piece.getTeamColor() == teamColor) {
+                    return pos;
+                }
+            }
+        }
+        return null;
     }
 
     public void errorHandler(String message) {

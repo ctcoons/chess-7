@@ -195,6 +195,11 @@ public class ChessClient {
     }
 
     private String redraw() {
+        try {
+            updateGame();
+        } catch (ResponseException e) {
+            return "failed to reload game for redraw";
+        }
         return "redraw";
     }
 
