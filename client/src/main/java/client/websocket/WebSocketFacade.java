@@ -102,9 +102,9 @@ public class WebSocketFacade extends Endpoint {
         notificationHandler.notify(errorMessage);
     }
 
-    public void joinGame(String authToken, int gameID, String whoIsConnecting) throws ResponseException {
+    public void joinGame(String authToken, int gameID, String whoIsConnecting, GameData gameData) throws ResponseException {
         try {
-            var connectCommand = new ConnectCommand(authToken, gameID, whoIsConnecting);
+            var connectCommand = new ConnectCommand(authToken, gameID, whoIsConnecting, gameData);
             this.session.getBasicRemote().sendText(new Gson().toJson(connectCommand));
         } catch (IOException ex) {
             throw new ResponseException(500, ex.getMessage());

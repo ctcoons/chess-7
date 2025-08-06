@@ -428,6 +428,7 @@ public class ChessClient {
         String color = params[1].toUpperCase();
 
         if (color.equals("BLACK") || color.equals("WHITE")) {
+
             try {
                 server.joinGame(id, color, authToken);
             } catch (Exception e) {
@@ -447,7 +448,7 @@ public class ChessClient {
 
             gameId = id;
 
-            ws.joinGame(authToken, gameId, color);
+            ws.joinGame(authToken, gameId, color, gaMe);
 
             System.out.print("Joining as " + this.color + " ");
 
@@ -502,7 +503,7 @@ public class ChessClient {
 
         gameId = id;
 
-        ws.joinGame(authToken, gameId, "observer");
+        ws.joinGame(authToken, gameId, "observer", gaMe);
 
         return "Observing Game " + index + "...\n";
 

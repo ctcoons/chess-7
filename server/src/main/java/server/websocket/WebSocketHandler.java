@@ -9,6 +9,7 @@ import exception.UnauthorizedException;
 import model.GameData;
 import model.ResignRequest;
 import org.eclipse.jetty.websocket.api.RemoteEndpoint;
+import server.Server;
 import websocket.commands.*;
 
 import org.eclipse.jetty.websocket.api.Session;
@@ -26,10 +27,12 @@ public class WebSocketHandler {
 
     private final ConnectionManager connections;
     private final AuthDAO authDAO;
+    private Server server;
 
-    public WebSocketHandler(AuthDAO authDAO) {
-        this.authDAO = authDAO;
-        this.connections = new ConnectionManager();
+    public WebSocketHandler(Server server) {
+        this.server = server;
+        this.authDAO = server.authDAO;
+        this.connections = new ConnectionManager(server);
     }
 
 
@@ -60,7 +63,7 @@ public class WebSocketHandler {
             }
         } catch (UnauthorizedException ex) {
             // Serializes and sends the error message
-            sendMessage(session.getRemote(), new ErrorMessage("Unauthorized"));
+            sendMessage(session.getRemote(), new ErrorMessage("Error: Unauthorized"));
         } catch (Exception ex) {
             ex.printStackTrace();
             sendMessage(session.getRemote(), new ErrorMessage("Found Some Error: " + ex));
@@ -70,9 +73,10 @@ public class WebSocketHandler {
 
     private void connectToGame(Session session, String username, ConnectCommand command) throws IOException {
         saveSession(command, session);
+        connections.sendLoadGame(command, session);
         var message = String.format("%s has joined the game as %s", username, command.getWhoIsConnecting());
         var notification = new NotificationMessage(message);
-        connections.broadcast(command.getGameId(), command.getAuthToken(), notification);
+        connections.broadcast(command.getGameID(), command.getAuthToken(), notification);
     }
 
     private void resign(Session session, String username, ResignCommand command) throws IOException {
@@ -80,23 +84,23 @@ public class WebSocketHandler {
         GameData.Winner winner1 = resignRequest.teamColor().equals(ChessGame.TeamColor.WHITE) ? GameData.Winner.BLACK : GameData.Winner.WHITE;
         var message = String.format("%s has resigned. %s Wins!", username, winner1);
         var notification = new NotificationMessage(message);
-        connections.broadcast(command.getGameId(), command.getAuthToken(), notification);
+        connections.broadcast(command.getGameID(), command.getAuthToken(), notification);
     }
 
     private void leaveGame(String username, LeaveGameCommand command) throws IOException {
         endSession(command);
         var message = String.format("(%s) %s has left the game", command.getWhoIsConnecting(), username);
         var notification = new NotificationMessage(message);
-        connections.broadcast(command.getGameId(), command.getAuthToken(), notification);
+        connections.broadcast(command.getGameID(), command.getAuthToken(), notification);
     }
 
 
     private void makeMove(Session session, String username, MakeMoveCommand mmcmd) throws IOException {
         var message = String.format("%s moved from %s to %s", username, mmcmd.getStartMove(), mmcmd.getEndMove());
         var notification = new NotificationMessage(message);
-        connections.broadcast(mmcmd.getGameId(), mmcmd.getAuthToken(), notification);
+        connections.broadcast(mmcmd.getGameID(), mmcmd.getAuthToken(), notification);
         var loadGameMessage = new LoadGameMessage(mmcmd.getGameData());
-        connections.broadcast(mmcmd.getGameId(), mmcmd.getAuthToken(), loadGameMessage);
+        connections.broadcast(mmcmd.getGameID(), mmcmd.getAuthToken(), loadGameMessage);
     }
 
     private void sendMessage(RemoteEndpoint remote, ServerMessage serverMessage) {
@@ -110,11 +114,11 @@ public class WebSocketHandler {
     }
 
     private void saveSession(UserGameCommand command, Session session) {
-        connections.add(command.getGameId(), command.getAuthToken(), session);
+        connections.add(command.getGameID(), command.getAuthToken(), session);
     }
 
     private void endSession(LeaveGameCommand command) {
-        connections.removeUserFromGame(command.getGameId(), command.getAuthToken());
+        connections.removeUserFromGame(command.getGameID(), command.getAuthToken());
     }
 
     private String getUsername(String authToken) throws UnauthorizedException {
