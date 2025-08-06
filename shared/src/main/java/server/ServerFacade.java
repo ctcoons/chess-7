@@ -1,7 +1,5 @@
 package server;
 
-import chess.ChessGame;
-import chess.ChessMove;
 import com.google.gson.Gson;
 
 import exception.ResponseException;
@@ -9,9 +7,7 @@ import model.*;
 
 import java.io.*;
 import java.net.*;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Map;
 
 public class ServerFacade {
 
@@ -58,6 +54,11 @@ public class ServerFacade {
         CreateGameRequestFacade createRequest = new CreateGameRequestFacade(gameName, authToken);
         var path = "/game";
         return this.makeRequest("POST", path, createRequest, CreateGameResponse.class);
+    }
+
+    public void resign(ResignRequest resignRequest) throws ResponseException {
+        var path = "/game/" + resignRequest.gameId() + "/" + resignRequest.username() + "/resign";
+        this.makeRequest("PUT", path, resignRequest, null);
     }
 
     private static class GameListResponse {

@@ -6,9 +6,11 @@ import chess.ChessPosition;
 import client.websocket.NotificationHandler;
 import com.google.gson.Gson;
 import model.GameData;
+import model.ResignRequest;
 import ui.PrintChessBoard;
 import websocket.messages.ServerMessage;
 
+import java.awt.desktop.SystemSleepEvent;
 import java.util.Scanner;
 
 import static ui.EscapeSequences.*;
@@ -102,7 +104,23 @@ public class Repl implements NotificationHandler {
                 } catch (Exception ignore) {
                 }
 
-                // Make a Move
+                try {
+                    ResignRequest resignRequest = new Gson().fromJson(result, ResignRequest.class);
+                    if (resignRequest == null) {
+                        continue;
+                    }
+                    result = client.areYouSure(scanner);
+                    if (result.equals("YES")) {
+                        client.resignFromGame();
+                        System.out.print("RESIGNING...");
+                        System.out.print("YOU LOSE\n");
+                    } else {
+                        System.out.print("Not Resigning");
+                    }
+                    continue;
+
+                } catch (Exception ignore) {
+                }
 
 
                 System.out.print(SET_TEXT_COLOR_BLUE + result);
@@ -128,5 +146,6 @@ public class Repl implements NotificationHandler {
         printChessBoard.print(game, highlightPosition);
         printInGamePrompt();
     }
+
 
 }

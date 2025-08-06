@@ -6,6 +6,7 @@ import chess.ChessPiece;
 import com.google.gson.Gson;
 import model.GameData;
 import model.MakeMoveResponse;
+import model.ResignRequest;
 
 
 import java.sql.ResultSet;
@@ -241,6 +242,47 @@ public class SQLGameDAO extends SQLParent implements GameDAO {
             System.out.print("Error Thrown By The Exception");
             throw new DataAccessException("Wasn't Able To Update The Game in MakeMove " + e);
         }
+    }
+
+    @Override
+    public void resign(int gameId, ResignRequest resignRequest) {
+        GameData.Winner winner1 = resignRequest.teamColor().equals(ChessGame.TeamColor.WHITE) ? GameData.Winner.BLACK : GameData.Winner.WHITE;
+
+        GameData curGame;
+
+        try {
+            curGame = getGameByID(gameId);
+        } catch (Exception e) {
+            System.out.print("FAILED TO RESIGN BECAUSE COULDN'T GET OG GAME");
+            return;
+        }
+
+        GameData updatedGame = new GameData(
+                curGame.gameID(),
+                curGame.whiteUsername(),
+                curGame.blackUsername(),
+                curGame.gameName(),
+                winner1,
+                curGame.game()
+        );
+
+        try (var conn = DatabaseManager.getConnection()) {
+            var statement = "UPDATE gameData SET winner = ?, game = ? WHERE id = ?";
+            try (var ps = conn.prepareStatement(statement)) {
+                ps.setString(1, winner1.toString());
+                ps.setString(2, new Gson().toJson(updatedGame));
+                ps.setInt(3, gameId);
+                int rowsUpdated = ps.executeUpdate();
+                if (rowsUpdated == 1) {
+                    System.out.print("Updated resignation in SQL");
+                } else {
+                    throw new DataAccessException("Updated Too Many Rows");
+                }
+            }
+        } catch (Exception e) {
+            System.out.print("Error Thrown By The Exception!");
+        }
+
     }
 
     private GameData.Winner returnOppositeColor(ChessGame.TeamColor endingTurn) {

@@ -6,6 +6,7 @@ import dataaccess.GameDAO;
 import model.GameData;
 import model.JoinGameRequest;
 import model.MakeMoveResponse;
+import model.ResignRequest;
 import server.BadRequestException;
 
 import java.util.Collection;
@@ -73,5 +74,9 @@ public class GameService {
 
     public MakeMoveResponse makeMove(int gameId, ChessMove chessMove, GameDAO gameDAO) throws DataAccessException {
         return gameDAO.makeMove(gameId, chessMove);
+    }
+
+    public void resign(int gameId, ResignRequest resignRequest, GameDAO gameDAO) throws DataAccessException {
+        gameDAO.resign(gameId, resignRequest);
     }
 }

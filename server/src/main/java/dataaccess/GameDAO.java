@@ -3,6 +3,7 @@ package dataaccess;
 import chess.ChessMove;
 import model.GameData;
 import model.MakeMoveResponse;
+import model.ResignRequest;
 
 
 import java.util.Collection;
@@ -28,4 +29,6 @@ public interface GameDAO {
     void leaveGame(int gameId, String username) throws DataAccessException;
 
     MakeMoveResponse makeMove(int gameId, ChessMove chessMove) throws DataAccessException;
+
+    void resign(int gameId, ResignRequest resignRequest);
 }

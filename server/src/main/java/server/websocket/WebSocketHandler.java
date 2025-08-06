@@ -1,10 +1,13 @@
 package server.websocket;
 
+import chess.ChessGame;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import dataaccess.AuthDAO;
 import exception.UnauthorizedException;
+import model.GameData;
+import model.ResignRequest;
 import org.eclipse.jetty.websocket.api.RemoteEndpoint;
 import websocket.commands.*;
 
@@ -72,7 +75,12 @@ public class WebSocketHandler {
         connections.broadcast(command.getGameId(), command.getAuthToken(), notification);
     }
 
-    private void resign(Session session, String username, ResignCommand command) {
+    private void resign(Session session, String username, ResignCommand command) throws IOException {
+        ResignRequest resignRequest = command.getResignRequest();
+        GameData.Winner winner1 = resignRequest.teamColor().equals(ChessGame.TeamColor.WHITE) ? GameData.Winner.BLACK : GameData.Winner.WHITE;
+        var message = String.format("%s has resigned. %s Wins!", username, winner1);
+        var notification = new NotificationMessage(message);
+        connections.broadcast(command.getGameId(), command.getAuthToken(), notification);
     }
 
     private void leaveGame(String username, LeaveGameCommand command) throws IOException {

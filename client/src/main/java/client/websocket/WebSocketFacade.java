@@ -6,9 +6,12 @@ import com.google.gson.Gson;
 import exception.ResponseException;
 import model.GameData;
 import model.MakeMoveResponse;
+import model.ResignRequest;
+import model.ResignResponse;
 import websocket.commands.ConnectCommand;
 import websocket.commands.LeaveGameCommand;
 import websocket.commands.MakeMoveCommand;
+import websocket.commands.ResignCommand;
 import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
@@ -112,6 +115,15 @@ public class WebSocketFacade extends Endpoint {
         try {
             var leaveCommand = new LeaveGameCommand(authToken, gameID, whoIsConnecting);
             this.session.getBasicRemote().sendText(new Gson().toJson(leaveCommand));
+        } catch (IOException ex) {
+            throw new ResponseException(500, ex.getMessage());
+        }
+    }
+
+    public void resign(ResignRequest resignRequest) throws ResponseException {
+        try {
+            var resignCommand = new ResignCommand(resignRequest);
+            this.session.getBasicRemote().sendText(new Gson().toJson(resignCommand));
         } catch (IOException ex) {
             throw new ResponseException(500, ex.getMessage());
         }

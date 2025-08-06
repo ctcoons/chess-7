@@ -14,6 +14,8 @@ import server.ServerFacade;
 
 import java.util.*;
 
+import static ui.EscapeSequences.SET_TEXT_COLOR_MAGENTA;
+
 public class ChessClient {
     private final ServerFacade server;
     private final NotificationHandler notificationHandler;
@@ -140,7 +142,7 @@ public class ChessClient {
     }
 
     private String resign() {
-        return " ";
+        return new Gson().toJson(new ResignRequest(true, 0, null, null, null));
     }
 
     private String makeMove(String[] params) {
@@ -385,6 +387,8 @@ public class ChessClient {
             throw new ResponseException(400, "Wrong Input. Format to join a game: join <ID> [BLACK|WHITE]");
         }
 
+        updateGames(authToken);
+
         int index;
         try {
             index = Integer.parseInt(params[0]);
@@ -437,6 +441,9 @@ public class ChessClient {
 
     public String observe(String[] params) throws ResponseException {
         assertSignedIn();
+
+        updateGames(authToken);
+
         if (params.length != 1) {
             throw new ResponseException(400, "Wrong Input. Format to observe a game: observe <ID>");
         }
@@ -532,6 +539,19 @@ public class ChessClient {
             throw new ResponseException(400, "You must sign in");
         }
 
+    }
+
+    public String areYouSure(Scanner scanner) {
+        System.out.print(SET_TEXT_COLOR_MAGENTA + "ARE YOU SURE YOU WANT TO RESIGN? <YES>||<NO>: ");
+        return scanner.nextLine().toUpperCase();
+    }
+
+    public void resignFromGame() throws ResponseException {
+        ResignRequest resignRequest = new ResignRequest(true, gameId, userName, authToken, color);
+        server.resign(resignRequest);
+        ws.resign(resignRequest);
+        updateGames(authToken);
+        observer = true;
     }
 }
 

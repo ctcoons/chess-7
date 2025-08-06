@@ -4,6 +4,7 @@ import chess.ChessGame;
 import chess.ChessMove;
 import model.GameData;
 import model.MakeMoveResponse;
+import model.ResignRequest;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -92,6 +93,11 @@ public class MemoryGameDAO implements GameDAO {
     @Override
     public MakeMoveResponse makeMove(int gameId, ChessMove chessMove) throws DataAccessException {
         return null;
+    }
+
+    @Override
+    public void resign(int gameId, ResignRequest resignRequest) {
+
     }
 
 

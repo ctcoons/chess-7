@@ -50,6 +50,7 @@ public class Server {
         Spark.get("/game", this::listGames);
         Spark.get("/game/:id", this::getGameById);
         Spark.put("/game/:id/:username", this::leaveGame);
+        Spark.put("/game/:id/:username/resign", this::resign);
         Spark.post("/game/:id/:username", this::makeMove);
         Spark.post("/game", this::createGame);
         Spark.put("/game", this::joinGame);
@@ -66,6 +67,18 @@ public class Server {
         Spark.init();
         Spark.awaitInitialization();
         return Spark.port();
+    }
+
+    private Object resign(Request request, Response response) throws DataAccessException {
+        ResignRequest resignRequest = fromJson(request, ResignRequest.class);
+        int gameId;
+        try {
+            gameId = Integer.parseInt(request.params("id"));
+        } catch (NumberFormatException e) {
+            throw new DataAccessException("Invalid Input For ID");
+        }
+        gameService.resign(gameId, resignRequest, gameDAO);
+        return "{}";
     }
 
     private Object makeMove(Request request, Response response) throws DataAccessException {
