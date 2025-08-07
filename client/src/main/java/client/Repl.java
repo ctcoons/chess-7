@@ -78,7 +78,7 @@ public class Repl implements NotificationHandler {
             if (gameData.winner() != null) {
                 System.out.print(gameData.winner() + " WINS!\n");
             } else {
-                System.out.print(chessGame.getTeamTurn() + " turn\n");
+                System.out.print(RESET_BG_COLOR + SET_TEXT_COLOR_GREEN + chessGame.getTeamTurn() + " turn\n");
             }
 
 //            printChessBoard.print(chessGame, null);

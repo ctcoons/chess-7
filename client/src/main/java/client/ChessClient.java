@@ -189,7 +189,7 @@ public class ChessClient {
             e.printStackTrace(); // or handle the interruption another way
         }
 
-        return "Moved \n";
+        return "\n";
     }
 
     private String redraw() {
@@ -471,7 +471,8 @@ public class ChessClient {
             throw new ResponseException(400, "Game By This ID doesn't Exist");
         }
 
-        ws.observeGame(authToken, gameId, "observer", gaMe);
+
+        ws.observeGame(authToken, id, "observer", gaMe);
 
         return "Observing Game " + index + "...\n";
 

@@ -185,8 +185,8 @@ public class SQLGameDAO extends SQLParent implements GameDAO {
         }
 
         // No MOVES ALLOWED IF GAME ALREADY WON
-        if (curGame.winner() != null) {
-            System.out.println("GAME WON?? " + curGame);
+        if (curGame.game().getWinner() != null) {
+            System.out.println("GAME WON " + curGame);
             return new MakeMoveResponse(false, "Game Already Over", curGame);
         }
 
@@ -201,8 +201,10 @@ public class SQLGameDAO extends SQLParent implements GameDAO {
             ChessGame.TeamColor endingTurn = curGame.game().getTeamTurn();
             if (curGame.game().isInStalemate(endingTurn)) {
                 winner = GameData.Winner.DRAW;
+                curGame.game().setWinner(GameData.Winner.DRAW);
             } else if (curGame.game().isInCheckmate(endingTurn)) {
                 winner = returnOppositeColor(endingTurn);
+                curGame.game().setWinner(winner);
             } else {
                 winner = null;
             }
@@ -269,7 +271,7 @@ public class SQLGameDAO extends SQLParent implements GameDAO {
             System.out.println("Couldn't resign you because you aren't in the game");
             return null;
         }
-        
+
 
         curGame.game().setWinner(winner1);
 
