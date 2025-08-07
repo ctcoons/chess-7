@@ -76,14 +76,12 @@ public class Repl implements NotificationHandler {
             GameData gameData = client.gaMe;
             ChessGame chessGame = gameData.game();
             if (gameData.winner() != null) {
-                System.out.print(gameData.winner() + " WINS!\n");
+                System.out.print(gameData.game().getWinner() + " WINS!!\n");
             } else {
                 System.out.print(RESET_BG_COLOR + SET_TEXT_COLOR_GREEN + chessGame.getTeamTurn() + " turn\n");
             }
 
-//            printChessBoard.print(chessGame, null);
 
-//            printInGamePrompt();
             String line = scanner.nextLine();
 
             // Try / Catch Block for the client.eval()
@@ -96,7 +94,9 @@ public class Repl implements NotificationHandler {
                 // Highlight Moves
                 try {
                     ChessPosition highlightPosition = new Gson().fromJson(result, ChessPosition.class);
-                    printChessBoard.print(client.gaMe.game(), highlightPosition);
+                    if (highlightPosition != null) {
+                        printChessBoard.print(client.gaMe.game(), highlightPosition);
+                    }
                     continue;
                 } catch (Exception ignore) {
                 }
@@ -140,6 +140,7 @@ public class Repl implements NotificationHandler {
 
     @Override
     public void redraw(ChessGame game, ChessPosition highlightPosition) {
+        System.out.println();
         System.out.print(game.getTeamTurn() + " turn\n");
         printChessBoard.print(game, highlightPosition);
         printInGamePrompt();

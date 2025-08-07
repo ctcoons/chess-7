@@ -189,7 +189,7 @@ public class ChessClient {
             e.printStackTrace(); // or handle the interruption another way
         }
 
-        return "\n";
+        return "Prompt Ready\n";
     }
 
     private String redraw() {

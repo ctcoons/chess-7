@@ -68,7 +68,8 @@ public class WebSocketFacade extends Endpoint {
 
         // Highlight if someone is in Check
         if (gameData.game().getWinner() != null) {
-            notificationHandler.notify(new NotificationMessage(gameData.winner() + " WINS"));
+            notificationHandler.notify(new NotificationMessage(gameData.game().getWinner() + " WINS"));
+            highlightPosition = findKing(chessGame, chessGame.getTeamTurn());
         } else if (chessGame.isInCheck(ChessGame.TeamColor.WHITE)) {
             notificationHandler.notify(new NotificationMessage("WHITE IN CHECK"));
             highlightPosition = findKing(chessGame, ChessGame.TeamColor.WHITE);

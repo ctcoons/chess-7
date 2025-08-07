@@ -306,7 +306,7 @@ public class SQLGameDAO extends SQLParent implements GameDAO {
     }
 
     private GameData.Winner returnOppositeColor(ChessGame.TeamColor endingTurn) {
-        return ChessGame.TeamColor.BLACK.equals(endingTurn) ? GameData.Winner.BLACK : GameData.Winner.WHITE;
+        return ChessGame.TeamColor.BLACK.equals(endingTurn) ? GameData.Winner.WHITE : GameData.Winner.BLACK;
     }
 
     @Override
