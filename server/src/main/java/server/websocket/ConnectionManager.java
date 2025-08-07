@@ -72,17 +72,14 @@ public class ConnectionManager {
 
     public boolean sendLoadGameForMove(MakeMoveCommand command, Session session) throws IOException {
         // Must Be Your Turn
-
         int gameID = command.getGameID();
         String authToken = command.getAuthToken();
         Gson gson = new Gson();
         Connection c = connections.get(gameID).get(authToken);
-
         if (!c.session.isOpen()) {
             System.out.print("Session isn't Open");
             return false;
         }
-
         // Valid Auth
         try {
             if (!server.authDAO.validateAuth(authToken)) {
@@ -92,7 +89,6 @@ public class ConnectionManager {
             c.send(gson.toJson(new ErrorMessage("ERROR: Invalid Auth")));
             return false;
         }
-
         // Get the Username of Who Is Making This Move
         String username;
         try {
@@ -104,7 +100,6 @@ public class ConnectionManager {
             c.send(gson.toJson(new ErrorMessage("ERROR: Couldn't find your username based on the authToken")));
             return false;
         }
-
         // Get the Game Data
         GameData oldGameData;
         try {
@@ -116,7 +111,6 @@ public class ConnectionManager {
             c.send(gson.toJson(new ErrorMessage("ERROR: Couldn't load the game with this ID")));
             return false;
         }
-
         // Observer Not Allowed to Play
         String blackUser = oldGameData.blackUsername();
         String whiteUser = oldGameData.whiteUsername();
@@ -124,14 +118,11 @@ public class ConnectionManager {
             c.send(gson.toJson(new ErrorMessage("ERROR: Observer Not Allowed to make Moves")));
             return false;
         }
-
         // Game Isn't Over
         if (oldGameData.game().getWinner() != null) {
             c.send(gson.toJson(new ErrorMessage("ERROR: Game Is Over")));
             return false;
         }
-
-
         ChessGame.TeamColor myColor;
         // Make sure it's your turn
         if (blackUser != null && blackUser.equals(username)) {
@@ -139,14 +130,11 @@ public class ConnectionManager {
         } else {
             myColor = ChessGame.TeamColor.WHITE;
         }
-
         ChessGame.TeamColor currentTurn = oldGameData.game().getTeamTurn();
-
         if (!currentTurn.equals(myColor)) {
             c.send(gson.toJson(new ErrorMessage("ERROR: NOT YOUR TURN. WAIT UNTIL YOUR TURN TO MOVE.")));
             return false;
         }
-
         // Moves are valid format
         ChessPosition startPos = command.move.getStartPosition();
         ChessPosition endPos = command.move.getEndPosition();
@@ -154,15 +142,12 @@ public class ConnectionManager {
             c.send(gson.toJson(new ErrorMessage("ERROR: Invalid Input.")));
             return false;
         }
-
-
         try {
             ChessPiece piece = oldGameData.game().getBoard().getPiece(startPos);
             if (piece == null) {
                 c.send(gson.toJson(new ErrorMessage("ERROR: No Piece Here")));
                 return false;
             }
-
             if (piece.getTeamColor() != myColor) {
                 c.send(gson.toJson(new ErrorMessage("ERROR: THIS ISN'T YOUR PIECE. YOU CAN'T MOVE THIS PIECE")));
                 return false;
@@ -171,7 +156,6 @@ public class ConnectionManager {
             c.send(gson.toJson(new ErrorMessage("ERROR: Couldn't Find A Start Piece Indicated By The Move")));
             return false;
         }
-
         try {
             MakeMoveResponse resp = server.gameDAO.makeMove(gameID, new ChessMove(startPos, endPos, null));
             if (!resp.success()) {
@@ -183,7 +167,6 @@ public class ConnectionManager {
             c.send(gson.toJson(new ErrorMessage("ERROR: Can't Make This Move " + e.getMessage())));
             return false;
         }
-
     }
 
     public boolean sendLoadGame(ConnectCommand command, Session session) throws IOException {

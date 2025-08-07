@@ -127,7 +127,6 @@ public class ChessClient {
         if (param.length() != 2) {
             return null;
         }
-
         try {
             int col = mapRowLetterToInt(param.substring(0, 1));
             int row = Integer.parseInt(param.substring(1, 2));
@@ -160,35 +159,27 @@ public class ChessClient {
     }
 
     private String makeMove(String[] params) {
-        // Game is Over
         if (gaMe.game().getWinner() != null) {
             return "Game Has Finished\n";
         }
-
-        // Start and end position required
         if (params.length != 2) {
             return """
                     To Make A Move, enter: move (start)[row][col] (end)[row][col];\s
                     for example: move e2 e4
                     """;
         }
-
         ChessPosition start = validPosition(params[0]);
         ChessPosition end = validPosition(params[1]);
-
-
         try {
             ws.makeMove(authToken, gameId, start, end);
         } catch (ResponseException e) {
             return "FAILED TO DO THIS ACTION IN THE MAKING OF A MOVE";
         }
-
         try {
-            Thread.sleep(1000); // wait for 1000 milliseconds = 1 second
+            Thread.sleep(1000);
         } catch (InterruptedException e) {
-            e.printStackTrace(); // or handle the interruption another way
+            e.printStackTrace();
         }
-
         return "Prompt Ready\n";
     }
 
@@ -234,15 +225,12 @@ public class ChessClient {
         if (!(params.length == 3)) {
             throw new ResponseException(400, "Must Register with <USERNAME> <PASSWORD> <EMAIL>");
         }
-
         AuthData authData;
-
         try {
             authData = server.register(params[0], params[1], params[2]);
         } catch (Exception e) {
             throw new ResponseException(400, "Username Already Taken");
         }
-
         authToken = authData.authToken();
         state = State.LOGGEDIN;
         userName = params[0];
@@ -255,7 +243,6 @@ public class ChessClient {
         }
         String username = params[0];
         String password = params[1];
-
         try {
             var authData = server.login(username, password);
 
@@ -270,7 +257,6 @@ public class ChessClient {
         } catch (Exception e) {
             throw new ResponseException(401, "Incorrect Username Or Password");
         }
-
     }
 
     public String logout() throws ResponseException {
@@ -302,7 +288,6 @@ public class ChessClient {
         if (!(params.length == 1)) {
             throw new ResponseException(400, "Must create game with exactly 1 argument: <GAME_NAME>");
         }
-
         String gameName = params[0];
         CreateGameResponse response;
         try {
@@ -322,7 +307,6 @@ public class ChessClient {
 
     private void updateGames(String authToken) throws ResponseException {
         HashMap<Integer, Integer> result = new HashMap<>();
-
         try {
             mapIndex = 1;
             Collection<GameData> gameData = server.listGames(authToken);
@@ -334,7 +318,6 @@ public class ChessClient {
             System.out.print("Failed TO Update THE list of Games");
             throw new ResponseException(400, e.getMessage());
         }
-
         idMap = result;
     }
 
@@ -342,21 +325,16 @@ public class ChessClient {
         if (!(params.length == 0)) {
             throw new ResponseException(400, "No Arguments Needed For List Games");
         }
-
         assertSignedIn();
-
         try {
             updateGames(authToken);
         } catch (Exception e) {
             throw new ResponseException(400, "Failed to update Games ID List While Listing Games");
         }
-
         StringBuilder result = new StringBuilder("Current Games:\n");
-
         for (Map.Entry<Integer, Integer> entry : idMap.entrySet()) {
             int id = entry.getValue();
             GameData game = server.getGame(id, authToken);
-
             String name = game.gameName();
             String whiteUser = game.whiteUsername();
             if (whiteUser == null) {
@@ -370,7 +348,6 @@ public class ChessClient {
             result.append("'\t").append("WHITE: ").append(whiteUser);
             result.append("\t").append("BLACK: ").append(blackUser).append("\n");
         }
-
         return result.toString();
     }
 
@@ -378,16 +355,13 @@ public class ChessClient {
         if (params.length != 2) {
             throw new ResponseException(400, "Wrong Input. Format to join a game: join <ID> [BLACK|WHITE]");
         }
-
         updateGames(authToken);
-
         int index;
         try {
             index = Integer.parseInt(params[0]);
         } catch (NumberFormatException e) {
             throw new ResponseException(400, "Use the game ID to join a game");
         }
-
         Integer id;
         try {
             id = idMap.get(index);
@@ -397,70 +371,40 @@ public class ChessClient {
         } catch (Exception e) {
             throw new ResponseException(400, "Game By This ID doesn't Exist");
         }
-
-
         String color = params[1].toUpperCase();
-
         if (color.equals("BLACK") || color.equals("WHITE")) {
-
-//            try {
-//                server.joinGame(id, color, authToken);
-//            } catch (Exception e) {
-//                throw new ResponseException(400, "Must use a valid game ID and pick a color that is available");
-//            }
-//
-//            try {
-//                gaMe = server.getGame(id, authToken);
-//            } catch (Exception e) {
-//                throw new ResponseException(400, "Failed to get game");
-//            }
-//
-//            inGame = true;
-//            observer = false;
-
             ConnectCommand.ClientType clientType = color.equals("BLACK") ? ConnectCommand.ClientType.BLACK : ConnectCommand.ClientType.WHITE;
-
             server.getGame(id, authToken);
-
             ws.joinGame(authToken, id, color, gaMe, clientType);
-
             System.out.println("Joining...");
-
             try {
                 Thread.sleep(2000); // wait for 1000 milliseconds = 1 second
             } catch (InterruptedException e) {
                 e.printStackTrace(); // or handle the interruption another way
             }
-
             if (inGame) {
                 System.out.print("Joining as " + this.color + " ");
                 return "Joining Game " + index + "...\n";
             } else {
                 return "Something went wrong joining game";
             }
-
         } else {
             throw new ResponseException(400, "Format to join a game: join <ID> [BLACK|WHITE]");
         }
-
     }
 
     public String observe(String[] params) throws ResponseException {
         assertSignedIn();
-
         updateGames(authToken);
-
         if (params.length != 1) {
             throw new ResponseException(400, "Wrong Input. Format to observe a game: observe <ID>");
         }
-
         int index;
         try {
             index = Integer.parseInt(params[0]);
         } catch (NumberFormatException e) {
             throw new ResponseException(400, "Use the game ID to observe a game");
         }
-
         Integer id;
         try {
             id = idMap.get(index);
@@ -470,10 +414,7 @@ public class ChessClient {
         } catch (Exception e) {
             throw new ResponseException(400, "Game By This ID doesn't Exist");
         }
-
-
         ws.observeGame(authToken, id, "observer", gaMe);
-
         return "Observing Game " + index + "...\n";
 
     }
@@ -547,5 +488,3 @@ public class ChessClient {
         observer = true;
     }
 }
-
-
