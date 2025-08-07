@@ -5,6 +5,7 @@ import client.ChessClient;
 import com.google.gson.Gson;
 import exception.ResponseException;
 import model.*;
+import ui.PrintChessBoard;
 import websocket.commands.ConnectCommand;
 import websocket.commands.LeaveGameCommand;
 import websocket.commands.MakeMoveCommand;
@@ -44,7 +45,7 @@ public class WebSocketFacade extends Endpoint {
                     ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
                     switch (serverMessage.getServerMessageType()) {
                         case LOAD_GAME -> loadGame(message);
-                        case ERROR -> errorHandler(message);
+                        case ERROR -> notificationHandler.errorHandler(message);
                         default -> notificationHandler.notify(serverMessage);
                     }
                 }
@@ -64,7 +65,9 @@ public class WebSocketFacade extends Endpoint {
         GameData gameData = loadGameMessage.game;
         ChessGame chessGame = gameData.game();
         ChessPosition highlightPosition = null;
-        if (gameData.winner() != null) {
+
+        // Highlight if someone is in Check
+        if (gameData.game().getWinner() != null) {
             notificationHandler.notify(new NotificationMessage(gameData.winner() + " WINS"));
         } else if (chessGame.isInCheck(ChessGame.TeamColor.WHITE)) {
             notificationHandler.notify(new NotificationMessage("WHITE IN CHECK"));
@@ -73,8 +76,33 @@ public class WebSocketFacade extends Endpoint {
             notificationHandler.notify(new NotificationMessage("BLACK IN CHECK"));
             highlightPosition = findKing(chessGame, ChessGame.TeamColor.BLACK);
         }
-        chessClient.gaMe = loadGameMessage.game;
-        notificationHandler.redraw(loadGameMessage.game.game(), highlightPosition);
+
+        // Set Client Vars to what they need to be;
+        chessClient.inGame = true;
+        chessClient.gaMe = gameData;
+        chessClient.gameId = gameData.gameID();
+        if (gameData.blackUsername() != null && gameData.blackUsername().equals(chessClient.userName)) {
+            chessClient.color = ChessGame.TeamColor.BLACK;
+            chessClient.observer = false;
+        } else if (gameData.whiteUsername() != null && gameData.whiteUsername().equals(chessClient.userName)) {
+            chessClient.color = ChessGame.TeamColor.WHITE;
+            chessClient.observer = false;
+        } else {
+            chessClient.color = null;
+            chessClient.observer = true;
+        }
+
+        if (this.notificationHandler.getPrintObject() == null) {
+            if (chessClient.color != null && chessClient.color.equals(ChessGame.TeamColor.BLACK)) {
+                this.notificationHandler.setPrintObject(new PrintChessBoard(ChessGame.TeamColor.BLACK));
+            } else {
+                this.notificationHandler.setPrintObject(new PrintChessBoard(ChessGame.TeamColor.WHITE));
+            }
+        }
+
+        this.notificationHandler.redraw(chessClient.gaMe.game(), highlightPosition);
+
+
     }
 
     private ChessPosition findKing(ChessGame chessGame, ChessGame.TeamColor teamColor) {
@@ -94,14 +122,9 @@ public class WebSocketFacade extends Endpoint {
         return null;
     }
 
-    public void errorHandler(String message) {
-        ErrorMessage errorMessage = new Gson().fromJson(message, ErrorMessage.class);
-        notificationHandler.notify(errorMessage);
-    }
-
-    public void joinGame(String authToken, int gameID, String whoIsConnecting, GameData gameData) throws ResponseException {
+    public void joinGame(String authToken, int gameID, String whoIsConnecting, GameData gameData, ConnectCommand.ClientType clientType) throws ResponseException {
         try {
-            var connectCommand = new ConnectCommand(authToken, gameID, whoIsConnecting, gameData);
+            var connectCommand = new ConnectCommand(authToken, gameID, whoIsConnecting, gameData, clientType);
             this.session.getBasicRemote().sendText(new Gson().toJson(connectCommand));
         } catch (IOException ex) {
             throw new ResponseException(500, ex.getMessage());
@@ -138,7 +161,7 @@ public class WebSocketFacade extends Endpoint {
     }
 
     public void observeGame(String authToken, int gameId, String observer, GameData game) throws ResponseException {
-        ConnectCommand connectCommand = new ConnectCommand(authToken, gameId, observer, game);
+        ConnectCommand connectCommand = new ConnectCommand(authToken, gameId, observer, game, ConnectCommand.ClientType.OBSERVER);
         try {
             this.session.getBasicRemote().sendText(new Gson().toJson(connectCommand));
         } catch (IOException ex) {

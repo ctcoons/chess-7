@@ -10,6 +10,7 @@ import com.google.gson.Gson;
 import exception.ResponseException;
 import model.*;
 import server.ServerFacade;
+import websocket.commands.ConnectCommand;
 import websocket.commands.ResignCommand;
 
 import java.util.*;
@@ -160,7 +161,7 @@ public class ChessClient {
 
     private String makeMove(String[] params) {
         // Game is Over
-        if (gaMe.winner() != null) {
+        if (gaMe.game().getWinner() != null) {
             return "Game Has Finished\n";
         }
 
@@ -173,7 +174,7 @@ public class ChessClient {
         }
 
         ChessPosition start = validPosition(params[0]);
-        ChessPosition end = validPosition(params[0]);
+        ChessPosition end = validPosition(params[1]);
 
 
         try {
@@ -182,12 +183,19 @@ public class ChessClient {
             return "FAILED TO DO THIS ACTION IN THE MAKING OF A MOVE";
         }
 
+        try {
+            Thread.sleep(1000); // wait for 1000 milliseconds = 1 second
+        } catch (InterruptedException e) {
+            e.printStackTrace(); // or handle the interruption another way
+        }
+
         return "Moved \n";
     }
 
     private String redraw() {
         try {
             updateGame();
+            notificationHandler.redraw(gaMe.game(), null);
         } catch (ResponseException e) {
             return "failed to reload game for redraw";
         }
@@ -395,30 +403,42 @@ public class ChessClient {
 
         if (color.equals("BLACK") || color.equals("WHITE")) {
 
-            try {
-                server.joinGame(id, color, authToken);
-            } catch (Exception e) {
-                throw new ResponseException(400, "Must use a valid game ID and pick a color that is available");
-            }
+//            try {
+//                server.joinGame(id, color, authToken);
+//            } catch (Exception e) {
+//                throw new ResponseException(400, "Must use a valid game ID and pick a color that is available");
+//            }
+//
+//            try {
+//                gaMe = server.getGame(id, authToken);
+//            } catch (Exception e) {
+//                throw new ResponseException(400, "Failed to get game");
+//            }
+//
+//            inGame = true;
+//            observer = false;
+
+            ConnectCommand.ClientType clientType = color.equals("BLACK") ? ConnectCommand.ClientType.BLACK : ConnectCommand.ClientType.WHITE;
+
+            server.getGame(id, authToken);
+
+            ws.joinGame(authToken, id, color, gaMe, clientType);
+
+            System.out.println("Joining...");
 
             try {
-                gaMe = server.getGame(id, authToken);
-            } catch (Exception e) {
-                throw new ResponseException(400, "Failed to get game");
+                Thread.sleep(2000); // wait for 1000 milliseconds = 1 second
+            } catch (InterruptedException e) {
+                e.printStackTrace(); // or handle the interruption another way
             }
 
-            inGame = true;
-            observer = false;
+            if (inGame) {
+                System.out.print("Joining as " + this.color + " ");
+                return "Joining Game " + index + "...\n";
+            } else {
+                return "Something went wrong joining game";
+            }
 
-            this.color = color.equals("BLACK") ? ChessGame.TeamColor.BLACK : ChessGame.TeamColor.WHITE;
-
-            gameId = id;
-
-            ws.joinGame(authToken, gameId, color, gaMe);
-
-            System.out.print("Joining as " + this.color + " ");
-
-            return "Joining Game " + index + "...\n";
         } else {
             throw new ResponseException(400, "Format to join a game: join <ID> [BLACK|WHITE]");
         }
@@ -451,29 +471,9 @@ public class ChessClient {
             throw new ResponseException(400, "Game By This ID doesn't Exist");
         }
 
-        try {
-            gaMe = server.getGame(id, authToken);
-        } catch (Exception e) {
-            throw new ResponseException(400, "Failed to get game");
-        }
-
-        if (gaMe == null) {
-            throw new ResponseException(400, "No Game Found With This ID");
-        }
-
-        inGame = true;
-
-        color = ChessGame.TeamColor.WHITE;
-
-        observer = true;
-
-        gameId = id;
-
-
         ws.observeGame(authToken, gameId, "observer", gaMe);
 
         return "Observing Game " + index + "...\n";
-
 
     }
 

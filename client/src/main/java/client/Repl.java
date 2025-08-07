@@ -7,6 +7,7 @@ import com.google.gson.Gson;
 import model.GameData;
 import model.ResignRequest;
 import ui.PrintChessBoard;
+import websocket.messages.ErrorMessage;
 import websocket.messages.ServerMessage;
 
 import java.util.Scanner;
@@ -63,7 +64,6 @@ public class Repl implements NotificationHandler {
     private void drawGame(Scanner scanner) {
         // MAKE THE PRINTER OBJECT
 
-        this.printChessBoard = new PrintChessBoard(client.color);
 
         var result = "";
         while (!result.equals(("quit"))) {
@@ -81,9 +81,9 @@ public class Repl implements NotificationHandler {
                 System.out.print(chessGame.getTeamTurn() + " turn\n");
             }
 
-            printChessBoard.print(chessGame, null);
+//            printChessBoard.print(chessGame, null);
 
-            printInGamePrompt();
+//            printInGamePrompt();
             String line = scanner.nextLine();
 
             // Try / Catch Block for the client.eval()
@@ -143,6 +143,22 @@ public class Repl implements NotificationHandler {
         System.out.print(game.getTeamTurn() + " turn\n");
         printChessBoard.print(game, highlightPosition);
         printInGamePrompt();
+    }
+
+    @Override
+    public void errorHandler(String message) {
+        ErrorMessage errorMessage = new Gson().fromJson(message, ErrorMessage.class);
+        System.out.println(SET_TEXT_COLOR_RED + errorMessage.getError());
+    }
+
+    @Override
+    public void setPrintObject(PrintChessBoard printChessBoard) {
+        this.printChessBoard = printChessBoard;
+    }
+
+    @Override
+    public PrintChessBoard getPrintObject() {
+        return this.printChessBoard;
     }
 
 

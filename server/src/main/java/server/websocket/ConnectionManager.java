@@ -132,9 +132,16 @@ public class ConnectionManager {
         }
 
 
+        ChessGame.TeamColor myColor;
         // Make sure it's your turn
-        ChessGame.TeamColor myColor = blackUser.equals(username) ? ChessGame.TeamColor.BLACK : ChessGame.TeamColor.WHITE;
+        if (blackUser != null && blackUser.equals(username)) {
+            myColor = ChessGame.TeamColor.BLACK;
+        } else {
+            myColor = ChessGame.TeamColor.WHITE;
+        }
+
         ChessGame.TeamColor currentTurn = oldGameData.game().getTeamTurn();
+
         if (!currentTurn.equals(myColor)) {
             c.send(gson.toJson(new ErrorMessage("ERROR: NOT YOUR TURN. WAIT UNTIL YOUR TURN TO MOVE.")));
             return false;
@@ -170,8 +177,7 @@ public class ConnectionManager {
             if (!resp.success()) {
                 throw new Exception("Invalid Move");
             }
-            GameData game = server.gameDAO.getGameByID(gameID);
-            c.send(new Gson().toJson(new LoadGameMessage(game)));
+            c.send(new Gson().toJson(new LoadGameMessage(resp.gameData())));
             return true;
         } catch (Exception e) {
             c.send(gson.toJson(new ErrorMessage("ERROR: Can't Make This Move " + e.getMessage())));
@@ -186,6 +192,7 @@ public class ConnectionManager {
         String authToken = command.getAuthToken();
         Connection c = connections.get(gameID).get(authToken);
         Gson gson = new Gson();
+        ConnectCommand.ClientType clientType = command.getClientType();
 
         if (c.session.isOpen()) {
             GameData game;
@@ -202,6 +209,7 @@ public class ConnectionManager {
             }
 
 
+            System.out.println("The game id you requested was: " + gameID);
             // Valid Game
             try {
                 game = server.gameDAO.getGameByID(command.getGameID());
@@ -210,6 +218,22 @@ public class ConnectionManager {
                 }
             } catch (Exception e) {
                 c.send(gson.toJson(new ErrorMessage("ERROR: no game by this ID")));
+                return false;
+            }
+
+            try {
+
+                if (clientType != null) {
+                    if (clientType == ConnectCommand.ClientType.WHITE) {
+                        server.gameDAO.joinGame(server.authDAO.getAuthByAuthToken(authToken), game.gameName(), clientType.toString());
+                        game = server.gameDAO.getGameByID(gameID);
+                    } else if (clientType == ConnectCommand.ClientType.BLACK) {
+                        server.gameDAO.joinGame(server.authDAO.getAuthByAuthToken(authToken), game.gameName(), clientType.toString());
+                        game = server.gameDAO.getGameByID(gameID);
+                    }
+                }
+            } catch (Exception e) {
+                c.send(gson.toJson(new ErrorMessage("Color already taken")));
                 return false;
             }
 
